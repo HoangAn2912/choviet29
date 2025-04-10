@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 session_start();
 include_once("frontend/controller/cCategory.php");
 $p = new cCategory();
@@ -36,6 +35,8 @@ $p = new cCategory();
 </head>
 
 <body>
+
+
     <?php
         if(isset($_GET['shop'])){
             include_once("frontend/view/shop.html");
@@ -47,12 +48,18 @@ $p = new cCategory();
             include_once("frontend/view/detail.html");
         } else if(isset($_GET['contact'])){
             include_once("frontend/view/contact.html");
+        } else if(isset($_GET['login'])){
+            include_once("frontend/loginlogout/login.php");
+        } else if(isset($_GET['thongtin'])){
+            include_once("frontend/view/profile/index.php");
         } else {
-            include_once("frontend/view/index.php");
+            include_once("frontend/index.php");
         }
     ?>
 
     
+
+
 </body>
 
 </html>

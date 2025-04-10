@@ -1,0 +1,217 @@
+===Cơ sở dữ liệu choviet
+
+== Cấu trúc bảng cho bảng danh_gia
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_nguoi_danh_gia|int(11)|Không|
+|id_nguoi_duoc_danh_gia|int(11)|Không|
+|id_san_pham|int(11)|Không|
+|so_sao|int(11)|Có|NULL
+|binh_luan|varchar(1000)|Có|NULL
+|ngay_tao|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng danh_gia
+
+|1|3|1|1|5|Rất tốt, giao hàng nhanh.|2025-04-10
+|4|4|1|2|4|Sản phẩm anh ta bán khá ok|2025-04-09
+|5|3|1|3|5|Rất ok|2025-04-10
+== Cấu trúc bảng cho bảng giao_dich
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_nguoi_dung|int(11)|Không|
+|loai_giao_dich|varchar(20)|Không|
+|so_tien|decimal(10,2)|Không|
+|trang_thai|varchar(20)|Có|hoan_thanh
+|ngay_tao|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng giao_dich
+
+|1|1|phi_dang_bai|11000.00|hoan_thanh|2025-04-10
+|2|2|phi_dang_bai|11000.00|hoan_thanh|2025-04-10
+|3|1|day_tin|15500.00|hoan_thanh|2025-04-10
+|4|2|day_tin|15500.00|hoan_thanh|2025-04-10
+== Cấu trúc bảng cho bảng lich_su_day_tin
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_san_pham|int(11)|Không|
+|id_nguoi_dung|int(11)|Không|
+|so_tien|decimal(10,2)|Không|
+|thoi_gian_day|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng lich_su_day_tin
+
+|1|1|1|15500.00|2025-04-10
+|2|6|2|15500.00|2025-04-10
+|3|11|1|15500.00|2025-04-10
+|4|16|2|15500.00|2025-04-10
+|5|21|1|15500.00|2025-04-10
+== Cấu trúc bảng cho bảng lich_su_phi_dang_bai
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_san_pham|int(11)|Không|
+|id_nguoi_dung|int(11)|Không|
+|so_tien|decimal(10,2)|Không|
+|ngay_tao|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng lich_su_phi_dang_bai
+
+|1|1|1|11000.00|2025-04-10
+|2|6|2|11000.00|2025-04-10
+|3|11|1|11000.00|2025-04-10
+|4|16|2|11000.00|2025-04-10
+|5|21|1|11000.00|2025-04-10
+== Cấu trúc bảng cho bảng loai_san_pham
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|ten_loai_san_pham|varchar(100)|Không|
+|id_loai_san_pham_cha|int(11)|Có|NULL
+== Đang đổ dữ liệu cho bảng loai_san_pham
+
+|1|Xe máy|1
+|2|Ô tô|1
+|3|Xe điện|1
+|4|Phụ tùng xe|1
+|5|Khác|1
+|6|Laptop|2
+|7|Điện thoại|2
+|8|Máy tính bảng|2
+|9|Máy ảnh|2
+|10|Thiết bị thông minh|2
+|11|Khác|2
+|12|Quần|3
+|13|Áo|3
+|14|Túi xách|3
+|15|Dép|3
+|16|Mũ|3
+|17|Khác|3
+|18|Bàn ghế|4
+|19|Tủ kệ|4
+|20|Dụng cụ bếp|4
+|21|Dụng cụ trang trí|4
+|22|Khác|4
+|23|Nhạc cụ|5
+|24|Đồ thể thao|5
+|25|Thiết bị chơi game|5
+|26|Khác|5
+|27|Khác|6
+== Cấu trúc bảng cho bảng loai_san_pham_cha
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id_loai_san_pham_cha**//|int(11)|Không|
+|ten_loai_san_pham_cha|varchar(100)|Không|
+== Đang đổ dữ liệu cho bảng loai_san_pham_cha
+
+|1|Xe cộ
+|2|Đồ điện tử
+|3|Thời Trang
+|4|Nội thất
+|5|Giải trí
+|6|Khác
+== Cấu trúc bảng cho bảng nguoi_dung
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|**ten_dang_nhap**|varchar(50)|Không|
+|**email**|varchar(100)|Không|
+|mat_khau|varchar(255)|Không|
+|so_dien_thoai|varchar(20)|Có|NULL
+|dia_chi|varchar(255)|Có|NULL
+|id_vai_tro|int(11)|Không|
+|anh_dai_dien|varchar(255)|Có|NULL
+|ngay_tao|date|Có|curdate()
+|ngay_cap_nhat|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng nguoi_dung
+
+|1|user1|user1@gmail.com|123|0901111111|Hà Nội|2|user1.jpg|2025-04-10|2025-04-10
+|2|user2|user2@gmail.com|123|0902222222|TP.HCM|2|user2.jpg|2025-04-10|2025-04-10
+|3|user3|user3@gmail.com|123|0903333333|Đà Nẵng|2|user3.jpg|2025-04-10|2025-04-10
+|4|user4|user4@gmail.com|123|0904444444|Huế|2|user4.jpg|2025-04-10|2025-04-10
+|5|admin|admin@gmail.com|123|0905555555|Cần Thơ|1|admin.jpg|2025-04-10|2025-04-10
+== Cấu trúc bảng cho bảng san_pham
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_nguoi_ban|int(11)|Không|
+|id_loai_san_pham|int(11)|Không|
+|tieu_de|varchar(255)|Không|
+|mo_ta|varchar(1000)|Có|NULL
+|gia|decimal(10,2)|Không|
+|hinh_anh|varchar(255)|Có|NULL
+|trang_thai|varchar(20)|Có|cho_duyet
+|trang_thai_ban|varchar(50)|Không|
+|ngay_tao|date|Có|curdate()
+|ngay_cap_nhat|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng san_pham
+
+|1|1|1|Xe máy Honda|Xe máy Honda 2015, còn tốt.|10000000.00|xe_may.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|2|1|2|Ô tô Toyota|Ô tô Toyota Vios 2018.|99999999.99|oto.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|3|1|3|Xe điện VinFast|Xe điện VinFast Klara.|20000000.00|xe_dien.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|4|1|4|Phụ tùng xe máy|Phụ tùng xe máy mới 90%.|500000.00|phu_tung_xe.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|5|1|5|Xe khác|Các loại xe khác.|15000000.00|xe_khac.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|6|2|6|Laptop Dell|Laptop Dell i7, ram 16GB.|15000000.00|laptop.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|7|2|7|iPhone 12|Điện thoại iPhone 12.|18000000.00|iphone.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|8|2|8|iPad Pro|Máy tính bảng iPad Pro.|22000000.00|ipad.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|9|2|9|Máy ảnh Canon|Máy ảnh Canon EOS.|12000000.00|may_anh.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|10|2|10|Thiết bị thông minh|Đồng hồ thông minh Samsung.|5000000.00|dongho.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|11|1|11|Quần jean nam|Quần jean size 32.|400000.00|quan_jean.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|12|1|12|Áo thun nữ|Áo thun cotton nữ.|300000.00|ao_thun.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|13|1|13|Túi xách da|Túi xách da cao cấp.|2500000.00|tui_xach.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|14|1|14|Dép sandal|Dép sandal thoáng mát.|200000.00|dep.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|15|1|15|Mũ bảo hiểm|Mũ bảo hiểm chất lượng.|400000.00|mu_bao_hiem.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|16|2|16|Bàn làm việc|Bàn làm việc gỗ công nghiệp.|1500000.00|ban.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|17|2|17|Tủ quần áo|Tủ quần áo 3 cánh.|2500000.00|tu.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|18|2|18|Nồi cơm điện|Nồi cơm điện Sharp.|700000.00|noi_com.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|19|2|19|Đèn trang trí|Đèn trang trí phòng khách.|1200000.00|den.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|20|2|20|Nội thất khác|Nội thất các loại.|1000000.00|noi_that_khac.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|21|1|21|Guitar Yamaha|Đàn guitar Yamaha F310.|3000000.00|guitar.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|22|1|22|Bóng đá FIFA|Bóng đá tiêu chuẩn FIFA.|500000.00|bong.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|23|1|23|Máy chơi game PS5|Máy chơi game PlayStation 5.|15000000.00|ps5.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+|24|1|24|Giải trí khác|Các sản phẩm giải trí khác.|2000000.00|giai_tri_khac.jpg|da_duyet|da_ban|2025-04-10|2025-04-10
+|25|2|25|Sản phẩm khác|Các sản phẩm chưa phân loại.|500000.00|khac.jpg|da_duyet|dang_ban|2025-04-10|2025-04-10
+== Cấu trúc bảng cho bảng tin_nhan
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|id_nguoi_gui|int(11)|Không|
+|id_nguoi_nhan|int(11)|Không|
+|id_san_pham|int(11)|Không|
+|noi_dung|varchar(1000)|Không|
+|ngay_tao|date|Có|curdate()
+== Đang đổ dữ liệu cho bảng tin_nhan
+
+|1|3|1|1|Sản phẩm còn không bạn?|2025-04-10
+|2|1|3|1|Vẫn còn bạn nhé!|2025-04-10
+|3|4|2|6|Laptop này còn bảo hành không?|2025-04-10
+|4|2|4|6|Có bảo hành 6 tháng bạn nhé!|2025-04-10
+|5|3|1|7|iPhone có trầy xước không?|2025-04-10
+|6|1|3|7|Máy đẹp như mới bạn nhé!|2025-04-10
+== Cấu trúc bảng cho bảng vai_tro
+
+|------
+|Cột|Kiểu|Null|Mặc định
+|------
+|//**id**//|int(11)|Không|
+|ten_vai_tro|varchar(50)|Không|
+== Đang đổ dữ liệu cho bảng vai_tro
+
+|1|Quản trị
+|2|Người dùng

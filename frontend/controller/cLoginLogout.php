@@ -4,7 +4,7 @@ require_once '../model/mLoginLogout.php';
 
 $model = new mLoginLogout();
 
-$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/frontend/';
+$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
 
 // Xử lý đăng nhập
 if (isset($_POST['login'])) {
@@ -19,12 +19,13 @@ if (isset($_POST['login'])) {
         header('Location: ' . $baseUrl . 'index.php');
         exit;
     } else {
-        header('Location: ' . $baseUrl . 'loginlogout/login.php?error=1');
+        // ✅ Sửa đoạn này!
+        header('Location: ' . $baseUrl . 'index.php?login=1&error=1');
         exit;
     }
 }
 
-// Xử lý đăng xuất (duy nhất 1 lần)
+// Xử lý đăng xuất
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
     session_destroy();
     header('Location: ' . $baseUrl . 'index.php');

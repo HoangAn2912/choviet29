@@ -1,9 +1,4 @@
-<!--
-Author: W3layouts
-Author URL: http://w3layouts.com
-License: Creative Commons Attribution 3.0 Unported
-License URL: http://creativecommons.org/licenses/by/3.0/
--->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,32 +11,31 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 function hideURLbar(){ window.scrollTo(0,1); } </script>
 <!-- Meta tag Keywords -->
 <!-- css files -->
-<link rel="stylesheet" href="css/style.css" type="text/css" media="all" /> <!-- Style-CSS --> 
-<link rel="stylesheet" href="css/font-awesome.css"> <!-- Font-Awesome-Icons-CSS -->
+<link rel="stylesheet" href="frontend/loginlogout/css/style.css" type="text/css" media="all" /> <!-- Style-CSS --> 
+<link rel="stylesheet" href="frontend/loginlogout/css/font-awesome.css"> <!-- Font-Awesome-Icons-CSS -->
 <!-- //css files -->
 <!-- web-fonts -->
-<link href="//fonts.googleapis.com/css?family=Snippet" rel="stylesheet"><!--online fonts-->
-<!-- //web-fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div data-vide-bg="video/keyboard">
+<div data-vide-bg="frontend/loginlogout/video/keyboard">
 	<div class="main-container">
 		<!--header-->
-		<div class="header-w3l">
-			<h1>Modern Login Form</h1>
+		<div class="header-w3l" ">
+			<h1 style="font-family: 'Roboto', sans-serif;">Modern Login Form</h1>
 		</div>
 		<!--//header-->
 		<!--main-->
 		<div class="main-content-agile">
 			<div class="w3ls-pro">
-				<h2>Login Now</h2>
+				<h2 style="font-family: 'Roboto' , sans-serif;">Login Now</h2>
 			</div>
 			<div class="sub-main-w3ls">	
 			<?php if (isset($_GET['error']) && $_GET['error'] == 1) { ?>
-    <p style="color:red; text-align:center;">Email hoặc mật khẩu không đúng hoặc bạn không có quyền đăng nhập!</p>
+    <p style="font-family:'Roboto', sans-serif; color:red; text-align:center;">Email hoặc mật khẩu không đúng hoặc bạn không có quyền đăng nhập!</p>
 <?php } ?>
 
-<form action="../controller/cLoginLogout.php" method="post">
+<form action="frontend/controller/cLoginLogout.php" method="post">
     <input placeholder="Enter your E-mail" name="email" type="email" required="">
     <span class="icon1"><i class="fa fa-envelope" aria-hidden="true"></i></span>
 
@@ -49,14 +43,14 @@ function hideURLbar(){ window.scrollTo(0,1); } </script>
     <span class="icon2"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
 
     <div class="checkbox-w3">
-        <span class="check-w3"><input type="checkbox" />Remember Me</span>
-        <a href="#">Forgot Password?</a>
+        <span class="check-w3" style="font-family: 'Roboto', sans-serif;"><input type="checkbox" /> Remember Me</span>
+        <a href="#" style="font-family: 'Roboto', sans-serif;">Forgot Password?</a>
         <div class="clear"></div>
     </div>
 
-    <input type="submit" name="login" value="Login">
+    <input type="submit" name="login" value="">
 
-    <p style="text-align:center; margin-top:10px;">
+    <p style="text-align:center; margin-top:10px; font-family: 'Roboto' , sans-serif;">
         Bạn chưa có tài khoản? <a href="signup.php">Đăng ký</a>
     </p>
 </form>
@@ -65,14 +59,14 @@ function hideURLbar(){ window.scrollTo(0,1); } </script>
 		<!--//main-->
 		<!--footer-->
 		<div class="footer">
-			<p>&copy; 2017 modern Login Form. All rights reserved | Design by <a href="http://w3layouts.com">W3layouts</a></p>
+			<p style="font-family: 'Roboto' , sans-serif;">&copy; 2017 modern Login Form. All rights reserved | Design by <a href="http://w3layouts.com">W3layouts</a></p>
 		</div>
 		<!--//footer-->
 	</div>
 </div>
 <!-- js -->
-<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script><!--common-js-->
-<script src="js/jquery.vide.min.js"></script><!--video-js-->
+<script type="text/javascript" src="frontend/loginlogout/js/jquery-2.1.4.min.js"></script><!--common-js-->
+<script src="frontend/loginlogout/js/jquery.vide.min.js"></script><!--video-js-->
 <!-- //js -->
 </body>
 </html>

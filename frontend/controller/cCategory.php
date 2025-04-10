@@ -1,5 +1,5 @@
 <?php
-include_once __DIR__ . "/../model/mCategory.php";
+include_once "frontend/model/mCategory.php";
 
 class cCategory {
     public function index() {
@@ -23,7 +23,26 @@ class cCategory {
             }
         }
 
-        return $data; // ✅ Không include view
+        return $data;
+    }
+
+    public function getProductsByCategory() {
+        if (isset($_GET['id_loai'])) {
+            $id_loai = $_GET['id_loai'];
+            $model = new mCategory();
+            $products = $model->getProductsByCategoryId($id_loai);
+            header('Content-Type: application/json');
+            echo json_encode($products);
+        }
+    }
+}
+
+if (isset($_GET['action'])) {
+    $controller = new cCategory();
+    switch ($_GET['action']) {
+        case 'getProductsByCategory':
+            $controller->getProductsByCategory();
+            break;
     }
 }
 ?>

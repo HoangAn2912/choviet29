@@ -1,7 +1,7 @@
 <?php
 include_once "mConnect.php";
 
-class mCategory { // ✅ Đúng: mCategory
+class mCategory {
     private $conn;
 
     public function __construct() {
@@ -30,5 +30,17 @@ class mCategory { // ✅ Đúng: mCategory
         }
         return $data;
     }
+
+    public function getProductsByCategoryId($id_loai) {
+        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai = 'da_duyet'";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id_loai);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
+        }
+        return $products;
+    }
 }
-?>
