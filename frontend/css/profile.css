@@ -1,0 +1,43 @@
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.card .text-left {
+    text-align: left;
+    margin-top: 20px;
+}
+
+
+
+.profile-tabs a {
+    margin-right: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    color: #333;
+    position: relative;
+}
+
+.profile-tabs a.tab-active {
+    color: #f8b400;
+    border-bottom: 2px solid #f8b400;
+    padding-bottom: 3px;
+}
+
+.profile-tabs a:hover {
+    color: #f8b400;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.card .btn {
+    border-radius: 30px;
+}

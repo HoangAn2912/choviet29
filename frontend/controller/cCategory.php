@@ -1,5 +1,5 @@
 <?php
-include_once "model/mCategory.php";
+include_once __DIR__ . "/../model/mCategory.php";
 
 class cCategory {
     public function index() {
