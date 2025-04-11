@@ -2,7 +2,6 @@
 error_reporting(0);
 include_once "controller/cCategory.php";
 
-session_start();
 $cCategory = new cCategory();
 $data = $cCategory->index();
 
@@ -143,7 +142,7 @@ $data = $cCategory->index();
                                     <div class="dropdown-menu dropdown-menu-right">
                                         <?php if (isset($_SESSION['user_id'])): ?>
                                             <a class="dropdown-item" href="?thongtin">Quản lý thông tin</a>
-                                            <a class="dropdown-item" href="frontend/controller/cLoginLogout.php?action=logout">Đăng xuất</a>
+                                            <a class="dropdown-item" href="?action=logout">Đăng xuất</a>
                                         <?php else: ?>
                                             <a class="dropdown-item" href="?login">Đăng nhập</a>
                                         <?php endif; ?>

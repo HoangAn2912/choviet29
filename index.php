@@ -1,6 +1,12 @@
 <?php
 session_start();
-include_once("frontend/controller/cCategory.php");
+//xử lý đăng xuất
+if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+    session_destroy();
+    header('Location: index.php');
+    exit;
+}
+include_once("controller/cCategory.php");
 $p = new cCategory();
 ?>
 
@@ -17,7 +23,7 @@ $p = new cCategory();
     <meta content="Free HTML Templates" name="description">
 
     <!-- Favicon -->
-    <link href="frontend/img/favicon.ico" rel="icon">
+    <link href="img/favicon.ico" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -27,33 +33,34 @@ $p = new cCategory();
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="frontend/lib/animate/animate.min.css" rel="stylesheet">
-    <link href="frontend/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="frontend/css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
 
 <body>
 
 
     <?php
+    
         if(isset($_GET['shop'])){
-            include_once("frontend/view/shop.html");
+            include_once("view/shop.html");
         } else if(isset($_GET['cart'])){
-            include_once("frontend/view/cart.html");
+            include_once("view/cart.html");
         } else if(isset($_GET['checkout'])){
-            include_once("frontend/view/checkout.html");
+            include_once("view/checkout.html");
         } else if(isset($_GET['detail'])){
-            include_once("frontend/view/detail.html");
+            include_once("view/detail.html");
         } else if(isset($_GET['contact'])){
-            include_once("frontend/view/contact.html");
+            include_once("view/contact.html");
         } else if(isset($_GET['login'])){
-            include_once("frontend/loginlogout/login.php");
+            include_once("loginlogout/login.php");
         } else if(isset($_GET['thongtin'])){
-            include_once("frontend/view/profile/index.php");
+            include_once("view/profile/index.php");
         } else {
-            include_once("frontend/index.php");
+            include_once("view/index.php");
         }
     ?>
 

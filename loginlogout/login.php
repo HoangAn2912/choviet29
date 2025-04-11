@@ -1,3 +1,6 @@
+<?php
+include_once("controller\cLoginLogout.php");
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,17 +14,23 @@
 function hideURLbar(){ window.scrollTo(0,1); } </script>
 <!-- Meta tag Keywords -->
 <!-- css files -->
-<link rel="stylesheet" href="frontend/loginlogout/css/style.css" type="text/css" media="all" /> <!-- Style-CSS --> 
-<link rel="stylesheet" href="frontend/loginlogout/css/font-awesome.css"> <!-- Font-Awesome-Icons-CSS -->
+<link rel="stylesheet" href="loginlogout/css/style.css" type="text/css" media="all" /> <!-- Style-CSS --> 
+<link rel="stylesheet" href="loginlogout/css/font-awesome.css"> <!-- Font-Awesome-Icons-CSS -->
 <!-- //css files -->
 <!-- web-fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+	.bgr {
+		background-image: url(loginlogout/video/keyboard.jpg);
+	}
+
+</style>
 </head>
 <body>
-<div data-vide-bg="frontend/loginlogout/video/keyboard">
+<div class="bgr">
 	<div class="main-container">
 		<!--header-->
-		<div class="header-w3l" ">
+		<div class="header-w3l">
 			<h1 style="font-family: 'Roboto', sans-serif;">Modern Login Form</h1>
 		</div>
 		<!--//header-->
@@ -35,7 +44,7 @@ function hideURLbar(){ window.scrollTo(0,1); } </script>
     <p style="font-family:'Roboto', sans-serif; color:red; text-align:center;">Email hoặc mật khẩu không đúng hoặc bạn không có quyền đăng nhập!</p>
 <?php } ?>
 
-<form action="frontend/controller/cLoginLogout.php" method="post">
+<form action="" method="post">
     <input placeholder="Enter your E-mail" name="email" type="email" required="">
     <span class="icon1"><i class="fa fa-envelope" aria-hidden="true"></i></span>
 
@@ -65,8 +74,8 @@ function hideURLbar(){ window.scrollTo(0,1); } </script>
 	</div>
 </div>
 <!-- js -->
-<script type="text/javascript" src="frontend/loginlogout/js/jquery-2.1.4.min.js"></script><!--common-js-->
-<script src="frontend/loginlogout/js/jquery.vide.min.js"></script><!--video-js-->
+<script type="text/javascript" src="project/loginlogout/js/jquery-2.1.4.min.js"></script><!--common-js-->
+<script src="project/loginlogout/js/jquery.vide.min.js"></script><!--video-js-->
 <!-- //js -->
 </body>
 </html>

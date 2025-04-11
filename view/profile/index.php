@@ -1,5 +1,5 @@
 <?php
-require_once 'frontend/model/mLoginLogout.php';
+require_once 'model/mLoginLogout.php';
 
 $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/frontend/';
 
@@ -19,7 +19,7 @@ $averageRating = number_format($ratingStats['average_rating'] ?? 0, 1);
 
 
 <?php
-include_once("frontend/header.php");
+include_once("view/header.php");
 ?>
 
 
@@ -31,7 +31,7 @@ include_once("frontend/header.php");
             <div class="card shadow-sm p-3 text-center">
             <?php
                 // Xử lý ảnh đại diện
-                $avatarPath = '../../img/';
+                $avatarPath = 'img/';
                 $avatarFile = (!empty($user['anh_dai_dien']) && file_exists($avatarPath . $user['anh_dai_dien']))
                     ? $user['anh_dai_dien']
                     : 'default.jpg';
@@ -78,10 +78,10 @@ include_once("frontend/header.php");
                 <a href="#" class="tab-active">Đang hiển thị (0)</a>
                 <a href="#">Đã bán (35)</a>
             </div>
-            <a href="../../index.php" class="btn btn-primary">Đăng tin ngay</a>
+            <a href="../index.php" class="btn btn-primary">Đăng tin ngay</a>
         </div>
         <div class="text-center">
-            <img src="../../img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
+            <img src="img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
             <p>Bạn chưa có tin đăng nào</p>
         </div>
     </div>
@@ -94,7 +94,7 @@ include_once("frontend/header.php");
             </div>
         </div>
         <div class="text-center">
-            <img src="../../img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
+            <img src="img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
             <p>Bạn chưa có đánh giá nào</p>
         </div>
     </div>
@@ -106,6 +106,6 @@ include_once("frontend/header.php");
 </div>
 
 <?php
-    include_once("frontend/footer.php");
+    include_once("view/footer.php");
     ?>
 
