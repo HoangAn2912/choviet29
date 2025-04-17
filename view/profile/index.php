@@ -14,9 +14,13 @@ $ratingStats = $model->getRatingStats($_SESSION['user_id']);
 $totalReviews = $ratingStats['total_reviews'] ?? 0;
 $averageRating = number_format($ratingStats['average_rating'] ?? 0, 1);
 
-
 ?>
 
+<?php
+include_once("controller/cReview.php");
+$cReview = new cReview();
+$reviews = $cReview->getReviewsBySeller();
+?>
 
 <?php
 include_once("view/header.php");
@@ -60,10 +64,10 @@ include_once("view/header.php");
             <?php else: ?>
                 <p class="mt-2 text-muted">(Chưa có đánh giá)</p>
             <?php endif; ?>
-                    <p><i class="fas fa-envelope text-primary"></i> <?php echo htmlspecialchars($user['email']); ?></p>
-                    <p><i class="fas fa-phone text-primary"></i> <?php echo htmlspecialchars($user['so_dien_thoai']); ?></p>
-                    <p><i class="fas fa-map-marker-alt text-primary"></i> <?php echo htmlspecialchars($user['dia_chi']); ?></p>
-                    <p><i class="fas fa-calendar-alt text-primary"></i> Ngày tham gia: <?php echo htmlspecialchars($user['ngay_tao']); ?></p>
+                    <p><i class="fas fa-envelope text-primary">:</i> <?php echo htmlspecialchars($user['email']); ?></p>
+                    <p><i class="fas fa-phone text-primary">:</i> <?php echo htmlspecialchars($user['so_dien_thoai']); ?></p>
+                    <p><i class="fas fa-map-marker-alt text-primary">:</i> <?php echo htmlspecialchars($user['dia_chi']); ?></p>
+                    <p><i class="fas fa-calendar-alt text-primary">:</i> Ngày tham gia: <?php echo htmlspecialchars($user['ngay_tao']); ?></p>
                 </div>
                 <a href="#" class="btn btn-warning mt-3">Chỉnh sửa thông tin</a>
             </div>
@@ -76,7 +80,7 @@ include_once("view/header.php");
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="profile-tabs">
                 <a href="#" class="tab-active">Đang hiển thị (0)</a>
-                <a href="#">Đã bán (35)</a>
+                <a href="#">Đã bán (3)</a>
             </div>
             <a href="../index.php" class="btn btn-primary">Đăng tin ngay</a>
         </div>
@@ -86,19 +90,67 @@ include_once("view/header.php");
         </div>
     </div>
 
-    <!-- Đánh giá sản phẩm -->
-    <div class="card shadow-sm p-4 mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="profile-tabs">
-                <a href="#" class="tab-active">Đánh giá sản phẩm</a>
-            </div>
+<!-- Đánh giá sản phẩm -->
+<div class="card shadow-sm p-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="profile-tabs">
+            <a href="#" class="tab-active">Đánh giá sản phẩm</a>
         </div>
+    </div>
+
+    <!-- Giữ nguyên phần "Bạn chưa có đánh giá nào" -->
+    <?php if (empty($reviews)): ?>
         <div class="text-center">
             <img src="img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
             <p>Bạn chưa có đánh giá nào</p>
         </div>
-    </div>
+    <?php else: ?>
+        <!-- Thêm phần hiển thị danh sách đánh giá ở dưới -->
+        <?php foreach ($reviews as $review): ?>
+            <div class="review-item mb-4 d-flex align-items-start">
+                <!-- Ảnh sản phẩm -->
+                <img src="img/<?= htmlspecialchars($review['hinh_san_pham']) ?>" alt="<?= htmlspecialchars($review['ten_san_pham']) ?>" style="width: 80px; height: 80px; object-fit: cover; margin-right: 20px; border-radius: 4px;">
+
+                <div>
+                    <!-- Người đánh giá và ngày -->
+                    <div class="d-flex align-items-center mb-2">
+                        <strong class="mr-2"><?= htmlspecialchars($review['ten_nguoi_danh_gia']) ?></strong>
+                        <span class="text-muted small ml-2"><?= date('d/m/Y', strtotime($review['ngay_danh_gia'])) ?></span>
+                    </div>
+
+                    <!-- Sao đánh giá -->
+                    <div class="rating mb-1">
+                        <?php
+                        $fullStars = floor($review['so_sao']);
+                        $halfStar = ($review['so_sao'] - $fullStars) >= 0.5;
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $fullStars) {
+                                echo '<i class="fas fa-star text-warning"></i>';
+                            } elseif ($halfStar && $i == $fullStars + 1) {
+                                echo '<i class="fas fa-star-half-alt text-warning"></i>';
+                            } else {
+                                echo '<i class="far fa-star text-warning"></i>';
+                            }
+                        }
+                        ?>
+                    </div>
+
+                    <!-- Tên sản phẩm và giá -->
+                    <div class="product-name mb-1">
+                        <strong><?= htmlspecialchars($review['ten_san_pham']) ?></strong>
+                        - <span class="text-danger"><?= number_format($review['gia_ban'], 0, ',', '.') ?> đ</span>
+                    </div>
+
+                    <!-- Bình luận -->
+                    <div class="review-comment">
+                        <?= htmlspecialchars($review['mo_ta']) ?>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
+
 
 
         </div>

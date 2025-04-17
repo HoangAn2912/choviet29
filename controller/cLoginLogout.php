@@ -8,7 +8,7 @@ $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
 // Xử lý đăng nhập
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
-    $password = $_POST['password'];
+    $password = md5($_POST['password']);
 
     $user = $model->checkLogin($email, $password);
 
