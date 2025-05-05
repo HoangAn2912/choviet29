@@ -8,19 +8,21 @@ $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
 // Xử lý đăng nhập
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
-    $password = md5($_POST['password']);
-
+    $password = $_POST['password'];
+    $password = md5($password);
     $user = $model->checkLogin($email, $password);
 
     if ($user && $user['id_vai_tro'] == 2) {
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['ten_dang_nhap'];
+        $_SESSION['user_name'] = $user['ho_ten'];
         header("location: index.php");
         header('Location: ' . $baseUrl . 'index.php');
         exit;
     } else {
         // ✅ Sửa đoạn này!
-        header('Location: ' . $baseUrl . 'index.php?login=1&error=1');
-    }
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['ho_ten'];
+        header("location: ad");
+	}
 }
 ?>

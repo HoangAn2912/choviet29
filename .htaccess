@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Nếu truy cập /project/ad/abc → rewrite về ad.php?abc
+RewriteRule ^ad/([a-zA-Z0-9_-]+)$ admin.php?$1 [QSA,L]
+
+# Nếu chỉ là /project/ad → vào ad.php
+RewriteRule ^ad/?$ admin.php [L]
