@@ -1,163 +1,243 @@
 <?php
 require_once 'model/mLoginLogout.php';
-
+require_once 'model/mProfile.php';
+require_once 'controller/cProfile.php';
+include_once("controller/cReview.php");
 $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/frontend/';
-
+$model = new mProfile();
+$cReview = new cReview();
+$cProfile = new cProfile();
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php?login');
     exit;
 }
 
-$model = new mLoginLogout();
-$user = $model->getUserById($_SESSION['user_id']);
-$ratingStats = $model->getRatingStats($_SESSION['user_id']);
+if (isset($_GET['thongtin']) && is_numeric($_GET['thongtin']) && intval($_GET['thongtin']) > 0) {
+    $idNguoiDung = intval($_GET['thongtin']);
+} else {
+    $idNguoiDung = $_SESSION['user_id'];
+}
+
+$user = $model->getUserById($idNguoiDung);
+$ratingStats = $model->getRatingStats($idNguoiDung);
 $totalReviews = $ratingStats['total_reviews'] ?? 0;
 $averageRating = number_format($ratingStats['average_rating'] ?? 0, 1);
+$reviews = $cReview->getReviewsBySeller($idNguoiDung);
+$sanPhamDangHienThi = $cProfile->getSanPhamDangHienThi($idNguoiDung);
+$sanPhamDaBan = $cProfile->getSanPhamDaBan($idNguoiDung);
+$avatarPath = 'img/';
+$anh = $user['anh_dai_dien'] ?? '';
+$avatarFile = 'default.jpg';
+
+if (!empty($anh)) {
+    $filePath = $avatarPath . $anh;
+    if (file_exists($filePath)) {
+        $avatarFile = $anh;
+    }
+}
 
 ?>
+<head>
+<link href="css/profile.css" rel="stylesheet">
 
-<?php
-include_once("controller/cReview.php");
-$cReview = new cReview();
-$reviews = $cReview->getReviewsBySeller();
-?>
-
+</head>
 <?php
 include_once("view/header.php");
 ?>
-
-
-<!-- Profile Container -->
 <div class="container my-5">
     <div class="row">
-        <!-- Left Column: User Info -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm p-3 text-center">
-            <?php
-                // Xử lý ảnh đại diện
-                $avatarPath = 'img/';
-                $avatarFile = (!empty($user['anh_dai_dien']) && file_exists($avatarPath . $user['anh_dai_dien']))
-                    ? $user['anh_dai_dien']
-                    : 'default.jpg';
-                ?>
-
-                <img src="<?php echo $avatarPath . htmlspecialchars($avatarFile); ?>" class="profile-avatar mb-3" alt="Ảnh đại diện">
-
-                <h5><?php echo htmlspecialchars($user['ten_dang_nhap']); ?></h5>
-                <p class="text-muted">Chào mừng bạn đến với trang cá nhân của bạn.</p>
-                
-                <?php if ($totalReviews > 0): ?>
-    
-
-
-                <div class="text-left mt-3">
-                <p class="mt-2">
-                    <strong><?php echo $averageRating; ?></strong>
-                    <?php for ($i = 0; $i < floor($averageRating); $i++): ?>
-                        <i class="fas fa-star text-warning"></i>
-                    <?php endfor; ?>
-                    <?php if ($averageRating - floor($averageRating) >= 0.5): ?>
-                        <i class="fas fa-star-half-alt text-warning"></i>
-                    <?php endif; ?>
-                    (<?php echo $totalReviews; ?> đánh giá)
-                </p>
-            <?php else: ?>
-                <p class="mt-2 text-muted">(Chưa có đánh giá)</p>
-            <?php endif; ?>
-                    <p><i class="fas fa-envelope text-primary">:</i> <?php echo htmlspecialchars($user['email']); ?></p>
-                    <p><i class="fas fa-phone text-primary">:</i> <?php echo htmlspecialchars($user['so_dien_thoai']); ?></p>
-                    <p><i class="fas fa-map-marker-alt text-primary">:</i> <?php echo htmlspecialchars($user['dia_chi']); ?></p>
-                    <p><i class="fas fa-calendar-alt text-primary">:</i> Ngày tham gia: <?php echo htmlspecialchars($user['ngay_tao']); ?></p>
-                </div>
-                <a href="#" class="btn btn-warning mt-3">Chỉnh sửa thông tin</a>
-            </div>
-        </div>
-
-        <!-- Right Column: Posts -->
-<div class="col-md-8">
-    <!-- Tin đăng -->
-    <div class="card shadow-sm p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="profile-tabs">
-                <a href="#" class="tab-active">Đang hiển thị (0)</a>
-                <a href="#">Đã bán (3)</a>
-            </div>
-            <a href="../index.php" class="btn btn-primary">Đăng tin ngay</a>
-        </div>
-        <div class="text-center">
-            <img src="img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
-            <p>Bạn chưa có tin đăng nào</p>
-        </div>
-    </div>
-
-<!-- Đánh giá sản phẩm -->
-<div class="card shadow-sm p-4 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="profile-tabs">
-            <a href="#" class="tab-active">Đánh giá sản phẩm</a>
-        </div>
-    </div>
-
-    <!-- Giữ nguyên phần "Bạn chưa có đánh giá nào" -->
-    <?php if (empty($reviews)): ?>
-        <div class="text-center">
-            <img src="img/no-posts.png" alt="No Posts" class="img-fluid mb-3" style="max-width: 200px;">
-            <p>Bạn chưa có đánh giá nào</p>
-        </div>
-    <?php else: ?>
-        <!-- Thêm phần hiển thị danh sách đánh giá ở dưới -->
-        <?php foreach ($reviews as $review): ?>
-            <div class="review-item mb-4 d-flex align-items-start">
-                <!-- Ảnh sản phẩm -->
-                <img src="img/<?= htmlspecialchars($review['hinh_san_pham']) ?>" alt="<?= htmlspecialchars($review['ten_san_pham']) ?>" style="width: 80px; height: 80px; object-fit: cover; margin-right: 20px; border-radius: 4px;">
-
-                <div>
-                    <!-- Người đánh giá và ngày -->
-                    <div class="d-flex align-items-center mb-2">
-                        <strong class="mr-2"><?= htmlspecialchars($review['ten_nguoi_danh_gia']) ?></strong>
-                        <span class="text-muted small ml-2"><?= date('d/m/Y', strtotime($review['ngay_danh_gia'])) ?></span>
-                    </div>
-
-                    <!-- Sao đánh giá -->
-                    <div class="rating mb-1">
-                        <?php
-                        $fullStars = floor($review['so_sao']);
-                        $halfStar = ($review['so_sao'] - $fullStars) >= 0.5;
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $fullStars) {
-                                echo '<i class="fas fa-star text-warning"></i>';
-                            } elseif ($halfStar && $i == $fullStars + 1) {
-                                echo '<i class="fas fa-star-half-alt text-warning"></i>';
-                            } else {
-                                echo '<i class="far fa-star text-warning"></i>';
-                            }
+        <!-- Cột trái: Thông tin user -->
+        <div class="col-md-4">
+            <div class="card profile-info text-center p-4">
+                <?php
+                    $avatarPath = 'img/';
+                    $avatarFile = 'default.jpg';
+                    if (!empty($user['anh_dai_dien'])) {
+                        $anh = basename($user['anh_dai_dien']);
+                        $absolutePath = $_SERVER['DOCUMENT_ROOT'] . '/project/' . $avatarPath . $anh;
+                        if (file_exists($absolutePath)) {
+                            $avatarFile = $anh;
                         }
-                        ?>
-                    </div>
+                    }
+                ?>
+                <img src="<?= $avatarPath . htmlspecialchars($avatarFile) ?>"
+                     alt="Ảnh đại diện"
+                     class="profile-avatar mb-3"
+                     onerror="this.onerror=null;this.src='img/default.jpg';">
 
-                    <!-- Tên sản phẩm và giá -->
-                    <div class="product-name mb-1">
-                        <strong><?= htmlspecialchars($review['ten_san_pham']) ?></strong>
-                        - <span class="text-danger"><?= number_format($review['gia_ban'], 0, ',', '.') ?> đ</span>
-                    </div>
+                <h5 class="mb-1"><?= htmlspecialchars($user['ten_dang_nhap']) ?></h5>
+                <p class="text-muted small">
+                    <?= ($idNguoiDung == $_SESSION['user_id']) ? "Chào mừng bạn đến với trang cá nhân của bạn." : "Đây là trang cá nhân của " . htmlspecialchars($user['ten_dang_nhap']) . "." ?>
+                </p>
 
-                    <!-- Bình luận -->
-                    <div class="review-comment">
-                        <?= htmlspecialchars($review['mo_ta']) ?>
-                    </div>
+                <div class="info-left text-left mt-3">
+                <?php if ($totalReviews > 0): ?>
+                    <p class="mt-2 mb-2">
+                        <strong><?= $averageRating ?></strong>
+                        <?php for ($i = 0; $i < floor($averageRating); $i++): ?>
+                            <i class="fas fa-star text-warning"></i>
+                        <?php endfor; ?>
+                        <?php if ($averageRating - floor($averageRating) >= 0.5): ?>
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        <?php endif; ?>
+                        (<?= $totalReviews ?> đánh giá)
+                    </p>
+                <?php else: ?>
+                    <p class="text-muted">(Chưa có đánh giá)</p>
+                <?php endif; ?>
+                    <p><i class="fas fa-envelope" style="color: #3D464D;"></i> Email:  <?= htmlspecialchars($user['email']) ?></p>
+                    <p><i class="fas fa-phone" style="color: #3D464D;"></i> SĐT: <?= htmlspecialchars($user['so_dien_thoai']) ?></p>
+                    <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
+                    <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['dia_chi']) ?></p>
+                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tao'])) ?></p>
+                </div>
+
+
+                <?php if ($idNguoiDung == $_SESSION['user_id']): ?>
+                    <button class="btn btn-warning mt-3 w-100" onclick="document.getElementById('editProfileModal').style.display='block'">
+                        <i class="fas fa-edit mr-1"></i> Chỉnh sửa thông tin
+                    </button>
+                <?php else: ?>
+                    <a href="index.php?chat_with=<?= $idNguoiDung ?>" class="btn btn-warning mt-3 w-100 text-white">
+                        <i class="fas fa-comment mr-1" style="color: #3D464D;"></i> Nhắn tin
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Cột phải: Tin đăng + Đánh giá -->
+        <div class="col-md-8">
+            <!-- Hiển thị đang bán và đã bán -->
+            <div class="card profile-posts mb-4 " style="padding: 25px;">
+                <div class="profile-tabs mb-3" style="padding-bottom: 10px;">
+                    <a href="#" class="tab-link tab-active" data-target="#tab-danghienthi">Đang hiển thị (<?= count($sanPhamDangHienThi) ?>)</a>
+                    <a href="#" class="tab-link" data-target="#tab-daban">Đã bán (<?= count($sanPhamDaBan) ?>)</a>
+                </div>
+
+                <div id="tab-danghienthi" class="tab-content">
+                    <?php if (empty($sanPhamDangHienThi)): ?>
+                        <div class="text-center text-muted">
+                            <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có tin">
+                            <p>Không có sản phẩm đang hiển thị</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($sanPhamDangHienThi as $sp): ?>
+                            <div class="d-flex mb-3 align-items-start">
+                                <img src="img/<?= explode(',', $sp['hinh_anh'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
+                                <div>
+                                    <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
+                                    <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_cap_nhat'])) ?></small>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div id="tab-daban" class="tab-content" style="display:none">
+                    <?php if (empty($sanPhamDaBan)): ?>
+                        <div class="text-center text-muted">
+                            <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có tin">
+                            <p>Không có sản phẩm đã bán</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($sanPhamDaBan as $sp): ?>
+                            <div class="d-flex mb-3 align-items-start">
+                                <img src="img/<?= explode(',', $sp['hinh_anh'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
+                                <div>
+                                    <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
+                                    <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_cap_nhat'])) ?></small>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</div>
 
-
-
+            <!-- Đánh giá -->
+            <div class="card profile-posts" style="padding: 25px;">
+                <h5 class="mb-3">Đánh giá sản phẩm</h5>
+                <?php if (empty($reviews)): ?>
+                    <div class="text-center text-muted">
+                        <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có đánh giá">
+                        <p>Bạn chưa có đánh giá nào</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($reviews as $review): ?>
+                        <div class="review-item d-flex mb-4 align-items-start">
+                            <img src="img/<?= htmlspecialchars($review['hinh_san_pham']) ?>" alt="" style="width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:4px;">
+                            <div>
+                                <div class="mb-1">
+                                    <strong><?= htmlspecialchars($review['ten_nguoi_danh_gia']) ?></strong>
+                                    <small class="text-muted ml-2"><?= date('d/m/Y', strtotime($review['ngay_danh_gia'])) ?></small>
+                                </div>
+                                <div class="rating mb-1">
+                                    <?php
+                                    $full = floor($review['so_sao']);
+                                    $half = $review['so_sao'] - $full >= 0.5;
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        if ($i <= $full) echo '<i class="fas fa-star text-warning"></i>';
+                                        elseif ($half && $i === $full + 1) echo '<i class="fas fa-star-half-alt text-warning"></i>';
+                                        else echo '<i class="far fa-star text-warning"></i>';
+                                    }
+                                    ?>
+                                </div>
+                                <div class="product-name mb-1">
+                                    <strong><?= htmlspecialchars($review['ten_san_pham']) ?></strong> - <span class="text-danger"><?= number_format($review['gia_ban'], 0, ',', '.') ?> đ</span>
+                                </div>
+                                <div class="review-comment"><?= htmlspecialchars($review['mo_ta']) ?></div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
+
 
 <?php
     include_once("view/footer.php");
-    ?>
+?>
+<?php
+    include_once("js/profile.php");
+?>
+<!-- Modal Chỉnh Sửa Thông Tin -->
+<div id="editProfileModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); overflow-y:auto; z-index:1050;">
+  <div class="modal-content p-4 rounded" style="background:white; width:600px; margin:80px auto; position:relative;">
+    <h4 class="font-weight-bold text-center mb-3">Chỉnh sửa thông tin cá nhân</h4>
+    <button onclick="document.getElementById('editProfileModal').style.display='none'" class="btn btn-link p-0" style="position:absolute; top:10px; right:10px; font-size:22px;"><i class="fas fa-times"></i></button>
 
+    <form method="POST" action="index.php?action=capNhatThongTin" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Email <span class="text-danger">*</span></label>
+        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" required>
+      </div>
+
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input type="text" name="so_dien_thoai" class="form-control" value="<?= htmlspecialchars($user['so_dien_thoai']) ?>"
+       pattern="[0-9]{10,11}" title="Vui lòng nhập số điện thoại hợp lệ (10–11 chữ số)">
+      </div>
+
+      <div class="form-group">
+        <label>Địa chỉ</label>
+        <input type="text" name="dia_chi" class="form-control" value="<?= htmlspecialchars($user['dia_chi']) ?>">
+      </div>
+
+      <div class="form-group">
+        <label>Ngày sinh</label>
+        <input type="date" name="ngay_tao" class="form-control" max="<?= date('Y-m-d') ?>"
+       value="<?= htmlspecialchars($user['ngay_tao']) ?>">
+      </div>
+
+      <div class="form-group">
+        <label>Ảnh đại diện mới (tuỳ chọn)</label>
+        <input type="file" name="anh_dai_dien" class="form-control-file" accept=".jpg,.jpeg,.png">
+      </div>
+
+      <button type="submit" class="btn btn-warning w-100 font-weight-bold text-white">Cập nhật</button>
+    </form>
+  </div>
+</div>

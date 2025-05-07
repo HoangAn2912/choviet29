@@ -30,9 +30,9 @@ class mCategory {
         }
         return $data;
     }
-
+// hiển thị sản phẩm khi đang trạng thái đang bán và tìm được trên danh mục
     public function getProductsByCategoryId($id_loai) {
-        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai = 'da_duyet'";
+        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai_ban = 'dang_ban'";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_loai);
         $stmt->execute();
@@ -43,4 +43,28 @@ class mCategory {
         }
         return $products;
     }
+
+    public function layDanhMucVaSoLuong() {
+        $sql = "
+            SELECT 
+                con.id AS id_loai,
+                con.ten_loai_san_pham,
+                COUNT(sp.id) AS so_luong
+            FROM loai_san_pham con
+            LEFT JOIN san_pham sp ON con.id = sp.id_loai_san_pham AND sp.trang_thai_ban = 'dang_ban'
+            WHERE con.ten_loai_san_pham NOT LIKE 'Khác'
+            GROUP BY con.id, con.ten_loai_san_pham
+            ORDER BY con.ten_loai_san_pham ASC
+        ";
+    
+        $result = $this->conn->query($sql);
+        $data = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+        }
+        return $data;
+    }
+    
 }

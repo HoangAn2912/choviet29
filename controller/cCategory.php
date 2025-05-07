@@ -1,5 +1,6 @@
 <?php
-include_once "model/mCategory.php";
+include_once __DIR__ . "/../model/mCategory.php";
+include_once __DIR__ . "/../model/mConnect.php";
 
 class cCategory {
     public function index() {
@@ -35,14 +36,45 @@ class cCategory {
             echo json_encode($products);
         }
     }
+
+    public function showCategoriesWithCount() {
+        $mCategory = new mCategory();
+        $categories = $mCategory->layDanhMucVaSoLuong();
+        return $categories;
+    }
+
+    public function getProductsByCategoryId($id_loai) {
+        $mCategory = new mCategory();
+        return $mCategory->getProductsByCategoryId($id_loai);
+    }
 }
 
+// Xử lý API
 if (isset($_GET['action'])) {
     $controller = new cCategory();
     switch ($_GET['action']) {
         case 'getProductsByCategory':
             $controller->getProductsByCategory();
             break;
+
+        case 'getSubcategories': // Xử lý danh mục con
+            if (isset($_GET['id_cha'])) {
+                $idCha = intval($_GET['id_cha']);
+                $conn = (new Connect())->connect();
+                $stmt = $conn->prepare("SELECT id, ten_loai_san_pham FROM loai_san_pham WHERE id_loai_san_pham_cha = ?");
+                $stmt->bind_param("i", $idCha);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $subcategories = [];
+                while ($row = $result->fetch_assoc()) {
+                    $subcategories[] = $row;
+                }
+                header('Content-Type: application/json');
+                echo json_encode($subcategories);
+                exit;
+            }
+            break;
     }
 }
+
 ?>

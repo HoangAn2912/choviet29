@@ -8,6 +8,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout') {
 }
 include_once("controller/cCategory.php");
 $p = new cCategory();
+
+include_once("controller/cProduct.php");
+$c = new cProduct();
+
+include_once("controller/cDetailProduct.php");
+$controller = new cDetailProduct();
 ?>
 
 
@@ -41,18 +47,56 @@ $p = new cCategory();
 </head>
 
 <body>
-
-
     <?php
-    
-        if(isset($_GET['shop'])){
+        if (isset($_GET['action']) && $_GET['action'] == 'capNhatTrangThai') {
+            include_once("controller/cPost.php");
+            $ctrl = new cPost();
+            $ctrl->capNhatTrangThaiBan();
+            exit;
+        }else if (isset($_GET['action']) && $_GET['action'] == 'dangTin') {
+            include_once "controller/cPost.php";
+            $post = new cPost();
+            $post->dangTin();
+            exit; 
+        } else if (isset($_GET['quan-ly-tin']) && isset($_GET['sua'])) {
+            include_once("controller/cPost.php");
+            $ctrl = new cPost();
+            $tin = (new mPost())->laySanPhamTheoId($_GET['sua']);
+            include_once("view/managePost.php");
+            exit;        
+        }else if (isset($_GET['daytin'])) {
+            include_once("controller/cPost.php");
+            $postCtrl = new cPost();
+            $postCtrl->dayTin($_GET['daytin']);
+        }else if (isset($_GET['action']) && $_GET['action'] === 'suaTin') {
+            include_once("controller/cPost.php");
+            $controller = new cPost();
+            $controller->suaTin(); // Gọi hàm sửa tin
+        } else if (isset($_GET['action']) && $_GET['action'] == 'capNhatThongTin') {
+            include_once("controller/cProfile.php");
+            $ctrl = new cProfile();
+            $ctrl->capNhatThongTin();
+        }else if (isset($_GET['tin-nhan'])) {
+            include_once("view/chat.php");
+            exit;
+        }else if (isset($_GET['nap-tien'])) {
+            include_once("view/naptien.php");
+        }else if (isset($_GET['quan-ly-tin'])) {
+            include_once("view/managePost.php");
+        }else if (isset($_GET['search'])) {
+            include_once("view/search.php");
+        } else if (isset($_GET['category'])) {
+            include_once("view/category.php");
+        }else if(isset($_GET['shop'])){
             include_once("view/shop.html");
         } else if(isset($_GET['cart'])){
             include_once("view/cart.html");
         } else if(isset($_GET['checkout'])){
             include_once("view/checkout.html");
-        } else if(isset($_GET['detail'])){
-            include_once("view/detail.html");
+        } else if (isset($_GET['detail']) && isset($_GET['id'])) {
+            $id = $_GET['id'];
+            $controller->showDetail($id); // Đã include luôn view/detail.php trong đây
+        
         } else if(isset($_GET['contact'])){
             include_once("view/contact.html");
         } else if(isset($_GET['login'])){

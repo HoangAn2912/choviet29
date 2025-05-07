@@ -1,0 +1,26 @@
+[
+  {
+    "from": 2,
+    "to": 1,
+    "noi_dung": "Giá có thương lượng không?",
+    "timestamp": "2025-05-07T02:42:58.406Z"
+  },
+  {
+    "from": 1,
+    "to": 2,
+    "noi_dung": "Giá có thương lượng không?",
+    "timestamp": "2025-05-07T02:43:42.846Z"
+  },
+  {
+    "from": 2,
+    "to": 1,
+    "noi_dung": "Giá có thương lượng không?",
+    "timestamp": "2025-05-07T03:48:14.711Z"
+  },
+  {
+    "from": 2,
+    "to": 1,
+    "noi_dung": "Cho tôi xin địa chỉ được không?",
+    "timestamp": "2025-05-07T03:48:34.567Z"
+  }
+]

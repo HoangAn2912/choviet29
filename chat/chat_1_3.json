@@ -1,0 +1,38 @@
+[
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Cho tôi xin địa chỉ được không?",
+    "timestamp": "2025-05-07T02:13:34.680Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-07T02:13:39.681Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-07T02:16:28.403Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-07T02:16:45.292Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Còn bạn.",
+    "timestamp": "2025-05-07T02:16:47.645Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Giá có thương lượng không?",
+    "timestamp": "2025-05-07T02:44:44.957Z"
+  }
+]
