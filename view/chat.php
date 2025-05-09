@@ -70,8 +70,9 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
     background-color: #fff8e1;
   }
   .chat-wrapper {
-  margin-top: -30px; 
-}
+    margin-top: -30px; 
+  }
+
 
 </style>
 
@@ -124,6 +125,40 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
   </div>
 </div>
 
+<!-- Modal đánh giá -->
+<div class="modal fade" id="modalDanhGia" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+  <form action="review-api.php?act=themDanhGia" method="post" class="modal-content">
+      <input type="hidden" name="id_nguoi_danh_gia" value="">
+      <input type="hidden" name="id_nguoi_duoc_danh_gia" value="">
+      <input type="hidden" name="id_san_pham" value="">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Đánh giá người bán</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <label>Số sao</label>
+        <select name="so_sao" class="form-control" required>
+          <?php for ($i = 5; $i >= 1; $i--): ?>
+            <option value="<?= $i ?>"><?= $i ?> sao</option>
+          <?php endfor; ?>
+        </select>
+
+        <label class="mt-2">Bình luận</label>
+        <textarea name="binh_luan" class="form-control" required></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
 <?php if ($to_user_id): ?>
 <script src="js/chat.js"></script>
 <script>
@@ -171,3 +206,71 @@ document.getElementById("searchUserInput").addEventListener("input", function ()
   });
 });
 </script>
+<!-- Bootstrap 5 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Hàm gọi API lấy tin đầu và thêm nút "Viết đánh giá"
+async function checkFirstMessageAndShowButton(from, to, selector) {
+  try {
+    const res = await fetch(`api/chat-first-message.php?from=${from}&to=${to}`);
+    if (!res.ok) return;
+    const msg = await res.json();
+
+    const firstTime = new Date(msg.thoi_gian).getTime();
+    const now = Date.now();
+    const isSender = msg.id_nguoi_gui == from;
+    const timePassed = (now - firstTime) > 3600000; // hơn 1 giờ
+
+    if (isSender && timePassed) {
+      const html = `<button type="button" class="btn btn-sm btn-outline-warning mt-1"
+        onclick="openReviewModal(${msg.id_nguoi_gui}, ${msg.id_nguoi_nhan}, ${msg.id_san_pham})">
+        Viết đánh giá
+      </button>`;
+      const el = document.querySelector(selector);
+      if (el && !el.querySelector('.btn-outline-warning')) {
+        el.insertAdjacentHTML("beforeend", html);
+      }
+    }
+  } catch (err) {
+    console.error("❌ Lỗi API chat-first-message:", err);
+  }
+}
+
+// Hàm hiển thị modal và gán giá trị
+function openReviewModal(idNguoiDanhGia, idNguoiDuocDanhGia, idSanPham) {
+  const modalEl = document.getElementById('modalDanhGia');
+  if (!modalEl) {
+    console.error("Không tìm thấy modal DOM");
+    return;
+  }
+
+  // Gán dữ liệu vào form
+  modalEl.querySelector('input[name="id_nguoi_danh_gia"]').value = idNguoiDanhGia;
+  modalEl.querySelector('input[name="id_nguoi_duoc_danh_gia"]').value = idNguoiDuocDanhGia;
+  modalEl.querySelector('input[name="id_san_pham"]').value = idSanPham;
+
+  // Delay để đảm bảo bootstrap đã load
+  setTimeout(() => {
+    if (typeof bootstrap === "undefined") {
+      console.error("Bootstrap chưa được load!");
+      return;
+    }
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }, 50); // delay nhẹ để đảm bảo script bootstrap được load xong
+}
+
+
+// Chạy sau khi load
+document.addEventListener("DOMContentLoaded", () => {
+  const fromId = CURRENT_USER_ID;
+  document.querySelectorAll(".chat-user").forEach(userEl => {
+    const toId = userEl.getAttribute("data-id");
+    const selector = `.chat-user[data-id="${toId}"] .media-body`;
+    checkFirstMessageAndShowButton(fromId, toId, selector);
+  });
+});
+
+</script>
+
+

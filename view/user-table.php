@@ -61,7 +61,7 @@ $data = $p->getalluser();
                     <img src="../img/'.$u['anh_dai_dien'].'" alt="image"/>
                   </td>
                   <td>'.$u['id'].'</td>
-                  <td>'.$u['ho_ten'].'</td>
+                  <td>'.$u['ten_dang_nhap'].'</td>
                   <td>'.$u['email'].'</td>
                   <td>'.$u['so_dien_thoai'].'</td>
                   <td>'.$u['dia_chi'].'</td>

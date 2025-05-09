@@ -6,7 +6,7 @@ class kdbaidang {
         $p = new Connect();
         $con = $p->connect();
 
-        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_ban = nd.id 
+        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_dung = nd.id 
                                         join loai_san_pham lsp on sp.id_loai_san_pham = lsp.id";
         $kq = mysqli_query($con, $sql);
         $i = mysqli_num_rows($kq);
@@ -14,7 +14,7 @@ class kdbaidang {
         if ($i > 0) {
             while ($r = mysqli_fetch_array($kq)) {
                 $id = $r['id'];
-                $ten_nguoi_ban = $r['ho_ten'];
+                $ten_nguoi_ban = $r['ten_dang_nhap'];
                 $ten_loai_san_pham = $r['ten_loai_san_pham'];
                 $tieu_de = $r['tieu_de'];
                 $mo_ta = $r['mo_ta'];
@@ -50,7 +50,7 @@ class kdbaidang {
         $p = new Connect();
         $con = $p->connect();
 
-        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_ban = nd.id 
+        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_dung = nd.id 
                 join loai_san_pham lsp on sp.id_loai_san_pham = lsp.id where sp.id = '$id'";
         $kq = mysqli_query($con, $sql);
         $i = mysqli_num_rows($kq);
@@ -58,7 +58,7 @@ class kdbaidang {
         if ($i > 0) {
             while ($r = mysqli_fetch_array($kq)) {
                 $id = $r['id'];
-                $ten_nguoi_ban = $r['ho_ten'];
+                $ten_nguoi_ban = $r['ten_dang_nhap'];
                 $ten_loai_san_pham = $r['ten_loai_san_pham'];
                 $tieu_de = $r['tieu_de'];
                 $mo_ta = $r['mo_ta'];

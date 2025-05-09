@@ -15,16 +15,9 @@ if (isset($_POST['login'])) {
 
     if ($user && $user['id_vai_tro'] == 2) {
         $_SESSION['user_id'] = $user['id'];
-<<<<<<< Updated upstream
-        $_SESSION['user_name'] = $user['ho_ten'];
-        header("location: index.php");
-=======
         $_SESSION['user_name'] = $user['ten_dang_nhap'];
         $_SESSION['avatar'] = !empty($user['anh_dai_dien']) ? $user['anh_dai_dien'] : 'default-avatar.jpg';
-
-    
         // header("location: index.php");
->>>>>>> Stashed changes
         header('Location: ' . $baseUrl . 'index.php');
         exit;
     } else {

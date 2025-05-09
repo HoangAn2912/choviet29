@@ -13,11 +13,11 @@ class qlthongtin{
 			{
 				$id = $r['id'];
 				$anh = $r['anh_dai_dien'];
-				$ten = $r['ho_ten'];
+				$ten = $r['ten_dang_nhap'];
 				$email = $r['email'];
 				$sdt = $r['so_dien_thoai'];
                 $dc = $r['dia_chi'];
-				$dl[]=array('id'=>$id,'anh_dai_dien'=>$anh,'ho_ten'=>$ten,'email'=>$email,'so_dien_thoai'=>$sdt,"dia_chi"=>$dc);
+				$dl[]=array('id'=>$id,'anh_dai_dien'=>$anh,'ten_dang_nhap'=>$ten,'email'=>$email,'so_dien_thoai'=>$sdt,"dia_chi"=>$dc);
 			}
 			return $dl;
 		}

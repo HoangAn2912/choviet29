@@ -26,6 +26,15 @@ class mReview extends Connect {
         return $result;
     }
     
+    public function themDanhGia($idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham, $soSao, $binhLuan) {
+        $conn = $this->connect();
+        $stmt = $conn->prepare("INSERT INTO danh_gia 
+            (id_nguoi_danh_gia, id_nguoi_duoc_danh_gia, id_san_pham, so_sao, binh_luan, ngay_tao)
+            VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param("iiiis", $idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham, $soSao, $binhLuan);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
+    }
     
 }
 ?>

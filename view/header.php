@@ -41,7 +41,11 @@ $data = $cCategory->index();
     <link rel="stylesheet" href="css/chat.css">
     <!-- Toastify CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- jQuery (nếu dùng Bootstrap 4) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Toastify JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 

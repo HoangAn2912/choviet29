@@ -169,6 +169,19 @@ class mChat extends Connect {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return intval($row['so_chua_doc'] ?? 0);
     }
+
+    public function getFirstMessage($from, $to) {
+        $conn = $this->connect();
+        $sql = "SELECT * FROM tin_nhan 
+                WHERE ((id_nguoi_gui = ? AND id_nguoi_nhan = ?) OR (id_nguoi_gui = ? AND id_nguoi_nhan = ?)) 
+                ORDER BY thoi_gian ASC LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iiii", $from, $to, $to, $from);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+    
+    
     
     
 }

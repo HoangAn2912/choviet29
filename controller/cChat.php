@@ -82,6 +82,9 @@ class cChat {
         $model = new mChat();
         return $model->demTinNhanChuaDoc($userId);
     }
-    
 
+    public function getFirstMessage($from, $to) {
+        $model = new mChat();
+        return $model->getFirstMessage($from, $to);
+    }
 }

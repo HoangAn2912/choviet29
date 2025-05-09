@@ -22,5 +22,35 @@
     "to": 1,
     "noi_dung": "Cho tôi xin địa chỉ được không?",
     "timestamp": "2025-05-07T03:48:34.567Z"
+  },
+  {
+    "from": 1,
+    "to": 2,
+    "noi_dung": "Cho tôi xin địa chỉ được không?",
+    "timestamp": "2025-05-08T16:03:45.878Z"
+  },
+  {
+    "from": 2,
+    "to": 1,
+    "noi_dung": "Giá có thương lượng không?",
+    "timestamp": "2025-05-08T16:11:46.529Z"
+  },
+  {
+    "from": 2,
+    "to": 1,
+    "noi_dung": "Cho tôi xin địa chỉ được không?",
+    "timestamp": "2025-05-08T17:26:39.169Z"
+  },
+  {
+    "from": 1,
+    "to": 2,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-08T17:26:44.282Z"
+  },
+  {
+    "from": 1,
+    "to": 2,
+    "noi_dung": "Còn bạn.",
+    "timestamp": "2025-05-08T17:26:47.359Z"
   }
 ]
