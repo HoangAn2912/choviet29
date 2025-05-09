@@ -10,7 +10,7 @@ class mProduct {
     }
 
     public function getSanPhamMoiNhat($limit = 100) {
-        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'dang_ban' ORDER BY ngay_tao DESC LIMIT ?";
+        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'Đang bán' ORDER BY ngay_tao DESC LIMIT ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $limit);
         $stmt->execute();
@@ -45,7 +45,7 @@ class mProduct {
 
 
     public function getSanPhamById($id) {
-        $sql = "SELECT * FROM san_pham WHERE id = ? AND trang_thai = 'da_duyet'";
+        $sql = "SELECT * FROM san_pham WHERE id = ? AND trang_thai = 'Đã duyệt'";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -61,7 +61,7 @@ class mProduct {
     }
     
     public function searchProducts($keyword) {
-        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'dang_ban' AND tieu_de LIKE ?";
+        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'Đang bán' AND tieu_de LIKE ?";
         $stmt = $this->conn->prepare($sql);
         $likeKeyword = '%' . $keyword . '%';
         $stmt->bind_param("s", $likeKeyword);

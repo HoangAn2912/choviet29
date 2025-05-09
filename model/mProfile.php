@@ -28,7 +28,7 @@ class mProfile extends Connect {
         $sql = "SELECT id, tieu_de, gia, hinh_anh, ngay_cap_nhat 
                 FROM san_pham 
                 WHERE id_nguoi_dung = ? 
-                  AND trang_thai = 'da_duyet' 
+                  AND trang_thai = 'Đã duyết' 
                   AND trang_thai_ban = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $userId, $trangThaiBan);

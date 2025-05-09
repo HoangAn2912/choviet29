@@ -11,7 +11,7 @@ class mPost {
 
     public function insertSanPham($tieuDe, $gia, $moTa, $hinhAnh, $idNguoiDung, $idLoaiSanPham) {
         $ngayTao = date('Y-m-d H:i:s');
-        $trangThai = 'cho_duyet';
+        $trangThai = 'Chờ duyệt';
         $trangThaiBan = 'dang_ban';
     
         // Bước 1: Đếm số lượng bài đăng đã có
@@ -110,11 +110,11 @@ class mPost {
 
     public function demSoLuongTheoTrangThai($userId) {
         $sql = "SELECT 
-                    SUM(CASE WHEN sp.trang_thai_ban = 'dang_ban' AND sp.trang_thai = 'da_duyet' THEN 1 ELSE 0 END) AS dang_ban,
-                    SUM(CASE WHEN sp.trang_thai_ban = 'da_ban' THEN 1 ELSE 0 END) AS da_ban,
-                    SUM(CASE WHEN sp.trang_thai_ban = 'da_an' THEN 1 ELSE 0 END) AS da_an,
-                    SUM(CASE WHEN sp.trang_thai = 'cho_duyet' THEN 1 ELSE 0 END) AS cho_duyet,
-                    SUM(CASE WHEN sp.trang_thai = 'tu_choi' THEN 1 ELSE 0 END) AS tu_choi
+                    SUM(CASE WHEN sp.trang_thai_ban = 'Đang bán' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đang bán',
+                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã bán' THEN 1 ELSE 0 END) AS 'Đã bán',
+                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã ẩn' THEN 1 ELSE 0 END) AS 'Đã ẩn',
+                    SUM(CASE WHEN sp.trang_thai = 'Chờ duyệt' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
+                    SUM(CASE WHEN sp.trang_thai = 'Từ chối' THEN 1 ELSE 0 END) AS 'Từ chối'
                 FROM san_pham sp
                 WHERE sp.id_nguoi_dung = ?";
         $stmt = $this->conn->prepare($sql);
@@ -170,7 +170,7 @@ class mPost {
                         mo_ta = ?, 
                         hinh_anh = ?, 
                         id_loai_san_pham = ?, 
-                        trang_thai = 'cho_duyet', 
+                        trang_thai = 'Chờ duyệt', 
                         ngay_cap_nhat = NOW() 
                     WHERE id = ? AND id_nguoi_dung = ?";
         $stmt = $this->conn->prepare($sql);
@@ -201,8 +201,8 @@ class mPost {
         $stmt2->execute();
         $stmt2->close();
 
-        // 3. Cập nhật trạng thái bài viết => cho_duyet
-        $stmt3 = $this->conn->prepare("UPDATE san_pham SET trang_thai = 'cho_duyet', ngay_cap_nhat = NOW() WHERE id = ? AND id_nguoi_dung = ?");
+        // 3. Cập nhật trạng thái bài viết => Chờ duyệt
+        $stmt3 = $this->conn->prepare("UPDATE san_pham SET trang_thai = 'Chờ duyệt', ngay_cap_nhat = NOW() WHERE id = ? AND id_nguoi_dung = ?");
         $stmt3->bind_param("ii", $idTin, $idNguoiDung);
         $stmt3->execute();
         $stmt3->close();
