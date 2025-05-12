@@ -215,7 +215,12 @@ ob_start(); // Bắt đầu bộ đệm để tránh lỗi headers
         User Pages
         <i class="menu-arrow"></i>
       </a>
-      
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/project/ad/kdnaptien" aria-expanded="false" aria-controls="auth">
+        <i class="mdi mdi-grid-large menu-icon"></i>
+        Kiểm duyệt nạp tiền
+      </a>
     </li>
   </ul>
 </nav>
@@ -239,6 +244,8 @@ ob_start(); // Bắt đầu bộ đệm để tránh lỗi headers
                 include_once("view/kdbaidang-table.php");
             }else if(isset($_GET["qldoanhthu"])){
               include_once("view/revenue.php");
+            }else if(isset($_GET["kdnaptien"])){
+              include_once("view/duyetnaptien.php");
             }else{
               include_once("view/dashboard.php");
             }
