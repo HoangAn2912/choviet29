@@ -88,7 +88,7 @@ class cPost {
         }
 
         $idNguoiDung = $_SESSION['user_id'];
-        $status = $_GET['status'] ?? 'dang_ban';
+        $status = $_GET['status'] ?? 'Đang bán';
 
         $m = new mPost();
         $data = $m->getTinDangByStatus($idNguoiDung, $status);
@@ -96,25 +96,35 @@ class cPost {
         echo json_encode(['status' => 'success', 'data' => $data]);
     }
 
-    public function capNhatTrangThaiBan() {
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Chưa đăng nhập']);
-            return;
-        }
-
-        $idTin = intval($_POST['id']);
-        $loai = $_POST['loai'];
-
-        if (!in_array($loai, ['da_ban', 'da_an'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Trạng thái không hợp lệ']);
-            return;
-        }
-
-        $m = new mPost();
-        $ok = $m->updateTrangThaiBan($idTin, $loai);
-
-        echo json_encode(['status' => $ok ? 'success' : 'error', 'message' => $ok ? '' : 'Không cập nhật được']);
+public function capNhatTrangThaiBan() {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Chưa đăng nhập']);
+        return;
     }
+
+    $idTin = intval($_POST['id']);
+    $loai = $_POST['loai'];
+
+    // Debug log
+    file_put_contents('log.txt', "idTin: $idTin, loai: $loai\n", FILE_APPEND);
+
+    if (!in_array($loai, ['Đã bán', 'Đã ẩn'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Trạng thái không hợp lệ']);
+        return;
+    }
+
+    $m = new mPost();
+    $ok = $m->updateTrangThaiBan($idTin, $loai);
+
+    // Debug log
+    file_put_contents('log.txt', "update result: " . ($ok ? 'success' : 'fail') . "\n", FILE_APPEND);
+
+    if ($ok) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Cập nhật thất bại!']);
+    }
+}
 
     public function demSoLuongTheoTrangThai($userId) {
         $model = new mPost();
@@ -128,21 +138,21 @@ class cPost {
 
     public function getBadgeColor($status) {
         switch($status) {
-            case 'dang_ban': return 'success';
-            case 'da_ban': return 'secondary';
-            case 'cho_duyet': return 'warning';
-            case 'tu_choi': return 'danger';
-            case 'da_an': return 'dark';
+            case 'Đang bán': return 'success';
+            case 'Đã bán': return 'secondary';
+            case 'Chờ duyệt': return 'warning';
+            case 'Từ chối': return 'danger';
+            case 'Đã ẩn': return 'dark';
         }
     }
 
     public function getNoProductText($status) {
         switch($status) {
-            case 'dang_ban': return 'Chưa có sản phẩm đang bán.';
-            case 'da_ban': return 'Chưa có sản phẩm đã bán.';
-            case 'cho_duyet': return 'Chưa có sản phẩm chờ duyệt.';
-            case 'tu_choi': return 'Chưa có sản phẩm bị từ chối.';
-            case 'da_an': return 'Chưa có sản phẩm đã ẩn.';
+            case 'Đang bán': return 'Chưa có sản phẩm đang bán.';
+            case 'Đã bán': return 'Chưa có sản phẩm đã bán.';
+            case 'Chờ duyệt': return 'Chưa có sản phẩm chờ duyệt.';
+            case 'Từ chối': return 'Chưa có sản phẩm bị từ chối.';
+            case 'Đã ẩn': return 'Chưa có sản phẩm đã ẩn.';
             default: return 'Chưa có sản phẩm.';
         }
     }
@@ -150,7 +160,7 @@ class cPost {
     public function suaTin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_GET['id'] ?? 0);
-            $idLoaiSanPham = intval($_POST['id_loai_san_pham'] ?? 0);
+            // $idLoaiSanPham = intval($_POST['id_loai_san_pham'] ?? 0);
             $tieuDe = trim($_POST['tieu_de'] ?? '');
             $gia = floatval($_POST['gia'] ?? 0);
             $moTa = trim($_POST['mo_ta'] ?? '');
@@ -162,7 +172,7 @@ class cPost {
                 header("Location: index.php?toast=" . urlencode("❌ Không tìm thấy tin!") . "&type=error");
                 exit;
             }
-
+            $idLoaiSanPham = $tinCu['id_loai_san_pham'];
             $anhTenList = explode(',', $tinCu['hinh_anh']);
             if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['name'][0] != '') {
                 $anhTenList = [];
@@ -188,6 +198,11 @@ class cPost {
                 header("Location: index.php?quan-ly-tin&toast=" . urlencode("❌ Cập nhật thất bại!") . "&type=error");
             }
         }
+    }
+
+    public function layTenLoaiSanPham($idLoai) {
+        $model = new mPost();
+        return $model->layTenLoaiSanPham($idLoai);
     }
 
     public function laySanPhamTheoId($id) {

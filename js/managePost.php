@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Auto lọc "Đang bán" khi vào trang
-  filterStatus('dang_ban');
+  filterStatus('Đang bán');
 });
 
 function capNhatTrangThai(id, loai) {
@@ -66,9 +66,9 @@ function dayTin(id) {
 
 function xacNhanCapNhat(id, loai) {
   let message = '';
-  if (loai === 'da_ban') {
+  if (loai === 'Đã bán') {
     message = "Cảm ơn bạn đã bán sản phẩm qua trang Chợ Việt.";
-  } else if (loai === 'da_an') {
+  } else if (loai === 'Đã ẩn') {
     message = "Bạn xác nhận ẩn tin này và có thể mở lại khi bạn cần.";
   }
 
@@ -106,8 +106,6 @@ function xacNhanDayTin(id) {
     }
   });
 }
-
-
 
 function showDangTinModal() {
   const modal = document.getElementById('dangTinModal');
@@ -164,8 +162,4 @@ function xacNhanSuaTin(id) {
       alert('Lỗi khi lấy dữ liệu sản phẩm.');
     });
 }
-
-
-
-
 </script>

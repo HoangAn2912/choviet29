@@ -1,4 +1,5 @@
 <?php
+// xử lý danh mục con
 include_once "model/mConnect.php";
 $conn = (new Connect())->connect();
 

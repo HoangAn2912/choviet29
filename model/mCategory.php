@@ -51,7 +51,7 @@ class mCategory {
                 con.ten_loai_san_pham,
                 COUNT(sp.id) AS so_luong
             FROM loai_san_pham con
-            LEFT JOIN san_pham sp ON con.id = sp.id_loai_san_pham AND sp.trang_thai_ban = 'dang_ban'
+            LEFT JOIN san_pham sp ON con.id = sp.id_loai_san_pham AND sp.trang_thai_ban = 'Đang bán'
             WHERE con.ten_loai_san_pham NOT LIKE 'Khác'
             GROUP BY con.id, con.ten_loai_san_pham
             ORDER BY con.ten_loai_san_pham ASC

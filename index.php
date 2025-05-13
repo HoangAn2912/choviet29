@@ -79,6 +79,8 @@ $controller = new cDetailProduct();
         }else if (isset($_GET['tin-nhan'])) {
             include_once("view/chat.php");
             exit;
+        }else if (isset($_GET['action']) && $_GET['action'] == 'danhgia') {
+            include_once("view/review_form.php");
         }else if (isset($_GET['nap-tien'])) {
             include_once("view/naptien.php");
         }else if (isset($_GET['quan-ly-tin'])) {
@@ -95,12 +97,13 @@ $controller = new cDetailProduct();
             include_once("view/checkout.html");
         } else if (isset($_GET['detail']) && isset($_GET['id'])) {
             $id = $_GET['id'];
-            $controller->showDetail($id); // Đã include luôn view/detail.php trong đây
-        
+            $controller->showDetail($id); 
         } else if(isset($_GET['contact'])){
             include_once("view/contact.html");
         } else if(isset($_GET['login'])){
             include_once("loginlogout/login.php");
+        } else if(isset($_GET['signup'])){
+            include_once("loginlogout/signup.php");
         } else if(isset($_GET['thongtin'])){
             include_once("view/profile/index.php");
         } else {

@@ -9,11 +9,11 @@ class cProfile {
     }
 
     public function getSanPhamDangHienThi($userId) {
-        return $this->model->getSanPhamTheoTrangThai($userId, 'dang_ban');
+        return $this->model->getSanPhamTheoTrangThai($userId, 'Đang bán');
     }
 
     public function getSanPhamDaBan($userId) {
-        return $this->model->getSanPhamTheoTrangThai($userId, 'da_ban');
+        return $this->model->getSanPhamTheoTrangThai($userId, 'Đã bán');
     }
 
     public function capNhatThongTin() {
@@ -46,5 +46,13 @@ class cProfile {
 
         header("Location: index.php?thongtin&toast=" . urlencode("✅ Bạn đã cập nhật thông tin thành công!") . "&type=success");
         exit;
+    }
+
+    public function countSanPhamDangHienThi($userId) {
+        return $this->model->countSanPhamTheoTrangThai($userId, 'Đang bán');
+    }
+
+    public function countSanPhamDaBan($userId) {
+        return $this->model->countSanPhamTheoTrangThai($userId, 'Đã bán');
     }
 }

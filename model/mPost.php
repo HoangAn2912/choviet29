@@ -12,7 +12,7 @@ class mPost {
     public function insertSanPham($tieuDe, $gia, $moTa, $hinhAnh, $idNguoiDung, $idLoaiSanPham) {
         $ngayTao = date('Y-m-d H:i:s');
         $trangThai = 'Chờ duyệt';
-        $trangThaiBan = 'dang_ban';
+        $trangThaiBan = 'Đang bán';
     
         // Bước 1: Đếm số lượng bài đăng đã có
         $sqlCount = "SELECT COUNT(*) as so_luong FROM san_pham WHERE id_nguoi_dung = ?";
@@ -111,10 +111,10 @@ class mPost {
     public function demSoLuongTheoTrangThai($userId) {
         $sql = "SELECT 
                     SUM(CASE WHEN sp.trang_thai_ban = 'Đang bán' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đang bán',
-                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã bán' THEN 1 ELSE 0 END) AS 'Đã bán',
-                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã ẩn' THEN 1 ELSE 0 END) AS 'Đã ẩn',
-                    SUM(CASE WHEN sp.trang_thai = 'Chờ duyệt' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
-                    SUM(CASE WHEN sp.trang_thai = 'Từ chối' THEN 1 ELSE 0 END) AS 'Từ chối'
+                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã bán' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã bán',
+                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã ẩn' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã ẩn',
+                    SUM(CASE WHEN sp.trang_thai = 'Chờ duyệt' AND sp.trang_thai_ban = 'Đang bán' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
+                    SUM(CASE WHEN sp.trang_thai = 'Từ chối' AND sp.trang_thai_ban = 'Đang bán'THEN 1 ELSE 0 END) AS 'Từ chối'
                 FROM san_pham sp
                 WHERE sp.id_nguoi_dung = ?";
         $stmt = $this->conn->prepare($sql);
@@ -162,6 +162,17 @@ class mPost {
         $res = $stmt->get_result();
         return $res->fetch_assoc();
     }
+
+    public function layTenLoaiSanPham($idLoai) {
+        $sql = "SELECT ten_loai_san_pham FROM loai_san_pham WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $idLoai);
+        $stmt->execute();
+        $stmt->bind_result($tenLoai);
+        $stmt->fetch();
+        $stmt->close();
+        return $tenLoai;
+    }
     
     public function capNhatSanPham($id, $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $idNguoiDung) {
         $sql = "UPDATE san_pham SET 
@@ -174,6 +185,13 @@ class mPost {
                         ngay_cap_nhat = NOW() 
                     WHERE id = ? AND id_nguoi_dung = ?";
         $stmt = $this->conn->prepare($sql);
+        echo $tieuDe;
+        echo $gia;
+        echo $moTa;
+        echo $hinhAnh;      
+        echo $idLoaiSanPham;
+        echo $id;
+        echo $idNguoiDung;
         $stmt->bind_param("sdssiii", $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $id, $idNguoiDung);
         return $stmt->execute();
     }

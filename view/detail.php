@@ -87,11 +87,12 @@ include_once("view/header.php");
         </p>
 
         <div class="d-flex align-items-center mb-4">
-        <button class="btn btn-warning text-white w-100" 
-            onclick="window.location.href='index.php?tin-nhan&to=<?= $product['id_nguoi_dung'] ?>&id_san_pham=<?= $product['id'] ?>'">
-            <i class="fa fa-comment mr-2" style="color: #3D464D;"></i>Nhắn tin
-        </button>
-
+          <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $product['id_nguoi_dung']): ?>
+              <button class="btn btn-warning text-white w-100" 
+                  onclick="window.location.href='index.php?tin-nhan&to=<?= $product['id_nguoi_dung'] ?>&id_san_pham=<?= $product['id'] ?>'">
+                  <i class="fa fa-comment mr-2" style="color: #3D464D;"></i>Nhắn tin
+              </button>
+          <?php endif; ?>
         </div>
 
         <hr>

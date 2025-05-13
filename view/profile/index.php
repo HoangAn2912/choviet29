@@ -28,7 +28,8 @@ $sanPhamDaBan = $cProfile->getSanPhamDaBan($idNguoiDung);
 $avatarPath = 'img/';
 $anh = $user['anh_dai_dien'] ?? '';
 $avatarFile = 'default.jpg';
-
+$countDangHienThi = $cProfile->countSanPhamDangHienThi($idNguoiDung);
+$countDaBan = $cProfile->countSanPhamDaBan($idNguoiDung);
 if (!empty($anh)) {
     $filePath = $avatarPath . $anh;
     if (file_exists($filePath)) {
@@ -38,8 +39,35 @@ if (!empty($anh)) {
 
 ?>
 <head>
-<link href="css/profile.css" rel="stylesheet">
+<link href="../css/profile.css" rel="stylesheet">
+<style>
+    .profile-product-list {
+    max-height: 450px;   /* hoặc 5*90px nếu mỗi sản phẩm ~90px */
+    overflow-y: auto;
+    padding-right: 8px;  /* tránh che nội dung bởi thanh cuộn */
+}
+/* Thanh tab */
+.profile-tabs {
+    margin-bottom: 18px;
+    display: flex;
+    gap: 24px;
+}
+.profile-tabs .tab-link {
+    padding: 0 0 10px 0;
+    font-weight: 600;
+    color: #333;
+    border: none;
+    background: none;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s, color 0.2s;
+    position: relative;
+}
+.profile-tabs .tab-link.tab-active {
+    color: #FFA800;
+    border-bottom: 3px solid #FFA800;
+}
 
+</style>
 </head>
 <?php
 include_once("view/header.php");
@@ -110,11 +138,16 @@ include_once("view/header.php");
             <!-- Hiển thị đang bán và đã bán -->
             <div class="card profile-posts mb-4 " style="padding: 25px;">
                 <div class="profile-tabs mb-3" style="padding-bottom: 10px;">
-                    <a href="#" class="tab-link tab-active" data-target="#tab-danghienthi">Đang hiển thị (<?= count($sanPhamDangHienThi) ?>)</a>
-                    <a href="#" class="tab-link" data-target="#tab-daban">Đã bán (<?= count($sanPhamDaBan) ?>)</a>
+                    <a href="#" class="tab-link tab-active" data-target="#tab-danghienthi">
+                        Đang hiển thị (<?= $countDangHienThi ?>)
+                    </a>
+                    <a href="#" class="tab-link" data-target="#tab-daban">
+                        Đã bán (<?= $countDaBan ?>)
+                    </a>
                 </div>
-
-                <div id="tab-danghienthi" class="tab-content">
+                
+                 <!-- Tab Đang hiển thị -->
+                <div id="tab-danghienthi" class="tab-content profile-product-list">
                     <?php if (empty($sanPhamDangHienThi)): ?>
                         <div class="text-center text-muted">
                             <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có tin">
@@ -134,7 +167,8 @@ include_once("view/header.php");
                     <?php endif; ?>
                 </div>
 
-                <div id="tab-daban" class="tab-content" style="display:none">
+                <!-- Tab Đã bán -->
+                <div id="tab-daban" class="tab-content profile-product-list" style="display:none">
                     <?php if (empty($sanPhamDaBan)): ?>
                         <div class="text-center text-muted">
                             <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có tin">
@@ -153,11 +187,12 @@ include_once("view/header.php");
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
+
             </div>
 
             <!-- Đánh giá -->
             <div class="card profile-posts" style="padding: 25px;">
-                <h5 class="mb-3">Đánh giá sản phẩm</h5>
+                <h5 class="mb-3 profile-tabs">Đánh giá sản phẩm</h5>
                 <?php if (empty($reviews)): ?>
                     <div class="text-center text-muted">
                         <img src="img/no-posts.png" style="max-width: 200px;" alt="Không có đánh giá">
@@ -165,7 +200,7 @@ include_once("view/header.php");
                     </div>
                 <?php else: ?>
                     <?php foreach ($reviews as $review): ?>
-                        <div class="review-item d-flex mb-4 align-items-start">
+                        <div class="d-flex mb-3 align-items-start">
                             <img src="img/<?= htmlspecialchars($review['hinh_san_pham']) ?>" alt="" style="width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:4px;">
                             <div>
                                 <div class="mb-1">

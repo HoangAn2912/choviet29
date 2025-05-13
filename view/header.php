@@ -145,15 +145,19 @@ $data = $cCategory->index();
 
                         <!-- Menu navbar -->
                         <div class="navbar-nav d-flex align-items-center ml-4" style="gap: 20px;">
-                        <a href="index.php?tin-nhan" class="nav-item nav-link d-flex align-items-center position-relative">
-                            <i class="fas fa-envelope mr-2"></i> Tin nhắn
-                            <?php if ($hasUnread): ?>
-                                <span class="position-absolute" style="top: 2px; right: -10px; width: 10px; height: 10px; background: red; border-radius: 50%;"></span>
-                            <?php endif; ?>
-                        </a>
+                            <a href="index.php?tin-nhan" class="nav-item nav-link d-flex align-items-center position-relative">
+                                <i class="fas fa-envelope mr-2"></i> Tin nhắn
+                                <?php if ($hasUnread): ?>
+                                    <span class="position-absolute" style="top: 2px; right: -10px; width: 10px; height: 10px; background: red; border-radius: 50%;"></span>
+                                <?php endif; ?>
+                            </a>
 
                             <a href="?quan-ly-tin" class="nav-item nav-link d-flex align-items-center">
                                 <i class="fas fa-tasks mr-2"></i> Quản lý tin
+                            </a>
+
+                            <a href="?nap-tien" class="nav-item nav-link d-flex align-items-center">
+                                <i class="fas fa-coins mr-2"></i> Nạp tiền
                             </a>
                             
                         </div>
@@ -161,7 +165,9 @@ $data = $cCategory->index();
                         <!-- Avatar tài khoản -->
                         <div class="navbar-nav d-flex align-items-center ml-4" style="gap: 20px;">
                             <div class="btn-group">
-                                <button type="button" class="btn px-0 dropdown-toggle d-flex align-items-center" style="gap: 4px; line-height: 1; font-size: 18px; font-weight: 400; color: white; background: none; border: none;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button type="button" class="btn px-0 dropdown-toggle d-flex align-items-center"
+                                        style="gap: 4px; line-height: 1; font-size: 18px; font-weight: 400; color: white; background: none; border: none;"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php if (isset($_SESSION['user_name'])): ?>
                                     <img src="img/<?php echo $_SESSION['avatar'] ?? 'default-avatar.jpg'; ?>" 
                                     
@@ -176,12 +182,13 @@ $data = $cCategory->index();
                                 <?php endif; ?>
 
                                 </button>
-                                <div class="dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-menu dropdown-menu-right"> 
                                     <?php if (isset($_SESSION['user_id'])): ?>
                                         <a class="dropdown-item" href="?thongtin">Quản lý thông tin</a>
                                         <a class="dropdown-item" href="?action=logout">Đăng xuất</a>
                                     <?php else: ?>
                                         <a class="dropdown-item" href="?login">Đăng nhập</a>
+                                        <a class="dropdown-item" href="?signup">Đăng ký</a>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -304,6 +311,5 @@ $data = $cCategory->index();
 
 <!-- Gọi nếu có -->
 <?php include_once("toastify.php"); ?>
-
 
 

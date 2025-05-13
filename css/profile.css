@@ -71,11 +71,11 @@
 }
 
 /* ======================== PHẦN ĐÁNH GIÁ ======================== */
-.review-item {
+/* .review-item {
     border-top: 1px solid #eee;
     padding-top: 15px;
     margin-top: 15px;
-}
+} */
 
 /* Thêm padding cho layout chính */
 .container.my-5 {
@@ -106,11 +106,9 @@
 
 /* Tabs hiển thị + gạch phân cách dưới */
 .profile-tabs {
+    margin-bottom: 18px;
     display: flex;
-    gap: 20px;
-    padding: 0 4px 8px 4px; /* padding left-right + bottom */
-    margin-bottom: 20px;
-    border-bottom: 2px solid #000; /* đường kẻ đen 100% chiều rộng */
+    gap: 24px;
 }
 
 /* Các link tab */
@@ -118,7 +116,6 @@
     font-weight: bold;
     color: #333;
     text-decoration: none;
-    border-bottom: 2px solid transparent;
     padding-bottom: 4px;
 }
 
@@ -128,10 +125,14 @@
 }
 
 .profile-tabs {
-    border-bottom: 2px solid #000 !important;
     padding: 0 4px 8px 4px !important;
 }
 
 .text-left {
     text-align: left !important;
+}
+
+.profile-tabs .tab-link.tab-active {
+    color: #FFA800;
+    border-bottom: 3px solid #FFA800;
 }

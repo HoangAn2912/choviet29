@@ -1,3 +1,8 @@
+
+ <head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+ </head>
+
 <?php
 include_once("controller/cPost.php");
 include_once("model/mPost.php");
@@ -7,12 +12,13 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
+
 $postCtrl = new cPost();
 $userId = $_SESSION['user_id'] ?? 0;
 $posts = $postCtrl->layDanhSachTinNguoiDung($userId);
 $count = $postCtrl->demSoLuongTheoTrangThai($userId);
 $user = $postCtrl->layThongTinNguoiDung($userId);
-
 $tin = null;
 if (isset($_GET['sua'])) {
     $tinId = intval($_GET['sua']);
@@ -22,13 +28,12 @@ if (isset($_GET['sua'])) {
         exit;
     }
     echo "<script>document.addEventListener('DOMContentLoaded', function() {
-      const modal = document.getElementById('suaTinModal');
-      if(modal){
-        modal.style.display = 'block';
-        document.getElementById('form-sua-tin').style.display = 'block';
-        document.getElementById('modal-subtitle').innerText = 'Sửa tin';
-      }
-  });</script>";
+  openSuaTinModal();
+});</script>";
+}
+$tenLoai = '';
+if ($tin && isset($tin['id_loai_san_pham'])) {
+    $tenLoai = $postCtrl->layTenLoaiSanPham($tin['id_loai_san_pham']);
 }
 
 function getBadgeColor($status) {
@@ -53,7 +58,7 @@ function getNoProductText($status) {
   return $map[$status] ?? 'Chưa có sản phẩm.';
 }
 ?>
-
+<div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1050;"></div>
 <?php include_once("view/header.php"); ?>
 
 <div class="container my-2">
@@ -86,7 +91,13 @@ function getNoProductText($status) {
     <?php foreach ($statusList as $statusTab): ?>
       <?php $hasProduct = false; ?>
       <?php foreach ($posts as $post): ?>
-        <?php $status = $post['trang_thai_ban'] ?? $post['trang_thai']; ?>
+        <?php
+            if ($post['trang_thai'] === 'Chờ duyệt' || $post['trang_thai'] === 'Từ chối') {
+                $status = $post['trang_thai'];
+            } else {
+                $status = $post['trang_thai_ban'];
+            }
+            ?>
         <?php if ($status === $statusTab): ?>
           <?php $hasProduct = true; ?>
           <div class="col-12 mb-3 product-item" data-status="<?= $statusTab ?>">
@@ -151,7 +162,106 @@ function getNoProductText($status) {
   </div>
 </div>
 
+<!-- Modal sửa tin -->
+
+<div class="modal" id="suaTinModal" tabindex="-1" style="display:none; z-index:1100;">
+  <div class="modal-dialog">
+    <div class="modal-content p-4 rounded" style="background: white; width: 600px; margin: 80px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; left: -45px;">
+      <div class="modal-header" style="padding-top: 0; padding-bottom: 10px;">
+        <h4 class="modal-title font-weight-bold text-center w-100" id="modal-subtitle" style="margin-top: 0;">Sửa tin</h4>
+        <button type="button" class="close" onclick="closeSuaTinModalNew()" style="position: absolute; top: 16px; right: 16px; font-size: 22px; color: #555;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="form-sua-tin" action="index.php?action=suaTin&id=<?= $tin['id'] ?? '' ?>" method="post" enctype="multipart/form-data" data-userid="<?= $_SESSION['user_id'] ?? 0 ?>">
+          <!-- Tiêu đề tin đăng -->
+          <div class="form-group">
+            <label for="tieuDeSua" class="font-weight-bold">
+              Tiêu đề bài đăng <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="tieuDeSua" name="tieu_de" placeholder="Nhập tên sản phẩm cần bán" value="<?= htmlspecialchars($tin['tieu_de'] ?? '') ?>" required>
+          </div>
+
+          <!-- Giá bán -->
+          <div class="form-group">
+            <label for="giaSua" class="font-weight-bold">
+              Giá bán (đ) <span class="text-danger">*</span>
+            </label>
+            <input type="number" class="form-control" id="giaSua" name="gia" placeholder="Nhập số tiền cần bán" value="<?= htmlspecialchars($tin['gia'] ?? '') ?>" required>
+          </div>
+
+          <!-- Mô tả chi tiết -->
+          <div class="form-group">
+            <label for="moTaSua" class="font-weight-bold">
+              Mô tả chi tiết <span class="text-danger">*</span>
+            </label>
+            <textarea class="form-control" id="moTaSua" name="mo_ta" rows="5" placeholder="Mô tả chi tiết sản phẩm..." required><?= htmlspecialchars($tin['mo_ta'] ?? '') ?></textarea>
+          </div>
+
+          <!-- Loại sản phẩm -->
+          <div class="form-group">
+            <label class="font-weight-bold">
+              Loại sản phẩm <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($tenLoai) ?>" readonly>
+          </div>
+
+          <!-- Ảnh hiện tại -->
+          <div class="form-group">
+            <label class="font-weight-bold">Ảnh hiện tại</label>
+            <div class="preview-anh-cu mb-2">
+              <?php if (!empty($tin['hinh_anh'])): ?>
+                <?php foreach (explode(',', $tin['hinh_anh']) as $img): ?>
+                  <img src="img/<?= htmlspecialchars($img) ?>" width="80" style="margin: 5px; object-fit: cover;">
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <!-- Chọn ảnh mới -->
+          <div class="form-group">
+            <label for="hinhAnhSua" class="font-weight-bold">
+              Hình ảnh sản phẩm <span class="text-danger">*</span>
+            </label>
+            <input type="file" class="form-control-file" id="hinhAnhSua" name="hinh_anh[]" accept=".jpg,.jpeg,.png" multiple>
+            <small class="form-text text-muted mt-2">Chọn từ 2 đến 6 hình ảnh (định dạng .jpg, .png).</small>
+          </div>
+
+          <!-- Nút Lưu thay đổi -->
+          <button type="submit" class="btn btn-warning w-100 font-weight-bold text-white" style="font-size: 16px;">Lưu thay đổi</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php include_once("view/footer.php"); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const tabs = document.querySelectorAll('#tabTinDang .nav-link');
+  const allProducts = document.querySelectorAll('.product-item, .no-product');
+
+  function showTab(status) {
+    allProducts.forEach(el => {
+      el.style.display = (el.dataset.status === status) ? 'block' : 'none';
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function (e) {
+      e.preventDefault();
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      const selectedStatus = this.getAttribute('data-status');
+      showTab(selectedStatus);
+    });
+  });
+
+  // Hiển thị mặc định tab "Đang bán"
+  showTab('Đang bán');
+});
+</script>
 
 <script>
 function xacNhanDayTin(id) {
@@ -160,3 +270,57 @@ function xacNhanDayTin(id) {
     }
 }
 </script>
+
+<script>
+function xacNhanCapNhat(id, loai) {
+  let message = '';
+  if (loai === 'Đã bán') {
+    message = "Cảm ơn bạn đã bán sản phẩm qua trang Chợ Việt.";
+  } else if (loai === 'Đã ẩn') {
+    message = "Bạn xác nhận ẩn tin này và có thể mở lại khi bạn cần.";
+  }
+
+  if (confirm(message)) {
+    fetch('index.php?action=capNhatTrangThai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `id=${id}&loai=${loai}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      window.location.href = "index.php?quan-ly-tin&toast=" + encodeURIComponent("✅ Cập nhật thành công!") + "&type=success";
+    } else {
+      showToast(data.message || "❌ Cập nhật không thành công!", "error");
+    }
+  });
+  }
+}
+</script>
+
+<script>
+function openSuaTinModal() {
+  document.getElementById('modalOverlay').style.display = 'block';
+  document.getElementById('suaTinModal').style.display = 'block';
+  document.getElementById('form-sua-tin').style.display = 'block';
+  document.getElementById('modal-subtitle').innerText = 'Sửa tin';
+}
+
+function closeSuaTinModalNew() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  document.getElementById('suaTinModal').style.display = 'none';
+}
+</script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!-- Hàm showToast -->
+<script src="js/toast.js"></script>
+<!-- Gọi toast nếu có -->
+<?php include_once("toastify.php"); ?>
+<!-- Bootstrap JS (v5) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script> -->
+
+

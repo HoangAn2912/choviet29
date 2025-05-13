@@ -3,14 +3,15 @@
 include_once("view/header.php");
 require_once("controller/cChat.php");
 require_once("controller/cUser.php");
+require_once("model/mReview.php");
 
+$mReview = new mReview();
 $cChat = new cChat();
 $cUser = new cUser();
 
 $current_user_id = $_SESSION['user_id'];
 $to_user_id = isset($_GET['to']) ? intval($_GET['to']) : 0;
-$id_san_pham = isset($_GET['id_san_pham']) ? intval($_GET['id_san_pham']) : 'null';
-
+$id_san_pham = isset($_GET['id_san_pham']) ? intval($_GET['id_san_pham']) : 0;
 $conversations = $cChat->getConversationUsers($current_user_id);
 $receiver = ($to_user_id) ? $cUser->getUserById($to_user_id) : null;
 ?>
@@ -128,7 +129,7 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
 <!-- Modal đánh giá -->
 <div class="modal fade" id="modalDanhGia" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
-  <form action="review-api.php?act=themDanhGia" method="post" class="modal-content">
+  <form action="api/review-api.php?act=themDanhGia" method="post">
       <input type="hidden" name="id_nguoi_danh_gia" value="">
       <input type="hidden" name="id_nguoi_duoc_danh_gia" value="">
       <input type="hidden" name="id_san_pham" value="">
@@ -206,12 +207,17 @@ document.getElementById("searchUserInput").addEventListener("input", function ()
   });
 });
 </script>
-<!-- Bootstrap 5 -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Hàm gọi API lấy tin đầu và thêm nút "Viết đánh giá"
 async function checkFirstMessageAndShowButton(from, to, selector) {
   try {
+    // Kiểm tra đã đánh giá chưa
+    const checkRes = await fetch(`api/check-reviewed.php?from=${from}&to=${to}&id_san_pham=${ID_SAN_PHAM}`);
+    if (!checkRes.ok) return;
+    const checkData = await checkRes.json();
+    if (checkData.reviewed) return; // Đã đánh giá thì không hiển thị nút
+console.log('API check-reviewed:', checkData);
+    // Lấy tin nhắn đầu tiên
     const res = await fetch(`api/chat-first-message.php?from=${from}&to=${to}`);
     if (!res.ok) return;
     const msg = await res.json();
@@ -222,17 +228,15 @@ async function checkFirstMessageAndShowButton(from, to, selector) {
     const timePassed = (now - firstTime) > 3600000; // hơn 1 giờ
 
     if (isSender && timePassed) {
-      const html = `<button type="button" class="btn btn-sm btn-outline-warning mt-1"
-        onclick="openReviewModal(${msg.id_nguoi_gui}, ${msg.id_nguoi_nhan}, ${msg.id_san_pham})">
-        Viết đánh giá
-      </button>`;
+      const html = `<a href="index.php?action=danhgia&from=${msg.id_nguoi_gui}&to=${msg.id_nguoi_nhan}&id_san_pham=${msg.id_san_pham}" 
+  class="btn btn-sm btn-outline-warning mt-1">Viết đánh giá</a>`;
       const el = document.querySelector(selector);
       if (el && !el.querySelector('.btn-outline-warning')) {
         el.insertAdjacentHTML("beforeend", html);
       }
     }
   } catch (err) {
-    console.error("❌ Lỗi API chat-first-message:", err);
+    console.error("❌ Lỗi API chat-first-message hoặc check-reviewed:", err);
   }
 }
 

@@ -36,5 +36,18 @@ class mReview extends Connect {
         return $stmt->affected_rows > 0;
     }
     
+
+
+    public function daDanhGia($idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham) {
+        $conn = $this->connect();
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM danh_gia WHERE id_nguoi_danh_gia = ? AND id_nguoi_duoc_danh_gia = ? AND id_san_pham = ?");
+        $stmt->bind_param("iii", $idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        $conn->close();
+        return $count > 0;
+    }
 }
 ?>

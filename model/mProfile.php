@@ -28,8 +28,8 @@ class mProfile extends Connect {
         $sql = "SELECT id, tieu_de, gia, hinh_anh, ngay_cap_nhat 
                 FROM san_pham 
                 WHERE id_nguoi_dung = ? 
-                  AND trang_thai = 'Đã duyết' 
-                  AND trang_thai_ban = ?";
+                AND trang_thai = 'Đã duyệt' 
+                AND trang_thai_ban = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $userId, $trangThaiBan);
         $stmt->execute();
@@ -50,6 +50,15 @@ class mProfile extends Connect {
         $stmt->execute();
     }
     
+    public function countSanPhamTheoTrangThai($userId, $trangThaiBan) {
+        $conn = $this->connect();
+        $sql = "SELECT COUNT(*) as total FROM san_pham WHERE id_nguoi_dung = ? AND trang_thai = 'Đã duyệt' AND trang_thai_ban = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $userId, $trangThaiBan);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['total'] ?? 0;
+    }
     
     
 }

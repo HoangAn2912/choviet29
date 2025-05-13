@@ -1,3 +1,14 @@
+<?php
+include_once("controller/cTopUp.php");
+$userId = $_SESSION['user_id'] ?? 0;
+
+$cTopUp = new cTopUp();
+$cTopUp->xuLyNopTien($userId); // Xử lý nếu có POST
+
+$lichsu = $cTopUp->getLichSu($userId); // Lấy lịch sử cho view
+?>
+<!-- ...phần HTML giữ nguyên, chỉ dùng $lichsu để hiển thị bảng... -->
+
 <?php include_once("view/header.php"); ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +63,7 @@
     </div>
 
     <!-- Cột phải: Hướng dẫn nạp -->
-    <div class="col-md-5 d-flex">
+    <div class="col-md-5 mb-4 d-flex">
       <div class="card shadow-sm p-4 w-100">
         <h5 class="text-danger font-weight-bold mb-3">📌 HƯỚNG DẪN NẠP TIỀN</h5>
         <ul class="mb-3 pl-3">
@@ -74,7 +85,102 @@
       </div>
     </div>
   </div>
+
+  <!-- Form nạp tiền thủ công -->
+<div class="card mb-4">
+  <div class="card-header font-weight-bold">Nạp tiền thủ công (chuyển khoản)</div>
+  <div class="card-body">
+    <form action="" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="noi_dung_ck">Nội dung chuyển khoản <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="noi_dung_ck" name="noi_dung_ck" required>
+      </div>
+      <div class="form-group">
+        <label for="hinh_anh_ck">Ảnh chuyển khoản <span class="text-danger">*</span></label>
+        <input type="file" class="form-control-file" id="hinh_anh_ck" name="hinh_anh_ck" accept=".jpg,.jpeg,.png" required>
+      </div>
+      <button type="submit" name="submit_ck" class="btn btn-success">Gửi yêu cầu nạp tiền</button>
+    </form>
+  </div>
 </div>
 
+<?php
+// Hàm lấy màu trạng thái như managePost.php
+function getBadgeColorCK($status) {
+  $map = [
+    'Đang chờ duyệt' => 'warning',
+    'Đã duyệt' => 'success',
+    'Từ chối' => 'danger',
+  ];
+  return $map[$status] ?? 'secondary';
+}
+
+$lichsu = (new mTopUp())->getLichSuChuyenKhoan($userId);
+?>
+
+<div class="card">
+  <div class="card-header font-weight-bold">Lịch sử chuyển khoản</div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered mb-0">
+        <thead class="thead-light">
+          <tr>
+            <th>Thời gian</th>
+            <th>Nội dung CK</th>
+            <th>Ảnh CK</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($lichsu as $row): ?>
+            <tr>
+              <td><?= htmlspecialchars($row['ngay_tao']) ?></td>
+              <td><?= htmlspecialchars($row['noi_dung_ck']) ?></td>
+              <td>
+                <?php if ($row['hinh_anh_ck']): ?>
+                  <img src="img/<?= htmlspecialchars($row['hinh_anh_ck']) ?>" width="60" style="cursor:pointer" onclick="showImageModal('img/<?= htmlspecialchars($row['hinh_anh_ck']) ?>')">
+                <?php endif; ?>
+              </td>
+              <td>
+                <span class="badge badge-<?= getBadgeColorCK($row['trang_thai_ck']) ?>">
+                  <?= htmlspecialchars($row['trang_thai_ck']) ?>
+                </span>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          <?php if (empty($lichsu)): ?>
+            <tr><td colspan="4" class="text-center text-muted">Chưa có giao dịch chuyển khoản nào.</td></tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Modal phóng to ảnh -->
+<div id="imgModal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+  <span onclick="closeImgModal()" style="position:absolute;top:20px;right:40px;font-size:40px;color:#fff;cursor:pointer;z-index:2010;">&times;</span>
+  <img id="imgModalSrc" src="" style="max-width:90vw;max-height:90vh;box-shadow:0 0 20px #000;">
+</div>
+<script>
+function showImageModal(src) {
+  document.getElementById('imgModalSrc').src = src;
+  document.getElementById('imgModal').style.display = 'flex';
+}
+function closeImgModal() {
+  document.getElementById('imgModal').style.display = 'none';
+  document.getElementById('imgModalSrc').src = '';
+}
+</script>
 
 <?php include_once("view/footer.php"); ?>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!-- Hàm showToast -->
+<script src="js/toast.js"></script>
+<!-- Gọi toast nếu có -->
+<?php include_once("toastify.php"); ?>
