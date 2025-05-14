@@ -47,6 +47,11 @@ class cCategory {
         $mCategory = new mCategory();
         return $mCategory->getProductsByCategoryId($id_loai);
     }
+
+    public function getUserById($id) {
+        $mCategory = new mCategory();
+        return $mCategory->getUserById($id);
+    }
 }
 
 // Xử lý API

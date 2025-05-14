@@ -36,16 +36,16 @@ class mProfile extends Connect {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function capNhatThongTin($id, $email, $so_dien_thoai, $dia_chi, $ngay_tao, $anh_dai_dien = null) {
+    public function capNhatThongTin($id, $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien = null) {
         $conn = $this->connect();
         if ($anh_dai_dien) {
-            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_tao=?, anh_dai_dien=? WHERE id=?";
+            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_sinh=?, anh_dai_dien=? WHERE id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssssi", $email, $so_dien_thoai, $dia_chi, $ngay_tao, $anh_dai_dien, $id);
+            $stmt->bind_param("sssssi", $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien, $id);
         } else {
-            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_tao=? WHERE id=?";
+            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_sinh=? WHERE id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssi", $email, $so_dien_thoai, $dia_chi, $ngay_tao, $id);
+            $stmt->bind_param("ssssi", $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $id);
         }
         $stmt->execute();
     }

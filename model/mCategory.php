@@ -66,5 +66,14 @@ class mCategory {
         }
         return $data;
     }
+
+    public function getUserById($id) {
+        $sql = "SELECT id, ten_dang_nhap, anh_dai_dien FROM nguoi_dung WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
     
 }

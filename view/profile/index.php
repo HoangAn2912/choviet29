@@ -3,7 +3,7 @@ require_once 'model/mLoginLogout.php';
 require_once 'model/mProfile.php';
 require_once 'controller/cProfile.php';
 include_once("controller/cReview.php");
-$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/frontend/';
+$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
 $model = new mProfile();
 $cReview = new cReview();
 $cProfile = new cProfile();
@@ -97,7 +97,7 @@ include_once("view/header.php");
                 <p class="text-muted small">
                     <?= ($idNguoiDung == $_SESSION['user_id']) ? "Chào mừng bạn đến với trang cá nhân của bạn." : "Đây là trang cá nhân của " . htmlspecialchars($user['ten_dang_nhap']) . "." ?>
                 </p>
-
+                   
                 <div class="info-left text-left mt-3">
                 <?php if ($totalReviews > 0): ?>
                     <p class="mt-2 mb-2">
@@ -117,7 +117,8 @@ include_once("view/header.php");
                     <p><i class="fas fa-phone" style="color: #3D464D;"></i> SĐT: <?= htmlspecialchars($user['so_dien_thoai']) ?></p>
                     <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
                     <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['dia_chi']) ?></p>
-                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tao'])) ?></p>
+                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày sinh: <?= date('d/m/Y', strtotime($user['ngay_sinh'])) ?></p>
+                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tham_gia'])) ?></p>
                 </div>
 
 
@@ -160,7 +161,7 @@ include_once("view/header.php");
                                 <div>
                                     <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
                                     <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_cap_nhat'])) ?></small>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tham_gia'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -181,7 +182,7 @@ include_once("view/header.php");
                                 <div>
                                     <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
                                     <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_cap_nhat'])) ?></small>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tham_gia'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -263,8 +264,8 @@ include_once("view/header.php");
 
       <div class="form-group">
         <label>Ngày sinh</label>
-        <input type="date" name="ngay_tao" class="form-control" max="<?= date('Y-m-d') ?>"
-       value="<?= htmlspecialchars($user['ngay_tao']) ?>">
+        <input type="date" name="ngay_sinh" class="form-control" max="<?= date('Y-m-d') ?>"
+       value="<?= htmlspecialchars($user['ngay_sinh']) ?>">
       </div>
 
       <div class="form-group">

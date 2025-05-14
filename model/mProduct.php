@@ -10,7 +10,10 @@ class mProduct {
     }
 
     public function getSanPhamMoiNhat($limit = 100) {
-        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'Đang bán' ORDER BY ngay_tao DESC LIMIT ?";
+        $sql = "SELECT * FROM san_pham 
+            WHERE trang_thai_ban = 'Đang bán' AND trang_thai = 'Đã duyệt'
+            ORDER BY ngay_cap_nhat DESC, ngay_tao DESC
+            LIMIT ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $limit);
         $stmt->execute();

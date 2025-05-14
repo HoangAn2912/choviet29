@@ -5,6 +5,10 @@ include_once "controller/cCategory.php";
 $cCategory = new cCategory();
 $data = $cCategory->index();
 
+$userHeader = null;
+if (isset($_SESSION['user_id'])) {
+    $userHeader = $cCategory->getUserById($_SESSION['user_id']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -168,15 +172,20 @@ $data = $cCategory->index();
                                 <button type="button" class="btn px-0 dropdown-toggle d-flex align-items-center"
                                         style="gap: 4px; line-height: 1; font-size: 18px; font-weight: 400; color: white; background: none; border: none;"
                                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <?php if (isset($_SESSION['user_name'])): ?>
-                                    <img src="img/<?php echo $_SESSION['avatar'] ?? 'default-avatar.jpg'; ?>" 
-                                    
-                                        class="rounded-circle mr-2" 
-                                        style="width: 32px; height: 32px; object-fit: cover;">
+                                <?php if ($userHeader): ?>
+                                    <?php
+                                    $avatarPath = 'img/';
+                                    $avatarFile = 'default-avatar.jpg';
+                                    if (!empty($userHeader['anh_dai_dien']) && file_exists($avatarPath . $userHeader['anh_dai_dien'])) {
+                                        $avatarFile = $userHeader['anh_dai_dien'];
+                                    }
+                                    ?>
+                                    <img src="<?= $avatarPath . htmlspecialchars($avatarFile) ?>" class="rounded-circle mr-2" style="width: 32px; height: 32px; object-fit: cover;">
                                     <span style="color: white; font-weight: 400;">
-                                        <?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                                        <?= htmlspecialchars($userHeader['ten_dang_nhap']) ?>
                                     </span>
                                 <?php else: ?>
+
                                     <i class="fas fa-user text-primary mr-1"></i> 
                                     <span style="color: white;">Tài khoản</span>
                                 <?php endif; ?>

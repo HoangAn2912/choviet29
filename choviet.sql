@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 13, 2025 lúc 06:03 PM
+-- Thời gian đã tạo: Th5 14, 2025 lúc 05:00 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -20,38 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Cơ sở dữ liệu: `choviet`
 --
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `chi_phi`
---
-
-CREATE TABLE `chi_phi` (
-  `id` int(11) NOT NULL,
-  `ma_chi_phi` varchar(20) NOT NULL,
-  `ngay_chi_phi` date NOT NULL,
-  `mo_ta` text DEFAULT NULL,
-  `so_tien` decimal(15,2) NOT NULL,
-  `id_danh_muc` int(11) DEFAULT NULL,
-  `id_phuong_thuc_thanh_toan` int(11) DEFAULT NULL,
-  `trang_thai` enum('da_thanh_toan','chua_thanh_toan') NOT NULL DEFAULT 'da_thanh_toan',
-  `ghi_chu` text DEFAULT NULL,
-  `nguoi_tao` int(11) NOT NULL,
-  `ngay_tao` datetime NOT NULL DEFAULT current_timestamp(),
-  `ngay_cap_nhat` datetime DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `chi_phi`
---
-
-INSERT INTO `chi_phi` (`id`, `ma_chi_phi`, `ngay_chi_phi`, `mo_ta`, `so_tien`, `id_danh_muc`, `id_phuong_thuc_thanh_toan`, `trang_thai`, `ghi_chu`, `nguoi_tao`, `ngay_tao`, `ngay_cap_nhat`) VALUES
-(1, 'CP001', '2023-04-24', 'Mua văn phòng phẩm', 1200.00, 7, 4, 'da_thanh_toan', NULL, 1, '2025-04-28 23:15:11', NULL),
-(2, 'CP002', '2023-04-22', 'Bảo trì máy chủ', 2800.00, 8, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:15:11', NULL),
-(3, 'CP003', '2023-04-20', 'Lương nhân viên tháng 4', 35000.00, 9, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:15:11', NULL),
-(4, 'CP004', '2023-04-15', 'Tiền thuê văn phòng Q2/2023', 12000.00, 10, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:15:11', NULL),
-(5, 'CP005', '2023-04-10', 'Mua thiết bị văn phòng', 5500.00, 7, 2, 'da_thanh_toan', NULL, 2, '2025-04-28 23:15:11', NULL);
 
 -- --------------------------------------------------------
 
@@ -87,17 +55,8 @@ INSERT INTO `danh_gia` (`id`, `id_nguoi_danh_gia`, `id_nguoi_duoc_danh_gia`, `id
 
 CREATE TABLE `doanh_thu` (
   `id` int(11) NOT NULL,
-  `ma_doanh_thu` varchar(20) NOT NULL,
-  `ngay_doanh_thu` date NOT NULL,
-  `id_khach_hang` int(11) NOT NULL,
-  `mo_ta` text DEFAULT NULL,
-  `so_tien` decimal(15,2) NOT NULL,
-  `id_danh_muc` int(11) DEFAULT NULL,
-  `id_phuong_thuc_thanh_toan` int(11) DEFAULT NULL,
-  `trang_thai` enum('da_thanh_toan','chua_thanh_toan') NOT NULL DEFAULT 'chua_thanh_toan',
-  `ghi_chu` text DEFAULT NULL,
-  `nguoi_tao` int(11) NOT NULL,
-  `ngay_tao` datetime NOT NULL DEFAULT current_timestamp(),
+  `id_lsdt` int(11) NOT NULL,
+  `id_lspdb` int(11) NOT NULL,
   `ngay_cap_nhat` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -105,14 +64,8 @@ CREATE TABLE `doanh_thu` (
 -- Đang đổ dữ liệu cho bảng `doanh_thu`
 --
 
-INSERT INTO `doanh_thu` (`id`, `ma_doanh_thu`, `ngay_doanh_thu`, `id_khach_hang`, `mo_ta`, `so_tien`, `id_danh_muc`, `id_phuong_thuc_thanh_toan`, `trang_thai`, `ghi_chu`, `nguoi_tao`, `ngay_tao`, `ngay_cap_nhat`) VALUES
-(1, 'DT001', '2023-04-25', 1, 'Giấy phép phần mềm', 12500.00, 1, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:14:27', NULL),
-(2, 'DT002', '2023-04-23', 2, 'Dịch vụ tư vấn', 8500.00, 2, 2, 'chua_thanh_toan', NULL, 1, '2025-04-28 23:14:27', NULL),
-(3, 'DT003', '2023-04-20', 3, 'Hợp đồng bảo trì', 5000.00, 3, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:14:27', NULL),
-(4, 'DT004', '2023-04-18', 4, 'Bán sản phẩm', 15750.00, 4, 4, 'da_thanh_toan', NULL, 2, '2025-04-28 23:14:27', NULL),
-(5, 'DT005', '2023-04-15', 5, 'Phát triển web', 9800.00, 5, 3, 'chua_thanh_toan', NULL, 2, '2025-04-28 23:14:27', NULL),
-(6, 'DT006', '2023-04-12', 6, 'Bán phần cứng', 22000.00, 4, 1, 'da_thanh_toan', NULL, 1, '2025-04-28 23:14:27', NULL),
-(7, 'DT007', '2023-04-10', 2, 'Dịch vụ đám mây', 7500.00, 6, 2, 'da_thanh_toan', NULL, 2, '2025-04-28 23:14:27', NULL);
+INSERT INTO `doanh_thu` (`id`, `id_lsdt`, `id_lspdb`, `ngay_cap_nhat`) VALUES
+(8, 16, 17, '2025-05-16 21:57:26');
 
 -- --------------------------------------------------------
 
@@ -128,16 +81,6 @@ CREATE TABLE `giao_dich` (
   `trang_thai` varchar(20) DEFAULT 'hoan_thanh',
   `ngay_tao` date DEFAULT curdate()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `giao_dich`
---
-
-INSERT INTO `giao_dich` (`id`, `id_nguoi_dung`, `loai_giao_dich`, `so_tien`, `trang_thai`, `ngay_tao`) VALUES
-(1, 1, 'phi_dang_bai', 11000.00, 'hoan_thanh', '2025-04-10'),
-(2, 2, 'phi_dang_bai', 11000.00, 'hoan_thanh', '2025-04-10'),
-(3, 1, 'day_tin', 15500.00, 'hoan_thanh', '2025-04-10'),
-(4, 2, 'day_tin', 15500.00, 'hoan_thanh', '2025-04-10');
 
 -- --------------------------------------------------------
 
@@ -181,20 +124,7 @@ CREATE TABLE `lich_su_day_tin` (
 --
 
 INSERT INTO `lich_su_day_tin` (`id`, `id_san_pham`, `id_nguoi_dung`, `so_tien`, `thoi_gian_day`) VALUES
-(1, 1, 1, 15500.00, '2025-04-10 00:00:00'),
-(2, 6, 2, 15500.00, '2025-04-10 00:00:00'),
-(3, 11, 1, 15500.00, '2025-04-10 00:00:00'),
-(4, 16, 2, 15500.00, '2025-04-10 00:00:00'),
-(5, 21, 1, 15500.00, '2025-04-10 00:00:00'),
-(6, 2, 1, 11000.00, '2025-05-03 23:28:22'),
-(7, 2, 1, 11000.00, '2025-05-03 23:28:33'),
-(8, 2, 1, 11000.00, '2025-05-03 23:30:21'),
-(9, 2, 1, 11000.00, '2025-05-03 23:31:25'),
-(11, 2, 1, 11000.00, '2025-05-03 23:42:04'),
-(12, 36, 1, 11000.00, '2025-05-11 11:08:43'),
-(13, 36, 1, 11000.00, '2025-05-11 11:15:20'),
-(14, 35, 1, 11000.00, '2025-05-11 11:15:23'),
-(15, 11, 1, 11000.00, '2025-05-13 21:28:28');
+(16, 38, 1, 11000.00, '2025-05-14 20:14:55');
 
 -- --------------------------------------------------------
 
@@ -215,22 +145,7 @@ CREATE TABLE `lich_su_phi_dang_bai` (
 --
 
 INSERT INTO `lich_su_phi_dang_bai` (`id`, `id_san_pham`, `id_nguoi_dung`, `so_tien`, `ngay_tao`) VALUES
-(1, 1, 1, 11000.00, '2025-04-10'),
-(2, 6, 2, 11000.00, '2025-04-10'),
-(3, 11, 1, 11000.00, '2025-04-10'),
-(4, 16, 2, 11000.00, '2025-04-10'),
-(5, 21, 1, 11000.00, '2025-04-10'),
-(6, 27, 1, 11000.00, '2025-05-02'),
-(7, 28, 1, 11000.00, '2025-05-02'),
-(8, 29, 1, 11000.00, '2025-05-02'),
-(9, 30, 1, 11000.00, '2025-05-02'),
-(10, 31, 1, 11000.00, '2025-05-02'),
-(11, 32, 1, 11000.00, '2025-05-07'),
-(12, 33, 1, 11000.00, '2025-05-07'),
-(13, 34, 1, 11000.00, '2025-05-07'),
-(14, 35, 1, 11000.00, '2025-05-07'),
-(15, 36, 1, 11000.00, '2025-05-07'),
-(16, 37, 1, 11000.00, '2025-05-11');
+(17, 38, 1, 11000.00, '2025-05-14');
 
 -- --------------------------------------------------------
 
@@ -315,53 +230,23 @@ CREATE TABLE `nguoi_dung` (
   `dia_chi` varchar(255) DEFAULT NULL,
   `id_vai_tro` int(11) NOT NULL,
   `anh_dai_dien` varchar(255) DEFAULT NULL,
-  `ngay_tao` date DEFAULT curdate(),
-  `ngay_cap_nhat` date DEFAULT curdate()
+  `ngay_sinh` date DEFAULT NULL,
+  `ngay_tham_gia` date DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `nguoi_dung`
 --
 
-INSERT INTO `nguoi_dung` (`id`, `ten_dang_nhap`, `email`, `mat_khau`, `so_dien_thoai`, `dia_chi`, `id_vai_tro`, `anh_dai_dien`, `ngay_tao`, `ngay_cap_nhat`) VALUES
+INSERT INTO `nguoi_dung` (`id`, `ten_dang_nhap`, `email`, `mat_khau`, `so_dien_thoai`, `dia_chi`, `id_vai_tro`, `anh_dai_dien`, `ngay_sinh`, `ngay_tham_gia`) VALUES
 (1, 'user1', 'user1@gmail.com', '202cb962ac59075b964b07152d234b70', '0901111111', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab.jpg', '2025-04-10', '2025-04-10'),
 (2, 'user2', 'user2@gmail.com', '202cb962ac59075b964b07152d234b70', '0902222222', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user2.jpg', '2025-04-10', '2025-04-10'),
 (3, 'user3', 'user3@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Lê Lợi, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', '2025-04-10', '2025-04-10'),
 (4, 'user4', 'user4@gmail.com', '202cb962ac59075b964b07152d234b70', '0904444444', 'Dương Quang Hàm, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user4.jpg', '2025-04-10', '2025-04-10'),
 (5, 'admin', 'admin@gmail.com', '202cb962ac59075b964b07152d234b70', '0905555555', 'Tô Ngọc Vân, P.Linh Tây, Tp.Thủ Đức, Tp.Hồ Chí Minh', 1, 'admin.jpg', '2025-04-10', '2025-04-10'),
-(6, 'Nguyễn Phúc', 'user5@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(9, 'Nguyễn Phúc', 'user6@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(10, 'Nguyễn Phúc', 'user7@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(11, 'Nguyễn Phúc', 'user8@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(12, 'Nguyễn Phúc', 'user9@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(13, 'Nguyễn hoàng', 'a@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11'),
-(14, 'Nguyễn hoàng', 'b@gmail.com', '202cb962ac59075b964b07152d234b70', NULL, NULL, 2, NULL, '2025-05-11', '2025-05-11');
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `phuong_thuc_thanh_toan`
---
-
-CREATE TABLE `phuong_thuc_thanh_toan` (
-  `id` int(11) NOT NULL,
-  `ten_phuong_thuc` varchar(100) NOT NULL,
-  `mo_ta` text DEFAULT NULL,
-  `trang_thai` tinyint(1) NOT NULL DEFAULT 1,
-  `ngay_tao` datetime NOT NULL DEFAULT current_timestamp(),
-  `ngay_cap_nhat` datetime DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `phuong_thuc_thanh_toan`
---
-
-INSERT INTO `phuong_thuc_thanh_toan` (`id`, `ten_phuong_thuc`, `mo_ta`, `trang_thai`, `ngay_tao`, `ngay_cap_nhat`) VALUES
-(1, 'Chuyển khoản ngân hàng', 'Thanh toán qua chuyển khoản ngân hàng', 1, '2025-04-28 23:14:12', NULL),
-(2, 'Thẻ tín dụng', 'Thanh toán qua thẻ tín dụng', 1, '2025-04-28 23:14:12', NULL),
-(3, 'PayPal', 'Thanh toán qua PayPal', 1, '2025-04-28 23:14:12', NULL),
-(4, 'Tiền mặt', 'Thanh toán bằng tiền mặt', 1, '2025-04-28 23:14:12', NULL),
-(5, 'Ví điện tử', 'Thanh toán qua ví điện tử như MoMo, ZaloPay', 1, '2025-04-28 23:14:12', NULL);
+(6, 'Nguyễn Phúc', 'user5@gmail.com', '202cb962ac59075b964b07152d234b70', '0987646464', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747234139_6824ad5bbac41.jpg', '2005-02-11', '2025-05-11'),
+(17, 'Khánh', 'user6@gmail.com', '202cb962ac59075b964b07152d234b70', '0901132321', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', NULL, '2025-05-14'),
+(18, 'An', 'user7@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747232858_6824a85a76f0e.png', '2025-05-08', '2025-05-14');
 
 -- --------------------------------------------------------
 
@@ -398,7 +283,7 @@ INSERT INTO `san_pham` (`id`, `id_nguoi_dung`, `id_loai_san_pham`, `tieu_de`, `m
 (8, 2, 8, 'iPad Pro', 'Máy tính bảng iPad Pro.', 22000000.00, 'ipad.jpg', 'Đã duyệt', 'Đang bán', '2025-04-10 00:00:00', '2025-04-10 00:00:00', ''),
 (9, 2, 9, 'Máy ảnh Canon', 'Máy ảnh Canon EOS.', 12000000.00, 'may_anh.jpg', 'Đã duyệt', 'Đang bán', '2025-04-10 00:00:00', '2025-04-10 00:00:00', ''),
 (10, 2, 10, 'Thiết bị thông minh', 'Đồng hồ thông minh Samsung.', 5000000.00, 'dongho.jpg', 'Đã duyệt', 'Đang bán', '2025-04-10 00:00:00', '2025-04-10 00:00:00', ''),
-(11, 1, 12, 'Quần jean nam', 'Quần jean size 32.', 400000.00, 'quan_jean.jpg, quan_jean2.jpg', 'Chờ duyệt', 'Đang bán', '2025-04-10 00:00:00', '2025-05-13 21:28:28', ''),
+(11, 1, 12, 'Quần jean nam', 'Quần jean size 32.', 400000.00, 'quan_jean.jpg, quan_jean2.jpg', 'Đã duyệt', 'Đang bán', '2025-04-10 00:00:00', '2025-05-14 17:00:00', ''),
 (12, 1, 12, 'Áo thun nữ', 'Áo thun cotton nữ.', 300000.00, 'ao_thun.jpg', 'Đã duyệt', 'Đã bán', '2025-04-10 00:00:00', '2025-05-11 12:19:08', ''),
 (13, 1, 13, 'Túi xách da', 'Túi xách da cao cấp.', 2500000.00, 'tui_xach.jpg', 'Đã duyệt', 'Đã bán', '2025-04-10 00:00:00', '2025-05-11 12:06:06', ''),
 (14, 1, 14, 'Dép sandal', 'Dép sandal thoáng mát.', 200000.00, 'dep.jpg', 'Đã duyệt', 'Đã ẩn', '2025-04-10 00:00:00', '2025-05-11 12:15:18', ''),
@@ -424,7 +309,9 @@ INSERT INTO `san_pham` (`id`, `id_nguoi_dung`, `id_loai_san_pham`, `tieu_de`, `m
 (34, 1, 2, 'Ô tô Toyota', 'ưerwsefsfww', 2342342.00, '681acfe024e45.png,681acfe024f77.png', 'Đã duyệt', 'Đã bán', '2025-05-07 05:13:36', '2025-05-11 12:03:15', ''),
 (35, 1, 1, 'Ô tô Toyotaa', '2342342342342', 23423423.00, '681ad5dc05b32.jpg,681ad5dc05c79.jpg', 'Chờ duyệt', 'Đang bán', '2025-05-07 05:39:08', '2025-05-11 11:15:23', ''),
 (36, 1, 1, 'Ô tô Toyota', '53245324', 3453453.00, '681ad72b291f7.png,681ad72b29377.png', 'Chờ duyệt', 'Đã bán', '2025-05-07 05:44:43', '2025-05-11 11:47:18', ''),
-(37, 1, 1, 'Ô tô Toyota', 'sfsadfasfasdf', 99999999.99, '681fa0302ef68.png,681fa0302f06d.png', 'Chờ duyệt', 'Đang bán', '2025-05-10 20:51:28', '2025-05-11 01:51:28', '');
+(37, 1, 1, 'Ô tô Toyota', 'sfsadfasfasdf', 99999999.99, '681fa0302ef68.png,681fa0302f06d.png', 'Chờ duyệt', 'Đang bán', '2025-05-10 20:51:28', '2025-05-11 01:51:28', ''),
+(38, 1, 13, 'Áo Hoodie Nỉ Bông in hình đẳng cấp', 'Sản phẩm tôi mới mua và chưa sử dụng, ai có nhu cầu thì liên hệ em ạ.\r\nCảm ơn mọi người!', 170000.00, '68249713f042d.jpg,68249713f0561.jpg', 'Chờ duyệt', 'Đang bán', '2025-05-14 15:13:55', '2025-05-14 20:14:55', ''),
+(39, 6, 12, 'Áo khoác nỉ hoodie zip nam nữ', 'Sản phẩm này tôi vừa mặc được 1 lần.\r\nAi cần thì liên hệ tôi', 199000.00, '68249b7f31f4c.jpg,68249b7f3206e.jpg', 'Đã duyệt', 'Đang bán', '2025-05-14 15:32:47', '2025-05-14 20:32:47', '');
 
 -- --------------------------------------------------------
 
@@ -444,10 +331,13 @@ CREATE TABLE `taikhoan_chuyentien` (
 --
 
 INSERT INTO `taikhoan_chuyentien` (`id`, `id_ck`, `id_nguoi_dung`, `so_du`) VALUES
-(1, 1111, 1, 79000),
+(1, 1111, 1, 57000),
 (2, 1112, 2, 10000),
 (3, 1113, 3, 100000),
-(4, 1114, 4, 50000);
+(4, 1114, 4, 50000),
+(5, 1115, 6, 0),
+(6, 1116, 17, 0),
+(7, 1117, 18, 0);
 
 -- --------------------------------------------------------
 
@@ -500,16 +390,6 @@ INSERT INTO `vai_tro` (`id`, `ten_vai_tro`) VALUES
 --
 
 --
--- Chỉ mục cho bảng `chi_phi`
---
-ALTER TABLE `chi_phi`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ma_chi_phi` (`ma_chi_phi`),
-  ADD KEY `id_danh_muc` (`id_danh_muc`),
-  ADD KEY `id_phuong_thuc_thanh_toan` (`id_phuong_thuc_thanh_toan`),
-  ADD KEY `nguoi_tao` (`nguoi_tao`);
-
---
 -- Chỉ mục cho bảng `danh_gia`
 --
 ALTER TABLE `danh_gia`
@@ -523,11 +403,8 @@ ALTER TABLE `danh_gia`
 --
 ALTER TABLE `doanh_thu`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ma_doanh_thu` (`ma_doanh_thu`),
-  ADD KEY `id_khach_hang` (`id_khach_hang`),
-  ADD KEY `id_danh_muc` (`id_danh_muc`),
-  ADD KEY `id_phuong_thuc_thanh_toan` (`id_phuong_thuc_thanh_toan`),
-  ADD KEY `nguoi_tao` (`nguoi_tao`);
+  ADD KEY `fk_lsdt` (`id_lsdt`),
+  ADD KEY `fk_lspdb` (`id_lspdb`);
 
 --
 -- Chỉ mục cho bảng `giao_dich`
@@ -581,13 +458,6 @@ ALTER TABLE `nguoi_dung`
   ADD KEY `id_vai_tro` (`id_vai_tro`);
 
 --
--- Chỉ mục cho bảng `phuong_thuc_thanh_toan`
---
-ALTER TABLE `phuong_thuc_thanh_toan`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ten_phuong_thuc` (`ten_phuong_thuc`);
-
---
 -- Chỉ mục cho bảng `san_pham`
 --
 ALTER TABLE `san_pham`
@@ -622,12 +492,6 @@ ALTER TABLE `vai_tro`
 --
 
 --
--- AUTO_INCREMENT cho bảng `chi_phi`
---
-ALTER TABLE `chi_phi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- AUTO_INCREMENT cho bảng `danh_gia`
 --
 ALTER TABLE `danh_gia`
@@ -637,7 +501,7 @@ ALTER TABLE `danh_gia`
 -- AUTO_INCREMENT cho bảng `doanh_thu`
 --
 ALTER TABLE `doanh_thu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `giao_dich`
@@ -655,13 +519,13 @@ ALTER TABLE `lich_su_chuyen_khoan`
 -- AUTO_INCREMENT cho bảng `lich_su_day_tin`
 --
 ALTER TABLE `lich_su_day_tin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT cho bảng `lich_su_phi_dang_bai`
 --
 ALTER TABLE `lich_su_phi_dang_bai`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT cho bảng `loai_san_pham`
@@ -679,25 +543,19 @@ ALTER TABLE `loai_san_pham_cha`
 -- AUTO_INCREMENT cho bảng `nguoi_dung`
 --
 ALTER TABLE `nguoi_dung`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT cho bảng `phuong_thuc_thanh_toan`
---
-ALTER TABLE `phuong_thuc_thanh_toan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT cho bảng `san_pham`
 --
 ALTER TABLE `san_pham`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT cho bảng `taikhoan_chuyentien`
 --
 ALTER TABLE `taikhoan_chuyentien`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `tin_nhan`
@@ -722,6 +580,13 @@ ALTER TABLE `danh_gia`
   ADD CONSTRAINT `danh_gia_ibfk_1` FOREIGN KEY (`id_nguoi_danh_gia`) REFERENCES `nguoi_dung` (`id`),
   ADD CONSTRAINT `danh_gia_ibfk_2` FOREIGN KEY (`id_nguoi_duoc_danh_gia`) REFERENCES `nguoi_dung` (`id`),
   ADD CONSTRAINT `danh_gia_ibfk_3` FOREIGN KEY (`id_san_pham`) REFERENCES `san_pham` (`id`);
+
+--
+-- Các ràng buộc cho bảng `doanh_thu`
+--
+ALTER TABLE `doanh_thu`
+  ADD CONSTRAINT `fk_lsdt` FOREIGN KEY (`id_lsdt`) REFERENCES `lich_su_day_tin` (`id`),
+  ADD CONSTRAINT `fk_lspdb` FOREIGN KEY (`id_lspdb`) REFERENCES `lich_su_phi_dang_bai` (`id`);
 
 --
 -- Các ràng buộc cho bảng `giao_dich`

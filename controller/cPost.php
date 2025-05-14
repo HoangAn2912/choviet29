@@ -193,7 +193,7 @@ public function capNhatTrangThaiBan() {
             $ok = $model->capNhatSanPham($id, $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $idNguoiDang);
 
             if ($ok) {
-                header("Location: index.php?quan-ly-tin&toast=" . urlencode("✔️ Đã cập nhật và chuyển về chờ duyệt!") . "&type=success");
+                header("Location: index.php?quan-ly-tin&toast=" . urlencode("✅ Đã cập nhật và chuyển về chờ duyệt!") . "&type=success");
             } else {
                 header("Location: index.php?quan-ly-tin&toast=" . urlencode("❌ Cập nhật thất bại!") . "&type=error");
             }
