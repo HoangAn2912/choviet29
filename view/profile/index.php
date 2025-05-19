@@ -118,7 +118,7 @@ include_once("view/header.php");
                     <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
                     <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['dia_chi']) ?></p>
                     <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày sinh: <?= date('d/m/Y', strtotime($user['ngay_sinh'])) ?></p>
-                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tham_gia'])) ?></p>
+                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tao'])) ?></p>
                 </div>
 
 
@@ -161,7 +161,7 @@ include_once("view/header.php");
                                 <div>
                                     <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
                                     <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tham_gia'])) ?></small>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tao'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -182,7 +182,7 @@ include_once("view/header.php");
                                 <div>
                                     <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
                                     <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tham_gia'])) ?></small>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tao'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>

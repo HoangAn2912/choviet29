@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 14, 2025 lúc 05:00 PM
+-- Thời gian đã tạo: Th5 15, 2025 lúc 10:47 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -66,21 +66,6 @@ CREATE TABLE `doanh_thu` (
 
 INSERT INTO `doanh_thu` (`id`, `id_lsdt`, `id_lspdb`, `ngay_cap_nhat`) VALUES
 (8, 16, 17, '2025-05-16 21:57:26');
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `giao_dich`
---
-
-CREATE TABLE `giao_dich` (
-  `id` int(11) NOT NULL,
-  `id_nguoi_dung` int(11) NOT NULL,
-  `loai_giao_dich` varchar(20) NOT NULL,
-  `so_tien` decimal(10,2) NOT NULL,
-  `trang_thai` varchar(20) DEFAULT 'hoan_thanh',
-  `ngay_tao` date DEFAULT curdate()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -407,13 +392,6 @@ ALTER TABLE `doanh_thu`
   ADD KEY `fk_lspdb` (`id_lspdb`);
 
 --
--- Chỉ mục cho bảng `giao_dich`
---
-ALTER TABLE `giao_dich`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_nguoi_dung` (`id_nguoi_dung`);
-
---
 -- Chỉ mục cho bảng `lich_su_chuyen_khoan`
 --
 ALTER TABLE `lich_su_chuyen_khoan`
@@ -441,7 +419,7 @@ ALTER TABLE `lich_su_phi_dang_bai`
 --
 ALTER TABLE `loai_san_pham`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_loai_san_pham_cha` (`id_loai_san_pham_cha`);
+  ADD KEY `loai_san_pham_ibfk_1` (`id_loai_san_pham_cha`);
 
 --
 -- Chỉ mục cho bảng `loai_san_pham_cha`
@@ -502,12 +480,6 @@ ALTER TABLE `danh_gia`
 --
 ALTER TABLE `doanh_thu`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT cho bảng `giao_dich`
---
-ALTER TABLE `giao_dich`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `lich_su_chuyen_khoan`
@@ -589,12 +561,6 @@ ALTER TABLE `doanh_thu`
   ADD CONSTRAINT `fk_lspdb` FOREIGN KEY (`id_lspdb`) REFERENCES `lich_su_phi_dang_bai` (`id`);
 
 --
--- Các ràng buộc cho bảng `giao_dich`
---
-ALTER TABLE `giao_dich`
-  ADD CONSTRAINT `giao_dich_ibfk_1` FOREIGN KEY (`id_nguoi_dung`) REFERENCES `nguoi_dung` (`id`);
-
---
 -- Các ràng buộc cho bảng `lich_su_chuyen_khoan`
 --
 ALTER TABLE `lich_su_chuyen_khoan`
@@ -618,7 +584,7 @@ ALTER TABLE `lich_su_phi_dang_bai`
 -- Các ràng buộc cho bảng `loai_san_pham`
 --
 ALTER TABLE `loai_san_pham`
-  ADD CONSTRAINT `loai_san_pham_ibfk_1` FOREIGN KEY (`id_loai_san_pham_cha`) REFERENCES `loai_san_pham` (`id`);
+  ADD CONSTRAINT `loai_san_pham_ibfk_1` FOREIGN KEY (`id_loai_san_pham_cha`) REFERENCES `loai_san_pham_cha` (`id_loai_san_pham_cha`);
 
 --
 -- Các ràng buộc cho bảng `nguoi_dung`
