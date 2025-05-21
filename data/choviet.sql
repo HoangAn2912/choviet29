@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 15, 2025 lúc 10:47 AM
+-- Thời gian đã tạo: Th5 21, 2025 lúc 11:19 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -216,22 +216,24 @@ CREATE TABLE `nguoi_dung` (
   `id_vai_tro` int(11) NOT NULL,
   `anh_dai_dien` varchar(255) DEFAULT NULL,
   `ngay_sinh` date DEFAULT NULL,
-  `ngay_tham_gia` date DEFAULT current_timestamp()
+  `ngay_tao` date DEFAULT current_timestamp(),
+  `ngay_cap_nhat` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `trang_thai_hd` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `nguoi_dung`
 --
 
-INSERT INTO `nguoi_dung` (`id`, `ten_dang_nhap`, `email`, `mat_khau`, `so_dien_thoai`, `dia_chi`, `id_vai_tro`, `anh_dai_dien`, `ngay_sinh`, `ngay_tham_gia`) VALUES
-(1, 'user1', 'user1@gmail.com', '202cb962ac59075b964b07152d234b70', '0901111111', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab.jpg', '2025-04-10', '2025-04-10'),
-(2, 'user2', 'user2@gmail.com', '202cb962ac59075b964b07152d234b70', '0902222222', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user2.jpg', '2025-04-10', '2025-04-10'),
-(3, 'user3', 'user3@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Lê Lợi, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', '2025-04-10', '2025-04-10'),
-(4, 'user4', 'user4@gmail.com', '202cb962ac59075b964b07152d234b70', '0904444444', 'Dương Quang Hàm, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user4.jpg', '2025-04-10', '2025-04-10'),
-(5, 'admin', 'admin@gmail.com', '202cb962ac59075b964b07152d234b70', '0905555555', 'Tô Ngọc Vân, P.Linh Tây, Tp.Thủ Đức, Tp.Hồ Chí Minh', 1, 'admin.jpg', '2025-04-10', '2025-04-10'),
-(6, 'Nguyễn Phúc', 'user5@gmail.com', '202cb962ac59075b964b07152d234b70', '0987646464', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747234139_6824ad5bbac41.jpg', '2005-02-11', '2025-05-11'),
-(17, 'Khánh', 'user6@gmail.com', '202cb962ac59075b964b07152d234b70', '0901132321', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', NULL, '2025-05-14'),
-(18, 'An', 'user7@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747232858_6824a85a76f0e.png', '2025-05-08', '2025-05-14');
+INSERT INTO `nguoi_dung` (`id`, `ten_dang_nhap`, `email`, `mat_khau`, `so_dien_thoai`, `dia_chi`, `id_vai_tro`, `anh_dai_dien`, `ngay_sinh`, `ngay_tao`, `ngay_cap_nhat`, `trang_thai_hd`) VALUES
+(1, 'user1', 'user1@gmail.com', '202cb962ac59075b964b07152d234b70', '0901111111', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab.jpg', '2025-04-10', '2025-04-10', '2025-05-19 10:23:42', 1),
+(2, 'user2', 'user2@gmail.com', '202cb962ac59075b964b07152d234b70', '0902222222', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user2.jpg', '2025-04-10', '2025-04-10', '2025-05-19 10:23:48', 1),
+(3, 'user3', 'user3@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Lê Lợi, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', '2025-04-10', '2025-04-10', '2025-05-19 10:23:52', 1),
+(4, 'user4', 'user4@gmail.com', '202cb962ac59075b964b07152d234b70', '0904444444', 'Dương Quang Hàm, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, 'user4.jpg', '2025-04-10', '2025-04-10', '2025-05-19 10:23:55', 1),
+(5, 'admin', 'admin@gmail.com', '202cb962ac59075b964b07152d234b70', '0905555555', 'Tô Ngọc Vân, P.Linh Tây, Tp.Thủ Đức, Tp.Hồ Chí Minh', 1, 'admin.jpg', '2025-04-10', '2025-04-10', '2025-05-19 10:23:59', 1),
+(6, 'Nguyễn Phúc', 'user5@gmail.com', '202cb962ac59075b964b07152d234b70', '0987646464', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747234139_6824ad5bbac41.jpg', '2005-02-11', '2025-05-11', '2025-05-19 10:24:02', 1),
+(17, 'Khánh', 'user6@gmail.com', '202cb962ac59075b964b07152d234b70', '0901132321', 'Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh', 2, 'xeab2.jpg', NULL, '2025-05-14', '2025-05-19 10:24:05', 1),
+(18, 'An', 'user7@gmail.com', '202cb962ac59075b964b07152d234b70', '09033333333', 'Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh', 2, '1747232858_6824a85a76f0e.png', '2025-05-08', '2025-05-14', '2025-05-19 10:24:09', 1);
 
 -- --------------------------------------------------------
 
@@ -349,7 +351,8 @@ INSERT INTO `tin_nhan` (`id`, `id_nguoi_gui`, `id_nguoi_nhan`, `id_san_pham`, `n
 (49, 1, 3, 7, 'chat_1_3.json', '2025-05-07', '2025-05-07 09:13:34', 0),
 (52, 2, 1, 31, 'chat_1_2.json', '2025-05-07', '2025-05-07 09:42:58', 0),
 (53, 1, 1, 30, 'chat_1_1.json', '2025-05-08', '2025-05-08 22:50:38', 0),
-(54, 2, 3, 7, 'chat_2_3.json', '2025-05-09', '2025-05-09 11:47:21', 0);
+(54, 2, 3, 7, 'chat_2_3.json', '2025-05-09', '2025-05-09 11:47:21', 0),
+(55, 1, 6, 39, 'chat_1_6.json', '2025-05-18', '2025-05-18 15:43:42', 0);
 
 -- --------------------------------------------------------
 
@@ -533,7 +536,7 @@ ALTER TABLE `taikhoan_chuyentien`
 -- AUTO_INCREMENT cho bảng `tin_nhan`
 --
 ALTER TABLE `tin_nhan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT cho bảng `vai_tro`

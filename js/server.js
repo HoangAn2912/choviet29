@@ -30,10 +30,6 @@ wss.on('connection', function connection(ws) {
       const chatFolderPath = path.join(__dirname, "../chat");
       const filePath = path.join(chatFolderPath, fileName);
 
-      // ✅ Ghi log (nếu muốn lưu log JSON hoạt động thì để lại dòng này)
-      // const logPath = path.join(chatFolderPath, "log_server.json");
-      // fs.appendFile(logPath, `${timestamp} - Tin mới: ${JSON.stringify(data)}\n`, () => { });
-
       // ✅ Tạo thư mục chat nếu chưa có
       if (!fs.existsSync(chatFolderPath)) {
         fs.mkdirSync(chatFolderPath, { recursive: true });
