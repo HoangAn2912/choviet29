@@ -21,5 +21,14 @@ class ckdbaidang {
         $p = new kdbaidang();
         $p->tuChoiBai($id, $ghichu);
     }
+    function getPaginatedPosts($offset, $limit, $status = '', $product_type = '', $search = '') {
+        $p = new kdbaidang();
+        $data = $p->selectPaginatedPosts($offset, $limit, $status, $product_type, $search);
+        return $data;
+    }
+    function countFilteredPosts($status = '', $product_type = '', $search = '') {
+        $p = new kdbaidang();
+        return $p->countFilteredPosts($status, $product_type, $search);
+    }
 }
 ?>

@@ -12,128 +12,11 @@ if(isset($_GET['id'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết bài đăng</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            color: #212529;
-        }
-        .product-title {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .meta-info {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        .price {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #212529;
-        }
-        .badge-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .badge-pending {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .detail-label {
-            color: #6c757d;
-            font-size: 0.875rem;
-        }
-        .detail-value {
-            font-weight: 500;
-        }
-        .detail-item {
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-        }
-        .detail-icon {
-            color: #6c757d;
-            margin-right: 1rem;
-            width: 20px;
-            text-align: center;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        .thumbnail {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid transparent;
-            border-radius: 0.375rem;
-            transition: all 0.2s;
-        }
-        .thumbnail.active {
-            border-color: #0d6efd;
-        }
-        .main-image {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 0.375rem;
-        }
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-        .timeline-item {
-            position: relative;
-            padding-bottom: 12px;
-            color: #6c757d;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -24px;
-            top: 4px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #adb5bd;
-        }
-        
-        .timeline-item.active::before {
-            background-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-        }
-        
-        .timeline-item.rejected::before {
-            background-color: #F44336;
-            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
-        }
-        
-        .timeline-item.pending::before {
-            background-color: #FFC107;
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
-        }
-        
-        .timeline-item.sold::before {
-            background-color: #2196F3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
-        }
-        
-        .timeline-date {
-            font-size: 0.75rem;
-            color: #adb5bd;
-            margin-left: 5px;
-        }
-        
-    </style>
+    <link rel="stylesheet" href="/project/css/kdbaidangct.css">
 </head>
 <body>
-
 <div class="container">
     <?php foreach($dt as $ct) { ?>
     <?php $images = explode(',', $ct['hinh_anh']); ?>
@@ -172,7 +55,9 @@ if(isset($_GET['id'])){
                             <?php echo $ct['trang_thai']; ?>
                         </span>
                     </div>
-                    <button class="btn btn-primary">Liên hệ người bán</button>
+                    <a href="/project/ad/kdbaidang" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i>     Quay lại
+                    </a>
                 </div>
 
                 <hr>

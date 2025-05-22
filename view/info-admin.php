@@ -2,27 +2,24 @@
     include_once("controller/cQLthongtin.php");
     $p = new cqlthongtin();
     
-    // Check if ID is provided
-    if (!isset($_GET['ids'])) {
-        header("Location: index.php");
-        exit();
+    if (isset($_SESSION['user_id'])) {
+        $id = $_SESSION['user_id'];
     }
     if (isset($_SESSION['role'])) {
         $idrole = $_SESSION['role'];
     }
-    $id = $_GET['ids'];
+    // Check if ID is provided
+
     $user = $p->getoneuser($id);
     
     // Check if user exists
     if (!$user) {
-        header("Location: /project/ad/taikhoan");
+        header("Location: /project/index.php");
         exit();
     }
     
     $message = '';
     
-    
-    // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hoten = $_POST['ten_dang_nhap'];
         $email = $_POST['email'];
@@ -56,10 +53,10 @@
         }
 
         if ($result) {
-            header("Location: /project/ad/taikhoan");
+            header("Location: /project/ad");
             exit();
         } else {
-            $message = '<div class="alert alert-danger">Không thể cập nhật người dùng. Vui lòng thử lại.</div>';
+            $message = '<div class="alert alert-danger">Cập nhật thất bại!. Vui lòng thử lại.</div>';
         }
     }
 
@@ -73,7 +70,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản trị - Chỉnh sửa người dùng</title>
+    <title>Thông tin cá nhân</title>
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
@@ -86,7 +83,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title">
-                            <i class="bi bi-person-fill me-2"></i>Chỉnh sửa người dùng
+                            <i class="bi bi-person-fill me-2"></i>Thông tin cá nhân
                         </h3>
                     </div>
                     <div class="card-body">
@@ -97,7 +94,7 @@
                             <img src="/project/img/<?php echo e($u['anh_dai_dien']); ?>" alt="Avatar" class="avatar-img" />
                             <div class="user-info">
                                 <h4 class="mb-0"><?php echo e($u['ten_dang_nhap']); ?></h4>
-                                <!-- <span class="user-role"> echo $_SESSION['id_vai_tro']; </span> -->
+                                <span class="user-role">Admin</span>
                             </div>
                         </div>
                         
@@ -131,6 +128,7 @@
                                         <label for="mat_khau" class="form-label">Mật khẩu mới</label>
                                         <input type="password" class="form-control" id="mat_khau" name="mat_khau" 
                                                placeholder="Để trống nếu không đổi mật khẩu">
+                                        <div class="form-text">Để trống nếu không muốn thay đổi mật khẩu.</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -144,17 +142,20 @@
                             
                             <div class="row mb-4">
                                 <div class="col-md-6">
-                                    <label for="id_vai_tro" class="form-label">Vai trò <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="id_vai_tro" name="id_vai_tro" required>
-                                        <option value="2" <?php echo $idrole == 2 ? 'selected' : ''; ?>>Người dùng</option>
-                                        <option value="1" <?php echo $idrole == 1; ?>>Admin</option>
-                                    </select>
+                                    <div class="mb-3">
+                                        <input type="hidden" name="id_vai_tro" value="<?php echo $u['id_vai_tro']; ?>">
+                                        <label for="id_vai_tro" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="id_vai_tro" name="id_vai_tro" disabled>
+                                            <option value="2" <?php echo $u['id_vai_tro'] == 2 ? 'selected' : ''; ?>>Người dùng</option>
+                                            <option value="1" <?php echo $u['id_vai_tro'] == 1 ? 'selected' : ''; ?>>Admin</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="anh_dai_dien" class="form-label">Ảnh đại diện</label>
                                         <input type="file" class="form-control" id="anh_dai_dien" name="anh_dai_dien">
-                                        <input type="hidden" name="anh_dai_dien_cu" value="<?php echo e($u['anh_dai_dien']); ?>">
+                                        <input type="hidden" name="anh_dai_dien_cu" value="<?php $u['anh_dai_dien']; ?>">
                                     </div>
                                 </div>
                             </div>
@@ -165,9 +166,6 @@
                             </div>
                             
                             <div class="d-flex justify-content-between">
-                                <a href="/project/ad/taikhoan" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Quay lại
-                                </a>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-save me-2"></i>Cập nhật
                                 </button>

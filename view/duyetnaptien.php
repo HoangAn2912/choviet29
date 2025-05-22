@@ -2,26 +2,6 @@
 include_once 'controller/cduyetnaptien.php';
 $controller = new cduyetnaptien();
 
-// Handle CSV export
-
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $status = isset($_GET['status']) ? (int)$_GET['status'] : null;
-    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
-    $search = isset($_GET['search']) ? $_GET['search'] : null;
-    
-    $csv = $controller->exportTransactions($status, $userId, $search);
-    
-    if ($csv) {
-        // Set headers for CSV download
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=giao-dich-' . date('Y-m-d') . '.csv');
-        
-        // Output CSV content
-        echo $csv;
-        exit;
-    }
-}
-
 // Handle bulk actions
 if (isset($_POST['bulk_action']) && isset($_POST['transaction_ids'])) {
     $action = $_POST['bulk_action'];
@@ -71,9 +51,9 @@ if (isset($_GET['view']) && is_numeric($_GET['view'])) {
 }
 
 // Get filter parameters
-$status = isset($_GET['status']) ? (int)$_GET['status'] : null;
-$userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
-$search = isset($_GET['search']) ? $_GET['search'] : null;
+$status = isset($_GET['status']) && $_GET['status'] !== '' ? (int)$_GET['status'] : null;
+$userId = isset($_GET['user_id']) && $_GET['user_id'] !== '' ? (int)$_GET['user_id'] : null;
+$search = isset($_GET['search']) && $_GET['search'] !== '' ? $_GET['search'] : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $perPage = 10;
 
@@ -100,153 +80,12 @@ $stats = $controller->getTransactionStatistics();
 <link rel="stylesheet" href="../admin/src/assets/css/style.css">
 <!-- endinject -->
 <link rel="shortcut icon" href="../admin/src/assets/images/favicon.ico" />
-<style>
-    .main-panel{
-        width: 100%;
-    }
-    .btn a {
-        text-decoration: none;
-        color: #ffffff;
-    }
-    .status-pending {
-        color: #ffc107;
-        font-weight: bold;
-    }
-    .status-approved {
-        color: #28a745;
-        font-weight: bold;
-    }
-    .status-rejected {
-        color: #dc3545;
-        font-weight: bold;
-    }
-    .transaction-image {
-        max-width: 50px;
-        max-height: 50px;
-        cursor: pointer;
-    }
-    .badge-pending {
-        background-color: #ffc107;
-        color: #212529;
-    }
-    .filter-section {
-        margin-bottom: 20px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-    }
-    .transaction-details {
-        margin-bottom: 20px;
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-    }
-    .transaction-details p {
-        margin-bottom: 8px;
-    }
-    .transaction-details strong {
-        display: inline-block;
-        min-width: 150px;
-    }
-    button.btn.btn-primary.mr-2 {
-        margin-right: 20px;
-    }
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-    }
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-    }
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-    }
-    .action-confirm {
-        display: none;
-        margin-top: 5px;
-    }
-    .detail-image {
-        max-width: 100%;
-        max-height: 300px;
-        margin-top: 15px;
-    }
-    .stats-card {
-        background-color: #fff;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 20px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .stats-card h5 {
-        margin-bottom: 15px;
-        color: #333;
-    }
-    .stats-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    .stats-item:last-child {
-        border-bottom: none;
-    }
-    .stats-label {
-        font-weight: bold;
-    }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    .pagination a, .pagination span {
-        padding: 8px 16px;
-        text-decoration: none;
-        border: 1px solid #ddd;
-        margin: 0 4px;
-        color: #333;
-    }
-    .pagination a:hover {
-        background-color: #f1f1f1;
-    }
-    .pagination .active {
-        background-color: #6c7ae0;
-        color: white;
-        border: 1px solid #6c7ae0;
-    }
-    .pagination .disabled {
-        color: #aaa;
-        cursor: not-allowed;
-    }
-    .bulk-actions {
-        margin-bottom: 15px;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-    }
-    .bulk-actions select {
-        margin-right: 10px;
-    }
-    .search-box {
-        margin-bottom: 15px;
-    }
-    .export-btn {
-        margin-left: auto;
-    }
-</style>
+<link rel="stylesheet" href="/project/css/kdnaptien.css">
 </head>
 <body>
-<div class="container-fluid">
-    <div class="main-panel">
-    <div class="content-wrapper">
+<div class="">
+    <div class="">
+    <div class="">
         <div class="row">
         <div class="col-12 grid-margin">
             <div class="card">
@@ -299,7 +138,7 @@ $stats = $controller->getTransactionStatistics();
                         <div class="col-md-6">
                             <?php if (!empty($transactionDetails['hinh_anh_ck'])): ?>
                                 <p><strong>Hình ảnh chuyển khoản:</strong></p>
-                                <img src="../img/transfers/<?php echo $transactionDetails['hinh_anh_ck']; ?>" alt="Transfer Image" class="detail-image">
+                                <img src="/project/img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" alt="Transfer Image" class="detail-image">
                             <?php else: ?>
                                 <p><strong>Hình ảnh chuyển khoản:</strong> Không có hình ảnh</p>
                             <?php endif; ?>
@@ -309,13 +148,13 @@ $stats = $controller->getTransactionStatistics();
                     <?php if ($transactionDetails['trang_thai_ck'] == 0): ?>
                     <div class="mt-3">
                         <a href="/project/ad/kdnaptien?action=approve&id=<?php echo $transactionDetails['id_lich_su']; ?>" 
-                           class="btn btn-success" 
-                           onclick="return confirm('Bạn có chắc chắn muốn phê duyệt giao dịch này?');">
+                            class="btn btn-success" 
+                            onclick="return confirm('Bạn có chắc chắn muốn phê duyệt giao dịch này?');">
                             <i class="mdi mdi-check"></i> Phê duyệt
                         </a>
                         <a href="/project/ad/kdnaptien?action=reject&id=<?php echo $transactionDetails['id_lich_su']; ?>" 
-                           class="btn btn-danger" 
-                           onclick="return confirm('Bạn có chắc chắn muốn từ chối giao dịch này?');">
+                            class="btn btn-danger" 
+                            onclick="return confirm('Bạn có chắc chắn muốn từ chối giao dịch này?');">
                             <i class="mdi mdi-close"></i> Từ chối
                         </a>
                     </div>
@@ -375,11 +214,6 @@ $stats = $controller->getTransactionStatistics();
                                     </div>
                                 </div>
                             </form>
-                        </div>
-                        <div class="col-md-4 text-right">
-                            <a href="duyetnaptien.php?export=csv<?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>" class="btn btn-success export-btn">
-                                <i class="mdi mdi-file-excel"></i> Xuất Excel
-                            </a>
                         </div>
                     </div>
                     
@@ -455,8 +289,8 @@ $stats = $controller->getTransactionStatistics();
                                             <td><?php echo $transaction['noi_dung_ck']; ?></td>
                                             <td>
                                                 <?php if (!empty($transaction['hinh_anh_ck'])): ?>
-                                                    <a href="../img/transfers/<?php echo $transaction['hinh_anh_ck']; ?>" target="_blank">
-                                                        <img src="../img/transfers/<?php echo $transaction['hinh_anh_ck']; ?>" 
+                                                    <a href="/project/img/<?php echo $transaction['hinh_anh_ck']; ?>" target="_blank">
+                                                        <img src="/project/img/<?php echo $transaction['hinh_anh_ck']; ?>" 
                                                             alt="Transfer Image" 
                                                             class="transaction-image">
                                                     </a>

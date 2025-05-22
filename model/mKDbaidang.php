@@ -1,4 +1,5 @@
 <?php
+
 include_once("mConnect.php");
 
 class kdbaidang {
@@ -93,7 +94,7 @@ class kdbaidang {
     public function duyetBai($id) {
         $p = new Connect();
         $conn = $p->connect();
-        $query = "UPDATE san_pham SET trang_thai = 'Đã duyệt' WHERE id = ?";
+        $query = "UPDATE san_pham SET trang_thai = 'Đã duyệt', ngay_cap_nhat = NOW() WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -104,12 +105,79 @@ class kdbaidang {
     public function tuChoiBai($id, $ghi_chu) {
         $p = new Connect();
         $conn = $p->connect();
-        $query = "UPDATE san_pham SET trang_thai = 'Từ chối duyệt', ghi_chu = ? WHERE id = ?";
+        $query = "UPDATE san_pham SET trang_thai = 'Từ chối duyệt', ngay_cap_nhat = NOW(), ghi_chu = ? WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("si", $ghi_chu, $id);
         $stmt->execute();
         $stmt->close();
         $conn->close();
+    }
+    // Get paginated and filtered posts
+    function selectPaginatedPosts($offset, $limit, $status = '', $product_type = '', $search = '') {
+        $p = new Connect();
+        $conn = $p->connect();
+        
+        $whereClause = "WHERE 1=1";
+        
+        if (!empty($status)) {
+            $whereClause .= " AND bd.trang_thai = '$status'";
+        }
+        
+        if (!empty($product_type)) {
+            $whereClause .= " AND lsp.ten_loai_san_pham = '$product_type'";
+        }
+        
+        if (!empty($search)) {
+            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.ten_loai_san_pham LIKE '%$search%')";
+        }
+        
+        $sql = "SELECT bd.*, lsp.ten_loai_san_pham, nd.ten_dang_nhap
+                FROM san_pham bd 
+                JOIN loai_san_pham lsp ON bd.id_loai_san_pham = lsp.id 
+                JOIN nguoi_dung nd ON bd.id_nguoi_dung = nd.id 
+                $whereClause 
+                ORDER BY bd.id 
+                LIMIT $offset, $limit";
+                
+        $rs = mysqli_query($conn, $sql);
+        
+        $data = array();
+        while ($row = mysqli_fetch_array($rs)) {
+            $data[] = $row;
+        }
+        
+        return $data;
+    }
+    
+    // Count total filtered posts for pagination
+    function countFilteredPosts($status = '', $product_type = '', $search = '') {
+        $p = new Connect();
+        $conn = $p->connect();
+        
+        $whereClause = "WHERE 1=1";
+        
+        if (!empty($status)) {
+            $whereClause .= " AND bd.trang_thai = '$status'";
+        }
+        
+        if (!empty($product_type)) {
+            $whereClause .= " AND lsp.ten_loai_san_pham = '$product_type'";
+        }
+        
+        if (!empty($search)) {
+            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.ten_loai_san_pham LIKE '%$search%')";
+        }
+        
+        $sql = "SELECT COUNT(*) as total 
+                FROM san_pham bd 
+                JOIN loai_san_pham lsp ON bd.id_loai_san_pham = lsp.id 
+                JOIN nguoi_dung nd ON bd.id_nguoi_dung = nd.id 
+                $whereClause";
+                
+        $rs = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($rs);
+        
+        return $row['total'];
     }
 }
 ?>
