@@ -24,11 +24,11 @@ if (isset($_POST['login'])) {
             // Người dùng
             header("Location: " . $baseUrl . "index.php");
         } else {
-            echo "<script>alert('Tài khoản không hợp lệ');window.location.href='login.php';</script>";
+            echo "<script>alert('Tài khoản không hợp lệ');window.location.href='/project/index.php?login';</script>";
         }
         exit;
     } else {
-        echo "<script>alert('Email hoặc mật khẩu không đúng');window.location.href='login.php';</script>";
+        echo "<script>alert('Email hoặc mật khẩu không đúng');window.location.href='/project/index.php?login';</script>";
     }
 }
 

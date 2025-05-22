@@ -16,7 +16,7 @@ class mduyetnaptien {
             JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
             JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
             WHERE lsck.trang_thai_ck = 0
-            ORDER BY lsck.id_lich_su ASC
+            ORDER BY lsck.id_lich_su
         ";
 
         $stmt = $this->conn->prepare($query);
@@ -78,7 +78,7 @@ class mduyetnaptien {
 
         // Calculate pagination
         $offset = ($page - 1) * $perPage;
-        $query .= " ORDER BY lsck.id_lich_su DESC LIMIT ?, ?";
+        $query .= " ORDER BY lsck.id_lich_su LIMIT ?, ?";
         $types .= "ii";
         $params[] = $offset;
         $params[] = $perPage;

@@ -1,49 +1,68 @@
 <?php
 include_once("model/mQLthongtin.php");
 class cqlthongtin {
-    public function getalluser() {
+    function getalluser() {
         $p = new qlthongtin();
-        return $p->alluser();
+        $data = $p->selectAllUser();
+        return $data;
     }
-    public function getoneuser($id){
+    
+    // Get one user by ID
+    function getoneuser($id) {
         $p = new qlthongtin();
-        return $p->oneuser($id);
+        $data = $p->selectOneUser($id);
+        return $data;
     }
-    // public function getupdateuser($id, $hoten, $email, $sdt, $dc, $anh, $ngayupdate){
-    //     if (isset($_POST['btn_update'])) {
-    //         echo $hoten;
-    //         $id = $_POST['id'];
-    //         $hoten = $_POST['ho_ten'];
-    //         $email = $_POST['email'];
-    //         $sdt = $_POST['so_dien_thoai'];
-    //         $dc = $_POST['dia_chi'];
-    //         $ngayupdate = date("Y-m-d H:i:s");
-        
-    //         // Xử lý ảnh nếu có upload
-    //         if (isset($_FILES['anh_dai_dien']) && $_FILES['anh_dai_dien']['error'] == 0) {
-    //             $anh = "uploads/" . basename($_FILES['anh_dai_dien']['name']);
-    //             move_uploaded_file($_FILES['anh_dai_dien']['tmp_name'], $anh);
-    //         } else {
-    //             $anh = $_POST['anh_dai_dien_old']; // ảnh cũ nếu không upload mới
-    //         }
-        
-    //         $p = new qlthongtin();
-    //         $kq = $p->updateuser($id, $hoten, $email, $sdt, $dc, $anh, $ngayupdate);
-        
-    //         if ($kq) {
-    //             echo "<script>alert('Cập nhật thành công!'); window.location='danhsachnguoidung.php';</script>";
-    //         } else {
-    //             echo "<script>alert('Cập nhật thất bại!'); history.back();</script>";
-    //         }
-    //     }
-    // }
+    
+    // Update user information
+    function getupdateuser($id, $hoten, $email, $sdt, $dc, $anh, $vai_tro) {
+        $p = new qlthongtin();
+        $data = $p->updateUser($id, $hoten, $email, $sdt, $dc, $anh, $vai_tro);
+        return $data;
+    }
+    
+    // Update user with password
+    function getupdateuser_with_password($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro) {
+        $p = new qlthongtin();
+        $data = $p->updateUserWithPassword($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro);
+        return $data;
+    }
+    
+    // Disable user
+    function disableuser($id) {
+        $p = new qlthongtin();
+        $data = $p->disableUser($id);
+        return $data;
+    }
+    
+    // Restore user
+    function restoreuser($id) {
+        $p = new qlthongtin();
+        $data = $p->restoreUser($id);
+        return $data;
+    }
+    
+    function getpaginatedusers($offset, $limit, $statusFilter = 'all') {
+        $p = new qlthongtin();
+        $data = $p->selectPaginatedUsers($offset, $limit, $statusFilter);
+        return $data;
+    }
+    
+    // Count total users with optional status filter
+    function countUsers($statusFilter = 'all') {
+        $p = new qlthongtin();
+        return $p->countTotalUsers($statusFilter);
+    }
+
+    // Add new user
+    function adduser($hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro) {
+        $p = new qlthongtin();
+        $data = $p->insertUser($hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro);
+        return $data;
+    }
     public function getinsertuser($hoten, $email, $mk, $sdt, $dc, $anh) {
         $p = new qlthongtin();
         return $p->insertuser($hoten, $email, $mk, $sdt, $dc, $anh);
-    }
-    public function getupdateuser($id, $hoten, $email, $sdt, $dc, $anh){
-        $p = new qlthongtin();
-        return $p->updateuser($id, $hoten, $email, $sdt, $dc, $anh);
     }
 }
 ?>
