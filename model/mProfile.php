@@ -36,7 +36,16 @@ class mProfile extends Connect {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+
     public function capNhatThongTin($id, $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien = null) {
+        // Kiểm tra tuổi
+        $dob = new DateTime($ngay_sinh);
+        $today = new DateTime();
+        $age = $today->diff($dob)->y;
+        if ($age < 18) {
+            return false;
+        }
+
         $conn = $this->connect();
         if ($anh_dai_dien) {
             $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_sinh=?, anh_dai_dien=? WHERE id=?";
@@ -48,6 +57,7 @@ class mProfile extends Connect {
             $stmt->bind_param("ssssi", $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $id);
         }
         $stmt->execute();
+        return true;
     }
     
     public function countSanPhamTheoTrangThai($userId, $trangThaiBan) {

@@ -73,7 +73,12 @@ if (isset($_GET['category']) && is_numeric($_GET['category'])) {
                 <div class="col-6 col-sm-4 col-md-3 col-lg-2 pb-3 product-item-row">
                     <div class="product-item bg-light h-100 p-2">
                         <div class="product-img-hover">
-                            <img src="img/<?= htmlspecialchars($sp['hinh_anh']) ?>" alt="">
+                            <?php
+                                // Lấy ảnh đầu tiên từ chuỗi hinh_anh
+                                $images = explode(',', $sp['hinh_anh']);
+                                $firstImage = trim($images[0]);
+                            ?>
+                            <img src="img/<?= htmlspecialchars($firstImage) ?>" alt="">
                         </div>
                         <div class="text-center py-3 px-2">
                             <a class="h6 text-decoration-none text-truncate d-block mb-2" href="index.php?detail&id=<?= $sp['id'] ?>">

@@ -18,31 +18,6 @@
 |4|2|3|2|4|Sản phẩm anh ta bán khá ok|2025-04-09
 |5|3|2|3|5|Rất ok|2025-04-10
 |9|1|3|7|5|sản phẩm này tốt|2025-05-11
-== Cấu trúc bảng cho bảng doanh_thu
-
-|------
-|Cột|Kiểu|Null|Mặc định
-|------
-|//**id**//|int(11)|Không|
-|id_lsdt|int(11)|Không|
-|id_lspdb|int(11)|Không|
-|ngay_cap_nhat|datetime|Có|NULL
-== Đang đổ dữ liệu cho bảng doanh_thu
-
-|8|16|17|2025-05-16 21:57:26
-== Cấu trúc bảng cho bảng giao_dich
-
-|------
-|Cột|Kiểu|Null|Mặc định
-|------
-|//**id**//|int(11)|Không|
-|id_nguoi_dung|int(11)|Không|
-|loai_giao_dich|varchar(20)|Không|
-|so_tien|decimal(10,2)|Không|
-|trang_thai|varchar(20)|Có|hoan_thanh
-|ngay_tao|date|Có|curdate()
-== Đang đổ dữ liệu cho bảng giao_dich
-
 == Cấu trúc bảng cho bảng lich_su_chuyen_khoan
 
 |------
@@ -98,13 +73,11 @@
 |2|Ô tô|1
 |3|Xe điện|1
 |4|Phụ tùng xe|1
-|5|Khác|1
 |6|Laptop|2
 |7|Điện thoại|2
 |8|Máy tính bảng|2
 |9|Máy ảnh|2
 |10|Thiết bị thông minh|2
-|11|Khác|2
 |12|Quần|3
 |13|Áo|3
 |14|Túi xách|3
@@ -150,17 +123,19 @@
 |id_vai_tro|int(11)|Không|
 |anh_dai_dien|varchar(255)|Có|NULL
 |ngay_sinh|date|Có|NULL
-|ngay_tham_gia|date|Có|current_timestamp()
+|ngay_tao|date|Có|current_timestamp()
+|ngay_cap_nhat|datetime|Không|current_timestamp()
+|trang_thai_hd|tinyint(1)|Không|
 == Đang đổ dữ liệu cho bảng nguoi_dung
 
-|1|user1|user1@gmail.com|202cb962ac59075b964b07152d234b70|0901111111|Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh|2|xeab.jpg|2025-04-10|2025-04-10
-|2|user2|user2@gmail.com|202cb962ac59075b964b07152d234b70|0902222222|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|user2.jpg|2025-04-10|2025-04-10
-|3|user3|user3@gmail.com|202cb962ac59075b964b07152d234b70|09033333333|Lê Lợi, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|xeab2.jpg|2025-04-10|2025-04-10
-|4|user4|user4@gmail.com|202cb962ac59075b964b07152d234b70|0904444444|Dương Quang Hàm, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|user4.jpg|2025-04-10|2025-04-10
-|5|admin|admin@gmail.com|202cb962ac59075b964b07152d234b70|0905555555|Tô Ngọc Vân, P.Linh Tây, Tp.Thủ Đức, Tp.Hồ Chí Minh|1|admin.jpg|2025-04-10|2025-04-10
-|6|Nguyễn Phúc|user5@gmail.com|202cb962ac59075b964b07152d234b70|0987646464|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|1747234139_6824ad5bbac41.jpg|2005-02-11|2025-05-11
-|17|Khánh|user6@gmail.com|202cb962ac59075b964b07152d234b70|0901132321|Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh|2|xeab2.jpg|NULL|2025-05-14
-|18|An|user7@gmail.com|202cb962ac59075b964b07152d234b70|09033333333|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|1747232858_6824a85a76f0e.png|2025-05-08|2025-05-14
+|1|user1|user1@gmail.com|202cb962ac59075b964b07152d234b70|0901111111|Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh|2|xeab.jpg|2025-04-10|2025-04-10|2025-05-19 10:23:42|1
+|2|user2|user2@gmail.com|202cb962ac59075b964b07152d234b70|0902222222|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|user2.jpg|2025-04-10|2025-04-10|2025-05-19 10:23:48|1
+|3|user3|user3@gmail.com|202cb962ac59075b964b07152d234b70|09033333333|Lê Lợi, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|xeab2.jpg|2025-04-10|2025-04-10|2025-05-19 10:23:52|1
+|4|user4|user4@gmail.com|202cb962ac59075b964b07152d234b70|0904444444|Dương Quang Hàm, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|user4.jpg|2025-04-10|2025-04-10|2025-05-19 10:23:55|1
+|5|admin|admin@gmail.com|202cb962ac59075b964b07152d234b70|0905555555|Tô Ngọc Vân, P.Linh Tây, Tp.Thủ Đức, Tp.Hồ Chí Minh|1|admin.jpg|2025-04-10|2025-04-10|2025-05-19 10:23:59|1
+|6|Nguyễn Phúc|user5@gmail.com|202cb962ac59075b964b07152d234b70|0987646464|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|1747234139_6824ad5bbac41.jpg|2005-02-11|2025-05-11|2025-05-19 10:24:02|1
+|17|Khánh|user6@gmail.com|202cb962ac59075b964b07152d234b70|0901132321|Đường số 15, P.Linh Chiểu, Tp.Thủ Đức, Tp.Hồ Chí Minh|2|xeab2.jpg|NULL|2025-05-14|2025-05-19 10:24:05|1
+|18|An|user7@gmail.com|202cb962ac59075b964b07152d234b70|09033333333|Nguyễn Văn Bảo, P.4, Q.Gò Vấp, Tp.Hồ Chí Minh|2|1747232858_6824a85a76f0e.png|2025-05-08|2025-05-14|2025-05-19 10:24:09|1
 == Cấu trúc bảng cho bảng san_pham
 
 |------
@@ -219,7 +194,7 @@ fsdfssfdf|4234234.00|680d5d7608f00.jpg,680d5d7609025.jpg|Đã duyệt|Đã bán|
 |37|1|1|Ô tô Toyota|sfsadfasfasdf|99999999.99|681fa0302ef68.png,681fa0302f06d.png|Chờ duyệt|Đang bán|2025-05-10 20:51:28|2025-05-11 01:51:28| 
 |38|1|13|Áo Hoodie Nỉ Bông in hình đẳng cấp|Sản phẩm tôi mới mua và chưa sử dụng, ai có nhu cầu thì liên hệ em ạ.
 Cảm ơn mọi người!|170000.00|68249713f042d.jpg,68249713f0561.jpg|Chờ duyệt|Đang bán|2025-05-14 15:13:55|2025-05-14 20:14:55| 
-|39|6|12|Áo khoác nỉ hoodie zip nam nữ|Sản phẩm này tôi vừa mặc được 1 lần.
+|39|6|13|Áo khoác nỉ hoodie zip nam nữ|Sản phẩm này tôi vừa mặc được 1 lần.
 Ai cần thì liên hệ tôi|199000.00|68249b7f31f4c.jpg,68249b7f3206e.jpg|Đã duyệt|Đang bán|2025-05-14 15:32:47|2025-05-14 20:32:47| 
 == Cấu trúc bảng cho bảng taikhoan_chuyentien
 
@@ -258,6 +233,7 @@ Ai cần thì liên hệ tôi|199000.00|68249b7f31f4c.jpg,68249b7f3206e.jpg|Đã
 |52|2|1|31|chat_1_2.json|2025-05-07|2025-05-07 09:42:58|0
 |53|1|1|30|chat_1_1.json|2025-05-08|2025-05-08 22:50:38|0
 |54|2|3|7|chat_2_3.json|2025-05-09|2025-05-09 11:47:21|0
+|55|1|6|39|chat_1_6.json|2025-05-18|2025-05-18 15:43:42|0
 == Cấu trúc bảng cho bảng vai_tro
 
 |------

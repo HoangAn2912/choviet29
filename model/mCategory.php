@@ -32,7 +32,7 @@ class mCategory {
     }
 // hiển thị sản phẩm khi đang trạng thái đang bán và tìm được trên danh mục
     public function getProductsByCategoryId($id_loai) {
-        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai_ban = 'dang_ban'";
+        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai_ban = 'Đang bán'";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_loai);
         $stmt->execute();

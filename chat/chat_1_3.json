@@ -40,5 +40,11 @@
     "to": 3,
     "noi_dung": "Cho tôi xin địa chỉ được không?",
     "timestamp": "2025-05-09T04:46:02.083Z"
+  },
+  {
+    "from": 1,
+    "to": 3,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-23T06:32:25.512Z"
   }
 ]

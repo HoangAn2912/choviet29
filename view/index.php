@@ -206,11 +206,9 @@ $i = 0;
                 <div class="product-item bg-light h-100 p-2">
                     <div class="product-img-hover">
                     <img src="img/<?= htmlspecialchars($sp['anh_dau']) ?>" alt="">
-
                     </div>
                     <div class="text-center py-3 px-2">
                     <a class="h6 text-decoration-none text-truncate d-block mb-2" href="index.php?detail&id=<?= $sp['id'] ?>">
-
                             <?= htmlspecialchars($sp['tieu_de']) ?>
                         </a>
                         <div class="product-meta mb-1"><?= htmlspecialchars($sp['mo_ta']) ?></div>

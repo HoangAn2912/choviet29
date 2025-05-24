@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 21, 2025 lúc 11:19 AM
+-- Thời gian đã tạo: Th5 23, 2025 lúc 06:00 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -46,26 +46,6 @@ INSERT INTO `danh_gia` (`id`, `id_nguoi_danh_gia`, `id_nguoi_duoc_danh_gia`, `id
 (4, 2, 3, 2, 4, 'Sản phẩm anh ta bán khá ok', '2025-04-09'),
 (5, 3, 2, 3, 5, 'Rất ok', '2025-04-10'),
 (9, 1, 3, 7, 5, 'sản phẩm này tốt', '2025-05-11');
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `doanh_thu`
---
-
-CREATE TABLE `doanh_thu` (
-  `id` int(11) NOT NULL,
-  `id_lsdt` int(11) NOT NULL,
-  `id_lspdb` int(11) NOT NULL,
-  `ngay_cap_nhat` datetime DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `doanh_thu`
---
-
-INSERT INTO `doanh_thu` (`id`, `id_lsdt`, `id_lspdb`, `ngay_cap_nhat`) VALUES
-(8, 16, 17, '2025-05-16 21:57:26');
 
 -- --------------------------------------------------------
 
@@ -153,13 +133,11 @@ INSERT INTO `loai_san_pham` (`id`, `ten_loai_san_pham`, `id_loai_san_pham_cha`) 
 (2, 'Ô tô', 1),
 (3, 'Xe điện', 1),
 (4, 'Phụ tùng xe', 1),
-(5, 'Khác', 1),
 (6, 'Laptop', 2),
 (7, 'Điện thoại', 2),
 (8, 'Máy tính bảng', 2),
 (9, 'Máy ảnh', 2),
 (10, 'Thiết bị thông minh', 2),
-(11, 'Khác', 2),
 (12, 'Quần', 3),
 (13, 'Áo', 3),
 (14, 'Túi xách', 3),
@@ -298,7 +276,7 @@ INSERT INTO `san_pham` (`id`, `id_nguoi_dung`, `id_loai_san_pham`, `tieu_de`, `m
 (36, 1, 1, 'Ô tô Toyota', '53245324', 3453453.00, '681ad72b291f7.png,681ad72b29377.png', 'Chờ duyệt', 'Đã bán', '2025-05-07 05:44:43', '2025-05-11 11:47:18', ''),
 (37, 1, 1, 'Ô tô Toyota', 'sfsadfasfasdf', 99999999.99, '681fa0302ef68.png,681fa0302f06d.png', 'Chờ duyệt', 'Đang bán', '2025-05-10 20:51:28', '2025-05-11 01:51:28', ''),
 (38, 1, 13, 'Áo Hoodie Nỉ Bông in hình đẳng cấp', 'Sản phẩm tôi mới mua và chưa sử dụng, ai có nhu cầu thì liên hệ em ạ.\r\nCảm ơn mọi người!', 170000.00, '68249713f042d.jpg,68249713f0561.jpg', 'Chờ duyệt', 'Đang bán', '2025-05-14 15:13:55', '2025-05-14 20:14:55', ''),
-(39, 6, 12, 'Áo khoác nỉ hoodie zip nam nữ', 'Sản phẩm này tôi vừa mặc được 1 lần.\r\nAi cần thì liên hệ tôi', 199000.00, '68249b7f31f4c.jpg,68249b7f3206e.jpg', 'Đã duyệt', 'Đang bán', '2025-05-14 15:32:47', '2025-05-14 20:32:47', '');
+(39, 6, 13, 'Áo khoác nỉ hoodie zip nam nữ', 'Sản phẩm này tôi vừa mặc được 1 lần.\r\nAi cần thì liên hệ tôi', 199000.00, '68249b7f31f4c.jpg,68249b7f3206e.jpg', 'Đã duyệt', 'Đang bán', '2025-05-14 15:32:47', '2025-05-14 20:32:47', '');
 
 -- --------------------------------------------------------
 
@@ -387,14 +365,6 @@ ALTER TABLE `danh_gia`
   ADD KEY `danh_gia_ibfk_3` (`id_san_pham`);
 
 --
--- Chỉ mục cho bảng `doanh_thu`
---
-ALTER TABLE `doanh_thu`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_lsdt` (`id_lsdt`),
-  ADD KEY `fk_lspdb` (`id_lspdb`);
-
---
 -- Chỉ mục cho bảng `lich_su_chuyen_khoan`
 --
 ALTER TABLE `lich_su_chuyen_khoan`
@@ -479,12 +449,6 @@ ALTER TABLE `danh_gia`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT cho bảng `doanh_thu`
---
-ALTER TABLE `doanh_thu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
 -- AUTO_INCREMENT cho bảng `lich_su_chuyen_khoan`
 --
 ALTER TABLE `lich_su_chuyen_khoan`
@@ -555,13 +519,6 @@ ALTER TABLE `danh_gia`
   ADD CONSTRAINT `danh_gia_ibfk_1` FOREIGN KEY (`id_nguoi_danh_gia`) REFERENCES `nguoi_dung` (`id`),
   ADD CONSTRAINT `danh_gia_ibfk_2` FOREIGN KEY (`id_nguoi_duoc_danh_gia`) REFERENCES `nguoi_dung` (`id`),
   ADD CONSTRAINT `danh_gia_ibfk_3` FOREIGN KEY (`id_san_pham`) REFERENCES `san_pham` (`id`);
-
---
--- Các ràng buộc cho bảng `doanh_thu`
---
-ALTER TABLE `doanh_thu`
-  ADD CONSTRAINT `fk_lsdt` FOREIGN KEY (`id_lsdt`) REFERENCES `lich_su_day_tin` (`id`),
-  ADD CONSTRAINT `fk_lspdb` FOREIGN KEY (`id_lspdb`) REFERENCES `lich_su_phi_dang_bai` (`id`);
 
 --
 -- Các ràng buộc cho bảng `lich_su_chuyen_khoan`

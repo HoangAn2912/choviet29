@@ -31,7 +31,15 @@ class cProfile {
         exit;
     }
     if (!preg_match('/^[0-9]{10,11}$/', $so_dien_thoai)) {
-        header("Location: index.php?thongtin&toast=" . urlencode("❌ Số điện thoại phải có 10–11 chữ số") . "&type=error");
+        header("Location: index.php?thongtin&toast=" . urlencode("❌ Số điện thoại không hợp lệ! Phải có 10–11 chữ số") . "&type=error");
+        exit;
+    }
+    // Kiểm tra tuổi
+    $dob = new DateTime($ngay_sinh);
+    $today = new DateTime();
+    $age = $today->diff($dob)->y;
+    if ($age < 18) {
+        header("Location: index.php?thongtin&toast=" . urlencode("❌ Ngày sinh không hợp lệ. Bạn phải đủ 18 tuổi trở lên!") . "&type=error");
         exit;
     }
 

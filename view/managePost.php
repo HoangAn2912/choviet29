@@ -131,10 +131,10 @@ function getNoProductText($status) {
                         </button>
                         <div class="dropdown-menu">
                           <a class="dropdown-item d-flex align-items-center" href="#" onclick="xacNhanCapNhat(<?= $post['id'] ?>, 'Đã bán')">
-                            <i class="fas fa-check-circle mr-2" style="color: #28a745;"></i> Đã bán
+                            <i class="fas fa-check-circle mr-2" style="color: #28a745;"></i> Đã bán sản phẩm
                           </a>
                           <a class="dropdown-item d-flex align-items-center" href="#" onclick="xacNhanCapNhat(<?= $post['id'] ?>, 'Đã ẩn')">
-                            <i class="fas fa-eye-slash mr-2" style="color: #6c757d;"></i> Đã ẩn
+                            <i class="fas fa-eye-slash mr-2" style="color: #6c757d;"></i> Ẩn sản phẩm
                           </a>
                         </div>
                       </div>
@@ -275,9 +275,9 @@ function xacNhanDayTin(id) {
 function xacNhanCapNhat(id, loai) {
   let message = '';
   if (loai === 'Đã bán') {
-    message = "Cảm ơn bạn đã bán sản phẩm qua trang Chợ Việt.";
+    message = "Bạn có chắc chắn muốn ẩn sản phẩm đã bán này không?";
   } else if (loai === 'Đã ẩn') {
-    message = "Bạn xác nhận ẩn tin này và có thể mở lại khi bạn cần.";
+    message = "Bạn có chắc chắn muốn ẩn sản phẩm này không?";
   }
 
   if (confirm(message)) {
