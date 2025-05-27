@@ -151,7 +151,7 @@ try {
                                 <div class="col-md-6">
                                     <?php if (!empty($transactionDetails['hinh_anh_ck'])): ?>
                                         <p><strong>Hình ảnh chuyển khoản:</strong></p>
-                                        <img src="img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" 
+                                        <img src="/project/img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" 
                                              alt="Transfer Image" 
                                              class="img-fluid rounded border"
                                              style="max-height: 300px; cursor: pointer;"
@@ -310,7 +310,6 @@ try {
                                         <th>ID</th>
                                         <th>Người dùng</th>
                                         <th>Nội dung</th>
-                                        <th>Hình ảnh</th>
                                         <th>Trạng thái</th>
                                         <th>Ngày tạo</th>
                                         <th width="200">Hành động</th>
@@ -347,18 +346,6 @@ try {
                                                           title="<?php echo $transaction['noi_dung_ck']; ?>">
                                                         <?php echo $transaction['noi_dung_ck']; ?>
                                                     </span>
-                                                </td>
-                                                <td>
-                                                    <?php if (!empty($transaction['hinh_anh_ck'])): ?>
-                                                        <img src="img/<?php echo $transaction['hinh_anh_ck']; ?>" 
-                                                             alt="Transfer Image" 
-                                                             class="transaction-image"
-                                                             onclick="openImageModal('img/<?php echo $transaction['hinh_anh_ck']; ?>')">
-                                                    <?php else: ?>
-                                                        <span class="text-muted">
-                                                            <i class="fas fa-image"></i> Không có
-                                                        </span>
-                                                    <?php endif; ?>
                                                 </td>
                                                 <td><?php echo getStatusBadge($transaction['trang_thai_ck']); ?></td>
                                                 <td>
@@ -487,8 +474,11 @@ try {
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modalImage" src="/placeholder.svg" alt="Transfer Image" class="img-fluid">
+                    <img id="modalImage" src="" alt="Transfer Image" class="img-fluid">
                 </div>
+                
+
+
             </div>
         </div>
     </div>
