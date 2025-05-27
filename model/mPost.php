@@ -25,7 +25,7 @@ class mPost {
         $stmtCount->close();
     
         // Bước 2: Nếu đã có từ 3 bài trở lên => trừ phí và lưu lịch sử
-        if ($soLuong >= 3) {
+        if ($soLuong >= 2) {
             // Trừ số dư trong tài khoản
             $phiDangBai = 11000;
     

@@ -115,7 +115,9 @@ include_once("view/header.php");
                 <?php endif; ?>
                     <p><i class="fas fa-envelope" style="color: #3D464D;"></i> Email:  <?= htmlspecialchars($user['email']) ?></p>
                     <p><i class="fas fa-phone" style="color: #3D464D;"></i> SĐT: <?= htmlspecialchars($user['so_dien_thoai']) ?></p>
-                    <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
+                    <?php if ($idNguoiDung == $_SESSION['user_id']): ?>
+                        <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
+                    <?php endif; ?>
                     <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['dia_chi']) ?></p>
                     <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày sinh: <?= date('d/m/Y', strtotime($user['ngay_sinh'])) ?></p>
                     <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tao'])) ?></p>
@@ -202,7 +204,14 @@ include_once("view/header.php");
                 <?php else: ?>
                     <?php foreach ($reviews as $review): ?>
                         <div class="d-flex mb-3 align-items-start">
-                            <img src="img/<?= htmlspecialchars($review['hinh_san_pham']) ?>" alt="" style="width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:4px;">
+                            <?php
+                                $firstImg = '';
+                                if (!empty($review['hinh_san_pham'])) {
+                                    $arr = explode(',', $review['hinh_san_pham']);
+                                    $firstImg = trim($arr[0]);
+                                }
+                                ?>
+                                <img src="img/<?= htmlspecialchars($firstImg) ?>" alt="" style="width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:4px;">
                             <div>
                                 <div class="mb-1">
                                     <strong><?= htmlspecialchars($review['ten_nguoi_danh_gia']) ?></strong>

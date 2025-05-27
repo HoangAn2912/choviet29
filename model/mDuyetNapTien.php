@@ -1,6 +1,7 @@
 <?php
 include_once("mConnect.php");
-class mduyetnaptien {
+
+class mDuyetNapTien {
     private $conn;
 
     public function __construct() {
@@ -8,67 +9,44 @@ class mduyetnaptien {
         $this->conn = $p->connect();
     }
 
-    // Get all pending transactions
-    public function getPendingTransactions() {
-        $query = "
-            SELECT lsck.*, tck.id_nguoi_dung, tck.so_du, u.ten_dang_nhap, u.email
-            FROM lich_su_chuyen_khoan lsck
-            JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
-            JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
-            WHERE lsck.trang_thai_ck = 0
-            ORDER BY lsck.id_lich_su
-        ";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
     // Get all transactions with optional filters and pagination
     public function getAllTransactions($status = null, $userId = null, $search = null, $page = 1, $perPage = 10) {
         $query = "
-            SELECT lsck.*, tck.id_nguoi_dung, tck.so_du, u.ten_dang_nhap, u.email
+            SELECT lsck.*, nd.ten_dang_nhap, nd.email, tck.so_du
             FROM lich_su_chuyen_khoan lsck
-            JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
-            JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
+            LEFT JOIN nguoi_dung nd ON lsck.id_nguoi_dung = nd.id
+            LEFT JOIN taikhoan_chuyentien tck ON lsck.id_nguoi_dung = tck.id_nguoi_dung
             WHERE 1=1
         ";
 
         $countQuery = "
             SELECT COUNT(*) as total
             FROM lich_su_chuyen_khoan lsck
-            JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
-            JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
+            LEFT JOIN nguoi_dung nd ON lsck.id_nguoi_dung = nd.id
+            LEFT JOIN taikhoan_chuyentien tck ON lsck.id_nguoi_dung = tck.id_nguoi_dung
             WHERE 1=1
         ";
 
         $types = "";
         $params = [];
 
-        if ($status !== null) {
+        if ($status !== null && $status !== '') {
             $query .= " AND lsck.trang_thai_ck = ?";
             $countQuery .= " AND lsck.trang_thai_ck = ?";
-            $types .= "i";
+            $types .= "s";
             $params[] = $status;
         }
 
-        if ($userId !== null) {
-            $query .= " AND tck.id_nguoi_dung = ?";
-            $countQuery .= " AND tck.id_nguoi_dung = ?";
+        if ($userId !== null && $userId !== '') {
+            $query .= " AND lsck.id_nguoi_dung = ?";
+            $countQuery .= " AND lsck.id_nguoi_dung = ?";
             $types .= "i";
             $params[] = $userId;
         }
 
-        if ($search !== null) {
-            $query .= " AND (u.ten_dang_nhap LIKE ? OR u.email LIKE ? OR lsck.noi_dung_ck LIKE ?)";
-            $countQuery .= " AND (u.ten_dang_nhap LIKE ? OR u.email LIKE ? OR lsck.noi_dung_ck LIKE ?)";
+        if ($search !== null && $search !== '') {
+            $query .= " AND (nd.ten_dang_nhap LIKE ? OR nd.email LIKE ? OR lsck.noi_dung_ck LIKE ?)";
+            $countQuery .= " AND (nd.ten_dang_nhap LIKE ? OR nd.email LIKE ? OR lsck.noi_dung_ck LIKE ?)";
             $types .= "sss";
             $searchTerm = "%$search%";
             $params[] = $searchTerm;
@@ -76,27 +54,22 @@ class mduyetnaptien {
             $params[] = $searchTerm;
         }
 
-        // Calculate pagination
-        $offset = ($page - 1) * $perPage;
-        $query .= " ORDER BY lsck.id_lich_su LIMIT ?, ?";
-        $types .= "ii";
-        $params[] = $offset;
-        $params[] = $perPage;
-
         // Get total count for pagination
         $countStmt = $this->conn->prepare($countQuery);
         if (!empty($params)) {
-            // Remove the last two parameters (offset and limit) for the count query
-            $countParams = array_slice($params, 0, -2);
-            $countTypes = substr($types, 0, -2);
-            if (!empty($countParams)) {
-                $countStmt->bind_param($countTypes, ...$countParams);
-            }
+            $countStmt->bind_param($types, ...$params);
         }
         $countStmt->execute();
         $countResult = $countStmt->get_result();
         $totalCount = $countResult->fetch_assoc()['total'];
         $totalPages = ceil($totalCount / $perPage);
+
+        // Calculate pagination
+        $offset = ($page - 1) * $perPage;
+        $query .= " ORDER BY lsck.ngay_tao DESC LIMIT ?, ?";
+        $types .= "ii";
+        $params[] = $offset;
+        $params[] = $perPage;
 
         // Get paginated data
         $stmt = $this->conn->prepare($query);
@@ -125,10 +98,10 @@ class mduyetnaptien {
     // Get transaction by ID
     public function getTransactionById($id) {
         $query = "
-            SELECT lsck.*, tck.id_nguoi_dung, tck.so_du, u.ten_dang_nhap, u.email
+            SELECT lsck.*, nd.ten_dang_nhap, nd.email, tck.so_du
             FROM lich_su_chuyen_khoan lsck
-            JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
-            JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
+            LEFT JOIN nguoi_dung nd ON lsck.id_nguoi_dung = nd.id
+            LEFT JOIN taikhoan_chuyentien tck ON lsck.id_nguoi_dung = tck.id_nguoi_dung
             WHERE lsck.id_lich_su = ?
         ";
 
@@ -142,15 +115,20 @@ class mduyetnaptien {
 
     // Update transaction status
     public function updateTransactionStatus($id, $status) {
-        $query = "
-            UPDATE lich_su_chuyen_khoan
-            SET trang_thai_ck = ?
-            WHERE id_lich_su = ?
-        ";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ii", $status, $id);
-        return $stmt->execute();
+        try {
+            $query = "UPDATE lich_su_chuyen_khoan SET trang_thai_ck = ? WHERE id_lich_su = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("si", $status, $id);
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Không thể cập nhật trạng thái: ' . $stmt->error);
+            }
+            
+            return $stmt->affected_rows > 0;
+        } catch (Exception $e) {
+            error_log("Update status error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     // Update multiple transaction statuses
@@ -163,10 +141,10 @@ class mduyetnaptien {
         $query = "
             UPDATE lich_su_chuyen_khoan
             SET trang_thai_ck = ?
-            WHERE id_lich_su IN ($placeholders) AND trang_thai_ck = 0
+            WHERE id_lich_su IN ($placeholders) AND trang_thai_ck = 'Đang chờ duyệt'
         ";
 
-        $types = "i" . str_repeat("i", count($ids));
+        $types = "s" . str_repeat("i", count($ids));
         $params = array_merge([$status], $ids);
 
         $stmt = $this->conn->prepare($query);
@@ -175,46 +153,43 @@ class mduyetnaptien {
     }
 
     // Update user balance
-    public function updateUserBalance($accountId, $amount) {
-        $this->conn->begin_transaction();
-
+    public function updateUserBalance($userId, $amount) {
         try {
-            $query = "
-                SELECT so_du FROM taikhoan_chuyentien
-                WHERE id_ck = ? FOR UPDATE
-            ";
-
+            // Get current balance
+            $query = "SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ? FOR UPDATE";
             $stmt = $this->conn->prepare($query);
-            $stmt->bind_param("i", $accountId);
+            $stmt->bind_param("i", $userId);
             $stmt->execute();
             $result = $stmt->get_result();
             $account = $result->fetch_assoc();
 
+            if (!$account) {
+                throw new Exception('Tài khoản không tồn tại');
+            }
+
             $newBalance = $account['so_du'] + $amount;
 
-            $query = "
-                UPDATE taikhoan_chuyentien
-                SET so_du = ?
-                WHERE id_ck = ?
-            ";
-
+            // Update balance
+            $query = "UPDATE taikhoan_chuyentien SET so_du = ? WHERE id_nguoi_dung = ?";
             $stmt = $this->conn->prepare($query);
-            $stmt->bind_param("di", $newBalance, $accountId);
-            $stmt->execute();
+            $stmt->bind_param("di", $newBalance, $userId);
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Không thể cập nhật số dư: ' . $stmt->error);
+            }
 
-            $this->conn->commit();
             return true;
         } catch (Exception $e) {
-            $this->conn->rollback();
-            return false;
+            error_log("Update balance error: " . $e->getMessage());
+            throw $e;
         }
     }
 
     // Extract amount from transaction content
     public function extractAmountFromContent($content) {
-        preg_match('/\d+/', $content, $matches);
-        if (isset($matches[0])) {
-            return (int)$matches[0];
+        preg_match('/(\d+)$/', $content, $matches);
+        if (isset($matches[1])) {
+            return (int)$matches[1];
         }
         return 0;
     }
@@ -224,9 +199,9 @@ class mduyetnaptien {
         $query = "
             SELECT 
                 COUNT(*) as total_transactions,
-                SUM(CASE WHEN trang_thai_ck = 0 THEN 1 ELSE 0 END) as pending_count,
-                SUM(CASE WHEN trang_thai_ck = 1 THEN 1 ELSE 0 END) as approved_count,
-                SUM(CASE WHEN trang_thai_ck = 2 THEN 1 ELSE 0 END) as rejected_count
+                SUM(CASE WHEN trang_thai_ck = 'Đang chờ duyệt' THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN trang_thai_ck = 'Đã duyệt' THEN 1 ELSE 0 END) as approved_count,
+                SUM(CASE WHEN trang_thai_ck = 'Từ chối duyệt' THEN 1 ELSE 0 END) as rejected_count
             FROM lich_su_chuyen_khoan
         ";
 
@@ -236,76 +211,33 @@ class mduyetnaptien {
         return $result->fetch_assoc();
     }
 
-    // Export transactions to CSV
-    public function exportTransactions($status = null, $userId = null, $search = null) {
-        $query = "
-            SELECT 
-                lsck.id_lich_su, 
-                u.ten_dang_nhap, 
-                u.email, 
-                lsck.noi_dung_ck, 
-                lsck.hinh_anh_ck, 
-                lsck.trang_thai_ck,
-                tck.so_du
-            FROM lich_su_chuyen_khoan lsck
-            JOIN taikhoan_chuyentien tck ON lsck.id_lich_su = tck.id_ck
-            JOIN nguoi_dung u ON tck.id_nguoi_dung = u.id
-            WHERE 1=1
-        ";
-
-        $types = "";
-        $params = [];
-
-        if ($status !== null) {
-            $query .= " AND lsck.trang_thai_ck = ?";
-            $types .= "i";
-            $params[] = $status;
-        }
-
-        if ($userId !== null) {
-            $query .= " AND tck.id_nguoi_dung = ?";
-            $types .= "i";
-            $params[] = $userId;
-        }
-
-        if ($search !== null) {
-            $query .= " AND (u.ten_dang_nhap LIKE ? OR u.email LIKE ? OR lsck.noi_dung_ck LIKE ?)";
-            $types .= "sss";
-            $searchTerm = "%$search%";
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
-        }
-
-        $query .= " ORDER BY lsck.id_lich_su DESC";
-
+    // Get users for dropdown
+    public function getAllUsers() {
+        $query = "SELECT id, ten_dang_nhap FROM nguoi_dung ORDER BY ten_dang_nhap";
         $stmt = $this->conn->prepare($query);
-        if (!empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $data = [];
+        $users = [];
         while ($row = $result->fetch_assoc()) {
-            // Convert status code to text
-            switch ($row['trang_thai_ck']) {
-                case 0:
-                    $row['trang_thai_text'] = 'Đang chờ xác nhận';
-                    break;
-                case 1:
-                    $row['trang_thai_text'] = 'Đã xác nhận';
-                    break;
-                case 2:
-                    $row['trang_thai_text'] = 'Đã từ chối';
-                    break;
-                default:
-                    $row['trang_thai_text'] = 'Không xác định';
-            }
-            $data[] = $row;
+            $users[] = $row;
         }
+        return $users;
+    }
 
-        return $data;
+    // Begin transaction
+    public function beginTransaction() {
+        return $this->conn->begin_transaction();
+    }
+
+    // Commit transaction
+    public function commitTransaction() {
+        return $this->conn->commit();
+    }
+
+    // Rollback transaction
+    public function rollbackTransaction() {
+        return $this->conn->rollback();
     }
 }
 ?>

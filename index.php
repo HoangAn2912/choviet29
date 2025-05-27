@@ -23,7 +23,7 @@ $controller = new cDetailProduct();
 
 <head>
     <meta charset="utf-8">
-    <title>Chợ Đồ Cũ - Nơi trao đổi hàng hóa</title>
+    <title>Chợ Việt - Nơi trao đổi hàng hóa</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">

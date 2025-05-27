@@ -1,16 +1,11 @@
 <?php
 include_once 'model/mDuyetNapTien.php';
 
-class cduyetnaptien {
+class cDuyetNapTien {
     private $model;
     
     public function __construct() {
-        $this->model = new mduyetnaptien();
-    }
-    
-    // Get all pending transactions
-    public function getPendingTransactions() {
-        return $this->model->getPendingTransactions();
+        $this->model = new mDuyetNapTien();
     }
     
     // Get all transactions with optional filters and pagination
@@ -24,51 +19,70 @@ class cduyetnaptien {
     }
     
     // Approve transaction
-    public function approveTransaction($id) {
-        // Get transaction details
-        $transaction = $this->model->getTransactionById($id);
-        
-        if (!$transaction) {
-            return [
-                'success' => false,
-                'message' => 'Giao dịch không tồn tại'
-            ];
-        }
-        
-        if ($transaction['trang_thai_ck'] != 0) {
-            return [
-                'success' => false,
-                'message' => 'Giao dịch này đã được xử lý trước đó'
-            ];
-        }
-        
-        // Extract amount from content
-        $amount = $this->model->extractAmountFromContent($transaction['noi_dung_ck']);
-        
-        // Begin transaction
+    public function approveTransaction($id, $customAmount = null) {
         try {
-            // Update transaction status to approved (1)
-            $statusUpdated = $this->model->updateTransactionStatus($id, 1);
-            
-            if (!$statusUpdated) {
-                throw new Exception('Không thể cập nhật trạng thái giao dịch');
+            // Get transaction details
+            $transaction = $this->model->getTransactionById($id);
+        
+            if (!$transaction) {
+                return [
+                    'success' => false,
+                    'message' => 'Giao dịch không tồn tại'
+                ];
             }
-            
-            // Update user balance
-            $balanceUpdated = $this->model->updateUserBalance($transaction['id_ck'], $amount);
-            
-            if (!$balanceUpdated) {
-                throw new Exception('Không thể cập nhật số dư tài khoản');
+        
+            if ($transaction['trang_thai_ck'] != 'Đang chờ duyệt') {
+                return [
+                    'success' => false,
+                    'message' => 'Giao dịch này đã được xử lý trước đó'
+                ];
             }
+        
+            // Extract amount from content or use custom amount
+            $amount = $customAmount !== null ? $customAmount : $this->model->extractAmountFromContent($transaction['noi_dung_ck']);
+        
+            if ($amount <= 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Số tiền không hợp lệ'
+                ];
+            }
+        
+            // Start transaction
+            $this->model->beginTransaction();
+        
+            try {
+                // Update transaction status to approved
+                $statusUpdated = $this->model->updateTransactionStatus($id, 'Đã duyệt');
             
-            return [
-                'success' => true,
-                'message' => 'Giao dịch đã được phê duyệt và số dư đã được cập nhật'
-            ];
+                if (!$statusUpdated) {
+                    throw new Exception('Không thể cập nhật trạng thái giao dịch');
+                }
+            
+                // Update user balance
+                $balanceUpdated = $this->model->updateUserBalance($transaction['id_nguoi_dung'], $amount);
+            
+                if (!$balanceUpdated) {
+                    throw new Exception('Không thể cập nhật số dư tài khoản');
+                }
+            
+                $this->model->commitTransaction();
+            
+                return [
+                    'success' => true,
+                    'message' => "Giao dịch #$id đã được phê duyệt thành công! Số tiền " . number_format($amount, 0, ',', '.') . " VND đã được cộng vào tài khoản."
+                ];
+            
+            } catch (Exception $e) {
+                $this->model->rollbackTransaction();
+                throw $e;
+            }
+        
         } catch (Exception $e) {
+            error_log("Approve transaction error: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
             ];
         }
     }
@@ -85,15 +99,15 @@ class cduyetnaptien {
             ];
         }
         
-        if ($transaction['trang_thai_ck'] != 0) {
+        if ($transaction['trang_thai_ck'] != 'Đang chờ duyệt') {
             return [
                 'success' => false,
                 'message' => 'Giao dịch này đã được xử lý trước đó'
             ];
         }
         
-        // Update transaction status to rejected (2)
-        $statusUpdated = $this->model->updateTransactionStatus($id, 2);
+        // Update transaction status to rejected
+        $statusUpdated = $this->model->updateTransactionStatus($id, 'Từ chối duyệt');
         
         if ($statusUpdated) {
             return [
@@ -117,38 +131,22 @@ class cduyetnaptien {
             ];
         }
         
-        // Update all selected transactions to approved (1)
-        $statusUpdated = $this->model->updateMultipleTransactionStatus($ids, 1);
+        $successCount = 0;
+        $failCount = 0;
         
-        if ($statusUpdated) {
-            // For each approved transaction, update the user balance
-            $successCount = 0;
-            $failCount = 0;
-            
-            foreach ($ids as $id) {
-                $transaction = $this->model->getTransactionById($id);
-                if ($transaction && $transaction['trang_thai_ck'] == 1) {
-                    $amount = $this->model->extractAmountFromContent($transaction['noi_dung_ck']);
-                    $balanceUpdated = $this->model->updateUserBalance($transaction['id_ck'], $amount);
-                    
-                    if ($balanceUpdated) {
-                        $successCount++;
-                    } else {
-                        $failCount++;
-                    }
-                }
+        foreach ($ids as $id) {
+            $result = $this->approveTransaction($id);
+            if ($result['success']) {
+                $successCount++;
+            } else {
+                $failCount++;
             }
-            
-            return [
-                'success' => true,
-                'message' => "Đã phê duyệt $successCount giao dịch thành công" . ($failCount > 0 ? ", $failCount giao dịch thất bại" : "")
-            ];
-        } else {
-            return [
-                'success' => false,
-                'message' => 'Không thể cập nhật trạng thái giao dịch'
-            ];
         }
+        
+        return [
+            'success' => $successCount > 0,
+            'message' => "Đã phê duyệt $successCount giao dịch thành công" . ($failCount > 0 ? ", $failCount giao dịch thất bại" : "")
+        ];
     }
     
     // Bulk reject transactions
@@ -160,8 +158,8 @@ class cduyetnaptien {
             ];
         }
         
-        // Update all selected transactions to rejected (2)
-        $statusUpdated = $this->model->updateMultipleTransactionStatus($ids, 2);
+        // Update all selected transactions to rejected
+        $statusUpdated = $this->model->updateMultipleTransactionStatus($ids, 'Từ chối duyệt');
         
         if ($statusUpdated) {
             return [
@@ -181,47 +179,66 @@ class cduyetnaptien {
         return $this->model->getTransactionStatistics();
     }
     
-    // Export transactions to CSV
-    public function exportTransactions($status = null, $userId = null, $search = null) {
-        $transactions = $this->model->exportTransactions($status, $userId, $search);
+    // Get all users
+    public function getAllUsers() {
+        return $this->model->getAllUsers();
+    }
+    
+    // Handle AJAX requests
+    public function handleAjaxRequest() {
+        // Set content type to JSON
+        header('Content-Type: application/json');
         
-        if (empty($transactions)) {
-            return false;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
         }
         
-        // Create CSV content
-        $output = fopen('php://temp', 'w');
-        
-        // Add CSV header
-        fputcsv($output, [
-            'ID', 
-            'Người dùng', 
-            'Email', 
-            'Nội dung', 
-            'Hình ảnh', 
-            'Trạng thái', 
-            'Số dư'
-        ]);
-        
-        // Add data rows
-        foreach ($transactions as $transaction) {
-            fputcsv($output, [
-                $transaction['id_lich_su'],
-                $transaction['ten_dang_nhap'],
-                $transaction['email'],
-                $transaction['noi_dung_ck'],
-                $transaction['hinh_anh_ck'],
-                $transaction['trang_thai_text'],
-                number_format($transaction['so_du'], 0, ',', '.')
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Invalid JSON data');
+            }
+            
+            $action = $input['action'] ?? '';
+            
+            switch ($action) {
+                case 'approve':
+                    $id = $input['id'] ?? 0;
+                    $amount = $input['amount'] ?? null;
+                    $result = $this->approveTransaction($id, $amount);
+                    break;
+                    
+                case 'reject':
+                    $id = $input['id'] ?? 0;
+                    $result = $this->rejectTransaction($id);
+                    break;
+                    
+                case 'bulk_approve':
+                    $ids = $input['ids'] ?? [];
+                    $result = $this->bulkApproveTransactions($ids);
+                    break;
+                    
+                case 'bulk_reject':
+                    $ids = $input['ids'] ?? [];
+                    $result = $this->bulkRejectTransactions($ids);
+                    break;
+                    
+                default:
+                    $result = ['success' => false, 'message' => 'Invalid action'];
+            }
+            
+            echo json_encode($result);
+            
+        } catch (Exception $e) {
+            error_log("AJAX Error: " . $e->getMessage());
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
             ]);
         }
-        
-        // Get CSV content
-        rewind($output);
-        $csv = stream_get_contents($output);
-        fclose($output);
-        
-        return $csv;
     }
 }
 ?>

@@ -19,7 +19,7 @@ if(isset($_GET['id'])){
 <body>
 <div class="container">
     <?php foreach($dt as $ct) { ?>
-    <?php $images = explode(',', $ct['hinh_anh']); ?>
+    <?php $images = explode(', ', $ct['hinh_anh']); ?>
     <div class="mb-4">
         <h1 class="product-title"><?php echo $ct['tieu_de']; ?></h1>
         <div class="meta-info">

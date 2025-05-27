@@ -38,15 +38,7 @@ if ($_SESSION['role'] != 1) {
     <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="navbar-brand-wrapper d-flex justify-content-center">
         <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
-          <a class="navbar-brand brand-logo" href="/project/ad"><img src="/project/admin/src/assets/images/logo.svg"
-              alt="logo" /></a>
-          <a class="navbar-brand brand-logo-white" href="/project/ad"><img src="/project/admin/src/assets/images/logo-white.svg"
-              alt="logo" /></a>
-          <a class="navbar-brand brand-logo-mini" href="/project/ad"><img src="/project/admin/src/assets/images/logo-mini.svg"
-              alt="logo" /></a>
-          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-            <span class="mdi mdi-sort-variant"></span>
-          </button>
+          <b>Admin</b>
         </div>
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -117,12 +109,6 @@ if ($_SESSION['role'] != 1) {
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/giaodich" aria-expanded="false" aria-controls="form-elements">
-              <i class="mdi mdi-swap-horizontal menu-icon" style="color: black;"></i>
-              Quản lý giao dịch
-            </a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="/project/ad/loaisanpham" aria-expanded="false" aria-controls="form-elements">
               <i class="mdi mdi-format-list-bulleted menu-icon" style="color: black;"></i>
               Quản lý danh mục
@@ -161,8 +147,6 @@ if ($_SESSION['role'] != 1) {
                 include_once("view/kdbaidang-table.php");
             }else if(isset($_GET["qldoanhthu"])){
               include_once("view/qldoanhthu.php");
-            }else if (isset($_GET['giaodich'])) {
-                include("giaodich-table.php");
             }else if (isset($_GET['loaisanpham'])) {
                 include("loaisanpham-table.php");
             }else if(isset($_GET["kdnaptien"])){

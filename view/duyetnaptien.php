@@ -1,431 +1,540 @@
 <?php
-include_once 'controller/cduyetnaptien.php';
-$controller = new cduyetnaptien();
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Handle bulk actions
-if (isset($_POST['bulk_action']) && isset($_POST['transaction_ids'])) {
-    $action = $_POST['bulk_action'];
-    $ids = $_POST['transaction_ids'];
-    
-    if (!empty($ids)) {
-        if ($action === 'approve') {
-            $result = $controller->bulkApproveTransactions($ids);
-        } elseif ($action === 'reject') {
-            $result = $controller->bulkRejectTransactions($ids);
-        }
-        
-        $message = isset($result['message']) ? $result['message'] : 'Đã xử lý hàng loạt';
-        $messageType = isset($result['success']) && $result['success'] ? 'success' : 'danger';
-        
-        // Redirect back to the page with a message
-        header("Location: /project/ad/kdnaptien?msg=" . urlencode($message) . "&type=" . $messageType);
-        exit;
-    }
+// Add debug logging for AJAX requests
+if (isset($_GET['ajax'])) {
+    error_log("AJAX Request received: " . file_get_contents('php://input'));
 }
 
-// Handle direct actions (approve/reject)
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $action = $_GET['action'];
-    $id = (int)$_GET['id'];
-    $result = null;
-    
-    if ($action === 'approve') {
-        $result = $controller->approveTransaction($id);
-        $message = $result['success'] ? "Giao dịch #$id đã được phê duyệt thành công!" : "Lỗi: " . $result['message'];
-        $messageType = $result['success'] ? 'success' : 'danger';
-    } elseif ($action === 'reject') {
-        $result = $controller->rejectTransaction($id);
-        $message = $result['success'] ? "Giao dịch #$id đã bị từ chối!" : "Lỗi: " . $result['message'];
-        $messageType = $result['success'] ? 'success' : 'danger';
-    }
-    
-    // Redirect back to the page with a message
-    header("Location: /project/ad/kdnaptien?msg=" . urlencode($message) . "&type=" . $messageType);
+include_once 'controller/cDuyetNapTien.php';
+$controller = new cDuyetNapTien();
+
+// Handle AJAX requests
+if (isset($_GET['ajax'])) {
+    $controller->handleAjaxRequest();
     exit;
 }
 
-// Get transaction details if ID is provided
-$transactionDetails = null;
-if (isset($_GET['view']) && is_numeric($_GET['view'])) {
-    $transactionDetails = $controller->getTransactionById((int)$_GET['view']);
+try {
+    
+
+    // Get filter parameters
+    $status = isset($_GET['status']) && $_GET['status'] !== '' ? $_GET['status'] : null;
+    $userId = isset($_GET['user_id']) && $_GET['user_id'] !== '' ? (int)$_GET['user_id'] : null;
+    $search = isset($_GET['search']) && $_GET['search'] !== '' ? $_GET['search'] : null;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $perPage = 10;
+
+    // Get transactions based on filters
+    $transactionData = $controller->getAllTransactions($status, $userId, $search, $page, $perPage);
+    $transactions = $transactionData['data'];
+    $pagination = $transactionData['pagination'];
+
+    // Get transaction statistics
+    $stats = $controller->getTransactionStatistics();
+
+    // Get all users for dropdown
+    $users = $controller->getAllUsers();
+
+    // Get transaction details if ID is provided
+    $transactionDetails = null;
+    if (isset($_GET['view']) && is_numeric($_GET['view'])) {
+        $transactionDetails = $controller->getTransactionById((int)$_GET['view']);
+    }
+
+    // Debug information (remove in production)
+    if (isset($_GET['debug'])) {
+        echo "<pre>";
+        echo "Transactions count: " . count($transactions) . "\n";
+        echo "Stats: " . print_r($stats, true) . "\n";
+        echo "Users count: " . count($users) . "\n";
+        echo "</pre>";
+    }
+
+} catch (Exception $e) {
+    // Handle any errors gracefully
+    error_log("Error in vDuyetNapTien.php: " . $e->getMessage());
+    
+    // Set default values to prevent errors
+    $transactions = [];
+    $pagination = ['total' => 0, 'per_page' => 10, 'current_page' => 1, 'total_pages' => 0];
+    $stats = ['total_transactions' => 0, 'pending_count' => 0, 'approved_count' => 0, 'rejected_count' => 0];
+    $users = [];
+    $transactionDetails = null;
+    
+    // Show error message
+    $errorMessage = "Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.";
 }
-
-// Get filter parameters
-$status = isset($_GET['status']) && $_GET['status'] !== '' ? (int)$_GET['status'] : null;
-$userId = isset($_GET['user_id']) && $_GET['user_id'] !== '' ? (int)$_GET['user_id'] : null;
-$search = isset($_GET['search']) && $_GET['search'] !== '' ? $_GET['search'] : null;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$perPage = 10;
-
-// Get transactions based on filters
-$transactionData = $controller->getAllTransactions($status, $userId, $search, $page, $perPage);
-$transactions = $transactionData['data'];
-$pagination = $transactionData['pagination'];
-
-// Get transaction statistics
-$stats = $controller->getTransactionStatistics();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-<!-- Required meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Quản lý giao dịch - Majestic Admin Pro</title>
-<!-- plugins:css -->
-<link rel="stylesheet" href="../admin/src/assets/vendors/mdi/css/materialdesignicons.min.css">
-<link rel="stylesheet" href="../admin/src/assets/vendors/css/vendor.bundle.base.css">
-<!-- endinject -->
-<!-- inject:css -->
-<link rel="stylesheet" href="../admin/src/assets/css/style.css">
-<!-- endinject -->
-<link rel="shortcut icon" href="../admin/src/assets/images/favicon.ico" />
-<link rel="stylesheet" href="/project/css/kdnaptien.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Quản lý giao dịch nạp tiền</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/project/css/duyetnaptien.css">
 </head>
 <body>
-<div class="">
-    <div class="">
-    <div class="">
+    <?php if (isset($errorMessage)): ?>
+<div class="container-fluid py-4">
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <?php echo $errorMessage; ?>
+        <br><small>Hệ thống đang sử dụng dữ liệu mẫu để demo.</small>
+    </div>
+</div>
+<?php endif; ?>
+    <div class="container-fluid py-4">
         <div class="row">
-        <div class="col-12 grid-margin">
-            <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title">Quản lý giao dịch nạp tiền</h4>
-                <?php if (isset($stats['pending_count']) && $stats['pending_count'] > 0): ?>
-                <span class="badge badge-pending">
-                    <?php echo $stats['pending_count']; ?> giao dịch đang chờ xử lý
-                </span> 
-                <?php endif; ?>
-                </div>
-                
-                <?php if (isset($_GET['msg'])): ?>
-                <div class="alert alert-<?php echo isset($_GET['type']) ? htmlspecialchars($_GET['type']) : 'success'; ?>">
-                    <?php echo htmlspecialchars($_GET['msg']); ?>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($transactionDetails): ?>
-                <!-- Transaction Details Section -->
-                <div class="transaction-details">
-                    <h3>Chi tiết giao dịch</h3>
-                    <hr>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>ID giao dịch:</strong> <?php echo $transactionDetails['id_lich_su']; ?></p>
-                            <p><strong>Người dùng:</strong> <?php echo $transactionDetails['ten_dang_nhap']; ?></p>
-                            <p><strong>Email:</strong> <?php echo $transactionDetails['email']; ?></p>
-                            <p><strong>Nội dung:</strong> <?php echo $transactionDetails['noi_dung_ck']; ?></p>
-                            <p><strong>Trạng thái:</strong> 
-                                <?php 
-                                switch($transactionDetails['trang_thai_ck']) {
-                                    case 0:
-                                        echo '<span class="status-pending"><i class="mdi mdi-clock-outline"></i> Đang chờ xác nhận</span>';
-                                        break;
-                                    case 1:
-                                        echo '<span class="status-approved"><i class="mdi mdi-check-circle"></i> Đã xác nhận</span>';
-                                        break;
-                                    case 2:
-                                        echo '<span class="status-rejected"><i class="mdi mdi-close-circle"></i> Đã từ chối</span>';
-                                        break;
-                                    default:
-                                        echo '<span>Không xác định</span>';
-                                }
-                                ?>
-                            </p>
-                            <p><strong>Số dư hiện tại:</strong> <?php echo number_format($transactionDetails['so_du'], 0, ',', '.'); ?> VND</p>
-                        </div>
-                        <div class="col-md-6">
-                            <?php if (!empty($transactionDetails['hinh_anh_ck'])): ?>
-                                <p><strong>Hình ảnh chuyển khoản:</strong></p>
-                                <img src="/project/img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" alt="Transfer Image" class="detail-image">
-                            <?php else: ?>
-                                <p><strong>Hình ảnh chuyển khoản:</strong> Không có hình ảnh</p>
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="card-title mb-0">
+                                <i class="fas fa-money-check-alt me-2"></i>
+                                Quản lý giao dịch nạp tiền
+                            </h4>
+                            <?php if (isset($stats['pending_count']) && $stats['pending_count'] > 0): ?>
+                            <span class="badge bg-warning text-dark fs-6">
+                                <i class="fas fa-clock me-1"></i>
+                                <?php echo $stats['pending_count']; ?> giao dịch đang chờ xử lý
+                            </span> 
                             <?php endif; ?>
                         </div>
-                    </div>
-                    
-                    <?php if ($transactionDetails['trang_thai_ck'] == 0): ?>
-                    <div class="mt-3">
-                        <a href="/project/ad/kdnaptien?action=approve&id=<?php echo $transactionDetails['id_lich_su']; ?>" 
-                            class="btn btn-success" 
-                            onclick="return confirm('Bạn có chắc chắn muốn phê duyệt giao dịch này?');">
-                            <i class="mdi mdi-check"></i> Phê duyệt
-                        </a>
-                        <a href="/project/ad/kdnaptien?action=reject&id=<?php echo $transactionDetails['id_lich_su']; ?>" 
-                            class="btn btn-danger" 
-                            onclick="return confirm('Bạn có chắc chắn muốn từ chối giao dịch này?');">
-                            <i class="mdi mdi-close"></i> Từ chối
-                        </a>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <div class="mt-3">
-                        <a href="/project/ad/kdnaptien" class="btn btn-secondary">Quay lại danh sách</a>
-                    </div>
-                </div>
-                <?php else: ?>
-                <!-- Statistics Section -->
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="stats-card">
-                            <h5>Thống kê giao dịch</h5>
+                        
+                        <!-- Alert Messages -->
+                        <div id="alertContainer"></div>
+                        
+                        <?php if ($transactionDetails): ?>
+                        <!-- Transaction Details Section -->
+                        <div class="transaction-details bg-light p-4 rounded mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Chi tiết giao dịch #<?php echo $transactionDetails['id_lich_su']; ?>
+                            </h5>
                             <div class="row">
-                                <div class="col-md-3">
-                                    <div class="stats-item">
-                                        <span class="stats-label">Tổng số giao dịch:</span>
-                                        <span class="stats-value"><?php echo $stats['total_transactions']; ?></span>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>ID giao dịch:</strong></td>
+                                            <td><?php echo $transactionDetails['id_lich_su']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Người dùng:</strong></td>
+                                            <td><?php echo $transactionDetails['ten_dang_nhap']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td><?php echo $transactionDetails['email']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Nội dung:</strong></td>
+                                            <td><?php echo $transactionDetails['noi_dung_ck']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Trạng thái:</strong></td>
+                                            <td><?php echo getStatusBadge($transactionDetails['trang_thai_ck']); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Số dư hiện tại:</strong></td>
+                                            <td class="text-success fw-bold"><?php echo number_format($transactionDetails['so_du'], 0, ',', '.'); ?> VND</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Ngày tạo:</strong></td>
+                                            <td><?php echo date('d/m/Y H:i:s', strtotime($transactionDetails['ngay_tao'])); ?></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <?php if (!empty($transactionDetails['hinh_anh_ck'])): ?>
+                                        <p><strong>Hình ảnh chuyển khoản:</strong></p>
+                                        <img src="img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" 
+                                             alt="Transfer Image" 
+                                             class="img-fluid rounded border"
+                                             style="max-height: 300px; cursor: pointer;"
+                                             onclick="openImageModal(this.src)">
+                                    <?php else: ?>
+                                        <div class="text-center text-muted py-5">
+                                            <i class="fas fa-image fa-3x mb-3"></i>
+                                            <p>Không có hình ảnh</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <?php if ($transactionDetails['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                            <div class="mt-4 border-top pt-3">
+                                <button class="btn btn-success me-2" onclick="showApproveModal(<?php echo $transactionDetails['id_lich_su']; ?>, '<?php echo $transactionDetails['noi_dung_ck']; ?>')">
+                                    <i class="fas fa-check me-1"></i> Phê duyệt
+                                </button>
+                                <button class="btn btn-danger me-2" onclick="rejectTransaction(<?php echo $transactionDetails['id_lich_su']; ?>)">
+                                    <i class="fas fa-times me-1"></i> Từ chối
+                                </button>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div class="mt-3">
+                                <a href="?" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+                                </a>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <!-- Statistics Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="stats-card bg-primary text-white">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-list"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h3><?php echo $stats['total_transactions']; ?></h3>
+                                        <p>Tổng số giao dịch</p>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="stats-item">
-                                        <span class="stats-label">Đang chờ xác nhận:</span>
-                                        <span class="stats-value status-pending"><?php echo $stats['pending_count']; ?></span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card bg-warning text-dark">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h3><?php echo $stats['pending_count']; ?></h3>
+                                        <p>Đang chờ xác nhận</p>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="stats-item">
-                                        <span class="stats-label">Đã xác nhận:</span>
-                                        <span class="stats-value status-approved"><?php echo $stats['approved_count']; ?></span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card bg-success text-white">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h3><?php echo $stats['approved_count']; ?></h3>
+                                        <p>Đã xác nhận</p>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="stats-item">
-                                        <span class="stats-label">Đã từ chối:</span>
-                                        <span class="stats-value status-rejected"><?php echo $stats['rejected_count']; ?></span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card bg-danger text-white">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h3><?php echo $stats['rejected_count']; ?></h3>
+                                        <p>Đã từ chối</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Search and Filter Section -->
-                <div class="filter-section">
-                    <div class="row mb-3">
-                        <div class="col-md-8">
-                            <form method="GET" class="search-box">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="search" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" placeholder="Tìm kiếm theo tên, email hoặc nội dung...">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="mdi mdi-magnify"></i> Tìm kiếm
-                                        </button>
-                                    </div>
+                        
+                        <!-- Search and Filter Section -->
+                        <div class="filter-section bg-light p-3 rounded mb-4">
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <form method="GET" class="d-flex">
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control" name="search" 
+                                                   value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" 
+                                                   placeholder="Tìm kiếm theo tên, email hoặc nội dung...">
+                                            <button class="btn btn-primary" type="submit">
+                                                Tìm kiếm
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
+                            </div>
+                            
+                            <form method="GET" class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="Đang chờ duyệt" <?php echo $status === 'Đang chờ duyệt' ? 'selected' : ''; ?>>Đang chờ xác nhận</option>
+                                        <option value="Đã duyệt" <?php echo $status === 'Đã duyệt' ? 'selected' : ''; ?>>Đã xác nhận</option>
+                                        <option value="Từ chối duyệt" <?php echo $status === 'Từ chối duyệt' ? 'selected' : ''; ?>>Đã từ chối</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="user_id" class="form-label">Người dùng</label>
+                                    <select class="form-select" id="user_id" name="user_id">
+                                        <option value="">Tất cả người dùng</option>
+                                        <?php foreach ($users as $user): ?>
+                                            <option value="<?php echo $user['id']; ?>" <?php echo $userId === $user['id'] ? 'selected' : ''; ?>>
+                                                <?php echo $user['ten_dang_nhap']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-filter me-1"></i> Lọc
+                                    </button>
+                                    <a href="?" class="btn btn-secondary">
+                                        <i class="fas fa-redo me-1"></i> Đặt lại
+                                    </a>
+                                </div>
+                                <?php if (isset($_GET['search'])): ?>
+                                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search']); ?>">
+                                <?php endif; ?>
                             </form>
                         </div>
-                    </div>
-                    
-                    <form method="GET" class="row">
-                        <div class="col-md-4 form-group">
-                            <label for="status">Trạng thái</label>
-                            <select class="form-control" id="status" name="status">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="0" <?php echo $status === 0 ? 'selected' : ''; ?>>Đang chờ xác nhận</option>
-                                <option value="1" <?php echo $status === 1 ? 'selected' : ''; ?>>Đã xác nhận</option>
-                                <option value="2" <?php echo $status === 2 ? 'selected' : ''; ?>>Đã từ chối</option>
-                            </select>
+                        
+                        <!-- Bulk Actions -->
+                        <div class="bulk-actions mb-3" id="bulkActions" style="display: none;">
+                            <div class="d-flex align-items-center gap-3 p-3 bg-info bg-opacity-10 rounded">
+                                <span class="fw-bold">Đã chọn <span id="selectedCount">0</span> giao dịch:</span>
+                                <button type="button" class="btn btn-success btn-sm" onclick="bulkApprove()">
+                                    <i class="fas fa-check me-1"></i> Phê duyệt đã chọn
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="bulkReject()">
+                                    <i class="fas fa-times me-1"></i> Từ chối đã chọn
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label for="user_id">ID người dùng</label>
-                            <input type="number" class="form-control" id="user_id" name="user_id" value="<?php echo $userId !== null ? $userId : ''; ?>" placeholder="Nhập ID người dùng">
-                        </div>
-                        <div class="col-md-4 form-group d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary mr-2">Lọc</button>
-                            <a href="/project/ad/kdnaptien" class="btn btn-secondary">Đặt lại</a>
-                        </div>
-                        <?php if (isset($_GET['search'])): ?>
-                            <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search']); ?>">
-                        <?php endif; ?>
-                    </form>
-                </div>
-                
-                <!-- Bulk Actions -->
-                <form method="POST" id="bulkActionForm">
-                    <div class="bulk-actions">
-                        <select class="form-control" name="bulk_action" style="width: auto;">
-                            <option value="">-- Chọn hành động --</option>
-                            <option value="approve">Phê duyệt đã chọn</option>
-                            <option value="reject">Từ chối đã chọn</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary" onclick="return confirm('Bạn có chắc chắn muốn thực hiện hành động này cho tất cả giao dịch đã chọn?');">Áp dụng</button>
-                    </div>
-                
-                    <!-- Transactions Table -->
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <input type="checkbox" id="selectAll">
-                                    </th>
-                                    <th>ID</th>
-                                    <th>Người dùng</th>
-                                    <th>Nội dung</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (empty($transactions)): ?>
+                        
+                        <!-- Transactions Table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
                                     <tr>
-                                        <td colspan="7" class="text-center">Không có giao dịch nào</td>
+                                        <th width="50">
+                                            <input type="checkbox" id="selectAll" class="form-check-input">
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Người dùng</th>
+                                        <th>Nội dung</th>
+                                        <th>Hình ảnh</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th width="200">Hành động</th>
                                     </tr>
-                                <?php else: ?>
-                                    <?php foreach ($transactions as $transaction): ?>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($transactions)): ?>
                                         <tr>
-                                            <td>
-                                                <?php if ($transaction['trang_thai_ck'] == 0): ?>
-                                                    <input type="checkbox" name="transaction_ids[]" value="<?php echo $transaction['id_lich_su']; ?>" class="transaction-checkbox">
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo $transaction['id_lich_su']; ?></td>
-                                            <td>
-                                                <div><?php echo $transaction['ten_dang_nhap']; ?></div>
-                                                <small class="text-muted"><?php echo $transaction['email']; ?></small>
-                                            </td>
-                                            <td><?php echo $transaction['noi_dung_ck']; ?></td>
-                                            <td>
-                                                <?php if (!empty($transaction['hinh_anh_ck'])): ?>
-                                                    <a href="/project/img/<?php echo $transaction['hinh_anh_ck']; ?>" target="_blank">
-                                                        <img src="/project/img/<?php echo $transaction['hinh_anh_ck']; ?>" 
-                                                            alt="Transfer Image" 
-                                                            class="transaction-image">
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span>Không có hình ảnh</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <?php 
-                                                    switch($transaction['trang_thai_ck']) {
-                                                        case 0:
-                                                            echo '<span class="status-pending"><i class="mdi mdi-clock-outline"></i> Đang chờ xác nhận</span>';
-                                                            break;
-                                                        case 1:
-                                                            echo '<span class="status-approved"><i class="mdi mdi-check-circle"></i> Đã xác nhận</span>';
-                                                            break;
-                                                        case 2:
-                                                            echo '<span class="status-rejected"><i class="mdi mdi-close-circle"></i> Đã từ chối</span>';
-                                                            break;
-                                                        default:
-                                                            echo '<span>Không xác định</span>';
-                                                    }
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <a href="/project/ad/kdnaptien?view=<?php echo $transaction['id_lich_su']; ?>" class="btn btn-info btn-sm">
-                                                    <i class="mdi mdi-eye"></i> Xem chi tiết
-                                                </a>
-                                                
-                                                <?php if ($transaction['trang_thai_ck'] == 0): ?>
-                                                    <div class="mt-1">
-                                                        <a href="/project/ad/kdnaptien?action=approve&id=<?php echo $transaction['id_lich_su']; ?>" 
-                                                        class="btn btn-success btn-sm" 
-                                                        onclick="return confirm('Bạn có chắc chắn muốn phê duyệt giao dịch này?');">
-                                                            <i class="mdi mdi-check"></i> Phê duyệt
-                                                        </a>
-                                                        <a href="/project/ad/kdnaptien?action=reject&id=<?php echo $transaction['id_lich_su']; ?>" 
-                                                        class="btn btn-danger btn-sm" 
-                                                        onclick="return confirm('Bạn có chắc chắn muốn từ chối giao dịch này?');">
-                                                            <i class="mdi mdi-close"></i> Từ chối
-                                                        </a>
-                                                    </div>
-                                                <?php endif; ?>
+                                            <td colspan="8" class="text-center py-5">
+                                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                <p class="text-muted">Không có giao dịch nào</p>
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </form>
-                
-                <!-- Pagination -->
-                <?php if ($pagination['total_pages'] > 1): ?>
-                    <div class="pagination">
-                        <?php if ($page > 1): ?>
-                            <a href="/project/ad/kdnaptien?page=1<?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>">&laquo; Đầu</a>
-                            <a href="/project/ad/kdnaptien?page=<?php echo $page - 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>">&lsaquo; Trước</a>
-                        <?php else: ?>
-                            <span class="disabled">&laquo; Đầu</span>
-                            <span class="disabled">&lsaquo; Trước</span>
+                                    <?php else: ?>
+                                        <?php foreach ($transactions as $transaction): ?>
+                                            <tr>
+                                                <td>
+                                                    <?php if ($transaction['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                                                        <input type="checkbox" name="transaction_ids[]" 
+                                                               value="<?php echo $transaction['id_lich_su']; ?>" 
+                                                               class="form-check-input transaction-checkbox">
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="fw-bold"><?php echo $transaction['id_lich_su']; ?></td>
+                                                <td>
+                                                    <div>
+                                                        <strong><?php echo $transaction['ten_dang_nhap']; ?></strong>
+                                                        <br>
+                                                        <small class="text-muted"><?php echo $transaction['email']; ?></small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                                          title="<?php echo $transaction['noi_dung_ck']; ?>">
+                                                        <?php echo $transaction['noi_dung_ck']; ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <?php if (!empty($transaction['hinh_anh_ck'])): ?>
+                                                        <img src="img/<?php echo $transaction['hinh_anh_ck']; ?>" 
+                                                             alt="Transfer Image" 
+                                                             class="transaction-image"
+                                                             onclick="openImageModal('img/<?php echo $transaction['hinh_anh_ck']; ?>')">
+                                                    <?php else: ?>
+                                                        <span class="text-muted">
+                                                            <i class="fas fa-image"></i> Không có
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?php echo getStatusBadge($transaction['trang_thai_ck']); ?></td>
+                                                <td>
+                                                    <small><?php echo date('d/m/Y H:i', strtotime($transaction['ngay_tao'])); ?></small>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group-vertical btn-group-sm" role="group">
+                                                        <a href="?view=<?php echo $transaction['id_lich_su']; ?>" 
+                                                           class="btn btn-info btn-sm">
+                                                            <i class="fas fa-eye"></i> Xem
+                                                        </a>
+                                                        
+                                                        <?php if ($transaction['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                                                            <button class="btn btn-success btn-sm" 
+                                                                    onclick="showApproveModal(<?php echo $transaction['id_lich_su']; ?>, '<?php echo $transaction['noi_dung_ck']; ?>')">
+                                                                <i class="fas fa-check"></i> Duyệt
+                                                            </button>
+                                                            <button class="btn btn-danger btn-sm" 
+                                                                    onclick="rejectTransaction(<?php echo $transaction['id_lich_su']; ?>)">
+                                                                <i class="fas fa-times"></i> Từ chối
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <?php if ($pagination['total_pages'] > 1): ?>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <?php if ($page > 1): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1<?php echo buildQueryString(); ?>">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo buildQueryString(); ?>">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+                                    
+                                    <?php
+                                    $startPage = max(1, $page - 2);
+                                    $endPage = min($pagination['total_pages'], $page + 2);
+                                    
+                                    for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                        <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                            <a class="page-link" href="?page=<?php echo $i; ?><?php echo buildQueryString(); ?>">
+                                                <?php echo $i; ?>
+                                            </a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    
+                                    <?php if ($page < $pagination['total_pages']): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo buildQueryString(); ?>">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<?php echo $pagination['total_pages']; ?><?php echo buildQueryString(); ?>">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+                                </ul>
+                            </nav>
                         <?php endif; ?>
-                        
-                        <?php
-                        $startPage = max(1, $page - 2);
-                        $endPage = min($pagination['total_pages'], $page + 2);
-                        
-                        for ($i = $startPage; $i <= $endPage; $i++): ?>
-                            <?php if ($i == $page): ?>
-                                <span class="active"><?php echo $i; ?></span>
-                            <?php else: ?>
-                                <a href="/project/ad/kdnaptien?page=<?php echo $i; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>"><?php echo $i; ?></a>
-                            <?php endif; ?>
-                        <?php endfor; ?>
-                        
-                        <?php if ($page < $pagination['total_pages']): ?>
-                            <a href="/project/ad/kdnaptien?page=<?php echo $page + 1; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>">Tiếp &rsaquo;</a>
-                            <a href="/project/ad/kdnaptien?page=<?php echo $pagination['total_pages']; ?><?php echo isset($_GET['status']) ? '&status=' . $_GET['status'] : ''; ?><?php echo isset($_GET['user_id']) ? '&user_id=' . $_GET['user_id'] : ''; ?><?php echo isset($_GET['search']) ? '&search=' . urlencode($_GET['search']) : ''; ?>">Cuối &raquo;</a>
-                        <?php else: ?>
-                            <span class="disabled">Tiếp &rsaquo;</span>
-                            <span class="disabled">Cuối &raquo;</span>
                         <?php endif; ?>
                     </div>
-                <?php endif; ?>
-                <?php endif; ?>
-            </div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Approve Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Phê duyệt giao dịch
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Giao dịch:</label>
+                        <p id="transactionInfo" class="text-muted"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="approveAmount" class="form-label fw-bold">Số tiền cộng vào tài khoản (VND):</label>
+                        <input type="number" class="form-control" id="approveAmount" min="1" step="1000">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Số tiền được trích xuất tự động: <span id="extractedAmount" class="fw-bold text-primary"></span> VND
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="confirmApprove()">
+                        <i class="fas fa-check me-1"></i> Xác nhận phê duyệt
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hình ảnh chuyển khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="/placeholder.svg" alt="Transfer Image" class="img-fluid">
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- plugins:js -->
-<script src="../admin/src/assets/vendors/js/vendor.bundle.base.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- endinject -->
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang xử lý...</p>
+        </div>
+    </div>
 
-<script>
-    $(document).ready(function() {
-        // Select all checkbox
-        $('#selectAll').change(function() {
-            $('.transaction-checkbox').prop('checked', $(this).prop('checked'));
-        });
-        
-        // Update select all checkbox when individual checkboxes change
-        $('.transaction-checkbox').change(function() {
-            if ($('.transaction-checkbox:checked').length === $('.transaction-checkbox').length) {
-                $('#selectAll').prop('checked', true);
-            } else {
-                $('#selectAll').prop('checked', false);
-            }
-        });
-        
-        // Validate bulk action form submission
-        $('#bulkActionForm').submit(function(e) {
-            var action = $('select[name="bulk_action"]').val();
-            var checkedBoxes = $('.transaction-checkbox:checked');
-            
-            if (action === '') {
-                alert('Vui lòng chọn một hành động');
-                e.preventDefault();
-                return false;
-            }
-            
-            if (checkedBoxes.length === 0) {
-                alert('Vui lòng chọn ít nhất một giao dịch');
-                e.preventDefault();
-                return false;
-            }
-            
-            return true;
-        });
-    });
-</script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/project/js/duyetnaptienscript.js"></script>
 </body>
 </html>
+
+<?php
+// Helper functions
+function getStatusBadge($status) {
+    switch($status) {
+        case 'Đang chờ duyệt':
+            return '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Đang chờ duyệt</span>';
+        case 'Đã duyệt':
+            return '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Đã duyệt</span>';
+        case 'Từ chối duyệt':
+            return '<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i> Từ chối duyệt</span>';
+        default:
+            return '<span class="badge bg-secondary">Không xác định</span>';
+    }
+}
+
+function buildQueryString() {
+    $params = [];
+    if (isset($_GET['status']) && $_GET['status'] !== '') {
+        $params[] = 'status=' . urlencode($_GET['status']);
+    }
+    if (isset($_GET['user_id']) && $_GET['user_id'] !== '') {
+        $params[] = 'user_id=' . urlencode($_GET['user_id']);
+    }
+    if (isset($_GET['search']) && $_GET['search'] !== '') {
+        $params[] = 'search=' . urlencode($_GET['search']);
+    }
+    return !empty($params) ? '&' . implode('&', $params) : '';
+}
+?>
