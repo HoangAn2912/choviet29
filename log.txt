@@ -6,3 +6,5 @@ idTin: 23, loai: Đã ẩn
 update result: success
 idTin: 14, loai: Đã ẩn
 update result: success
+idTin: 3, loai: Đã bán
+update result: success

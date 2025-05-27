@@ -67,7 +67,7 @@ if ($_SESSION['role'] != 1) {
                 <i class="mdi mdi-cog text-primary"></i>
                 Settings
               </a>
-              <a class="dropdown-item" href="?action=logout">
+              <a class="dropdown-item" href="/project?action=logout">
                 <i class="mdi mdi-logout text-primary"></i>
                 Đăng xuất
               </a>
@@ -195,7 +195,7 @@ if ($_SESSION['role'] != 1) {
 
   <!-- End custom js for this page-->
   <script src="/project/admin/src/assets/js/jquery.cookie.js" type="text/javascript"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

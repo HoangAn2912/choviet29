@@ -170,7 +170,7 @@ include_once("view/header.php");
                     <?php endif; ?>
                 </div>
 
-                <!-- Tab Đã bán -->
+                 <!-- Tab Đã bán -->
                 <div id="tab-daban" class="tab-content profile-product-list" style="display:none">
                     <?php if (empty($sanPhamDaBan)): ?>
                         <div class="text-center text-muted">
@@ -193,8 +193,8 @@ include_once("view/header.php");
 
             </div>
 
-            <!-- Đánh giá -->
-            <div class="card profile-posts" style="padding: 25px;">
+             <!-- Đánh giá -->
+            <div class="card profile-posts profile-product-list" style="padding: 25px;">
                 <h5 class="mb-3 profile-tabs">Đánh giá sản phẩm</h5>
                 <?php if (empty($reviews)): ?>
                     <div class="text-center text-muted">
