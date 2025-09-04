@@ -1,0 +1,20 @@
+[
+  {
+    "from": 18,
+    "to": 1,
+    "noi_dung": "Sản phẩm này còn không?",
+    "timestamp": "2025-05-27T06:30:15.196Z"
+  },
+  {
+    "from": 1,
+    "to": 18,
+    "noi_dung": "Còn bạn.",
+    "timestamp": "2025-05-27T06:30:30.196Z"
+  },
+  {
+    "from": 18,
+    "to": 1,
+    "noi_dung": "bạn qua xem chứ",
+    "timestamp": "2025-05-27T06:31:03.748Z"
+  }
+]

@@ -18,6 +18,9 @@ if (isset($_GET['thongtin']) && is_numeric($_GET['thongtin']) && intval($_GET['t
     $idNguoiDung = $_SESSION['user_id'];
 }
 
+// Tạo URL thân thiện cho người dùng hiện tại
+$friendlyUrl = $cProfile->getFriendlyUrl($idNguoiDung);
+
 $user = $model->getUserById($idNguoiDung);
 $ratingStats = $model->getRatingStats($idNguoiDung);
 $totalReviews = $ratingStats['total_reviews'] ?? 0;
@@ -128,6 +131,9 @@ include_once("view/header.php");
                     <button class="btn btn-warning mt-3 w-100" onclick="document.getElementById('editProfileModal').style.display='block'">
                         <i class="fas fa-edit mr-1"></i> Chỉnh sửa thông tin
                     </button>
+                    <div class="mt-2 text-center">
+                        <small>URL trang cá nhân: <a href="<?= $friendlyUrl ?>">localhost:8080/choviet29/<?= $friendlyUrl ?></a></small>
+                    </div>
                 <?php else: ?>
                     <a href="index.php?chat_with=<?= $idNguoiDung ?>" class="btn btn-warning mt-3 w-100 text-white">
                         <i class="fas fa-comment mr-1" style="color: #3D464D;"></i> Nhắn tin

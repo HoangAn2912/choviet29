@@ -106,6 +106,18 @@ $controller = new cDetailProduct();
             include_once("loginlogout/signup.php");
         } else if(isset($_GET['thongtin'])){
             include_once("view/profile/index.php");
+        } else if(isset($_GET['username'])){
+            // Xử lý URL thân thiện cho trang cá nhân
+            include_once("model/mProfile.php");
+            $profileModel = new mProfile();
+            $userId = $profileModel->getUserByUsername($_GET['username']);
+            if($userId) {
+                $_GET['thongtin'] = $userId;
+                include_once("view/profile/index.php");
+            } else {
+                // Nếu không tìm thấy người dùng, chuyển hướng về trang chủ
+                include_once("view/index.php");
+            }
         } else {
             include_once("view/index.php");
         }

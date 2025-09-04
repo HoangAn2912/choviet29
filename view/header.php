@@ -193,7 +193,7 @@ if (isset($_SESSION['user_id'])) {
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right"> 
                                     <?php if (isset($_SESSION['user_id'])): ?>
-                                        <a class="dropdown-item" href="?thongtin">Quản lý thông tin</a>
+                                        <a class="dropdown-item" href="<?= urlencode($userHeader['ten_dang_nhap'] ?? '') ?>">Quản lý thông tin</a>
                                         <a class="dropdown-item" href="?action=logout">Đăng xuất</a>
                                     <?php else: ?>
                                         <a class="dropdown-item" href="?login">Đăng nhập</a>

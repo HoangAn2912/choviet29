@@ -70,6 +70,45 @@ class mProfile extends Connect {
         return $result['total'] ?? 0;
     }
     
+    public function getUserByUsername($username) {
+        $conn = $this->connect();
+        $cleanUsername = $this->createSlug($username);
+        
+        $stmt = $conn->prepare("SELECT id FROM nguoi_dung WHERE LOWER(REPLACE(REPLACE(REPLACE(ten_dang_nhap, ' ', ''), 'đ', 'd'), 'Đ', 'D')) = ?");
+        $stmt->bind_param("s", $cleanUsername);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            return $user['id'];
+        }
+        return null;
+    }
     
+    // Hàm chuyển đổi tên đăng nhập thành slug URL
+    public function createSlug($str) {
+        $str = trim(mb_strtolower($str, 'UTF-8'));
+        
+        // Chuyển đổi các ký tự có dấu thành không dấu
+        $unicode = array(
+            'a'=>'á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ',
+            'e'=>'é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ',
+            'i'=>'í|ì|ỉ|ĩ|ị',
+            'o'=>'ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ',
+            'u'=>'ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự',
+            'y'=>'ý|ỳ|ỷ|ỹ|ỵ',
+            'd'=>'đ'
+        );
+        
+        foreach($unicode as $nonUnicode=>$uni) {
+            $str = preg_replace("/($uni)/i", $nonUnicode, $str);
+        }
+        
+        // Loại bỏ các ký tự đặc biệt và khoảng trắng
+        $str = preg_replace('/[^a-z0-9]/', '', $str);
+        
+        return $str;
+    }
 }
 ?>

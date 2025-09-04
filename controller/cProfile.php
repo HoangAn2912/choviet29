@@ -59,8 +59,10 @@ class cProfile {
     }
 
     $this->model->capNhatThongTin($id, $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien);
-
-    header("Location: index.php?thongtin&toast=" . urlencode("✅ Bạn đã cập nhật thông tin thành công!") . "&type=success");
+    
+    // Chuyển hướng về URL thân thiện sau khi cập nhật
+    $friendlyUrl = $this->getFriendlyUrl($id);
+    header("Location: $friendlyUrl?toast=" . urlencode("✅ Bạn đã cập nhật thông tin thành công!") . "&type=success");
     exit;
 }
 
@@ -70,5 +72,14 @@ class cProfile {
 
     public function countSanPhamDaBan($userId) {
         return $this->model->countSanPhamTheoTrangThai($userId, 'Đã bán');
+    }
+    
+    // Phương thức tạo URL thân thiện từ tên đăng nhập
+    public function getFriendlyUrl($userId) {
+        $user = $this->model->getUserById($userId);
+        if (!$user) return 'index.php?thongtin=' . $userId;
+        
+        $username = $user['ten_dang_nhap'];
+        return $this->model->createSlug($username);
     }
 }

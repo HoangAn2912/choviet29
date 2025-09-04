@@ -1,71 +1,361 @@
 <?php
 require_once __DIR__ . '/../model/mLoginLogout.php';
 
-$model = new mLoginLogout();
-$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
+/**
+ * Controller xử lý đăng nhập, đăng ký và đăng xuất
+ */
+class LoginLogoutController {
+    private $model;
+    private $baseUrl;
+    
+    public function __construct() {
+        $this->model = new mLoginLogout();
+        $this->baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project3/';
+    }
+    
+    /**
+     * Xử lý yêu cầu POST
+     */
+    public function handleRequest() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        if (isset($_POST['login'])) {
+            $this->handleLogin();
+        } elseif (isset($_POST['register'])) {
+            $this->handleRegister();
+        } elseif (isset($_POST['reset_password'])) {
+            $this->handleResetPassword();
+        } elseif (isset($_POST['check_username'])) {
+            $this->handleCheckUsername();
+        } elseif (isset($_POST['check_password'])) {
+            $this->handleCheckPassword();
+        }
+    }
+    
+    /**
+     * Xử lý đăng nhập
+     */
+    private function handleLogin() {
+        $email = $_POST['email'];
+        $password = md5($_POST['password']); // Mã hoá MD5
+        
+        $user = $this->model->checkLogin($email, $password);
+        
+        if ($user) {
+            $this->createUserSession($user);
+            $this->redirectBasedOnRole($user['id_vai_tro']);
+        } else {
+            // Trả về JSON thay vì chuyển hướng
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => '❌ Tài khoản hoặc mật khẩu không đúng']);
+            exit;
+        }
+    }
+    
+    /**
+     * Xử lý đăng ký
+     */
+    private function handleRegister() {
+        try {
+            // Lấy dữ liệu từ form
+            $formData = $this->getFormData();
+            
+            // Kiểm tra dữ liệu đầu vào
+            $validationResult = $this->validateFormData($formData);
+            if (!$validationResult['valid']) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false, 
+                    'message' => $validationResult['message']
+                ]);
+                exit;
+            }
+            
+            // Xác thực OTP
+            $otpVerification = $this->verifyOTP($formData);
+            if (!$otpVerification['success']) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false, 
+                    'message' => '❌ ' . $otpVerification['message']
+                ]);
+                exit;
+            }
+            
+            // Thực hiện đăng ký
+            $this->performRegistration($formData);
+            
+        } catch (Exception $e) {
+            error_log("Lỗi đăng ký: " . $e->getMessage());
+            // Trả về JSON response thay vì redirect
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false, 
+                'message' => '❌ Lỗi đăng ký: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+    
+    /**
+     * Lấy dữ liệu từ form đăng ký
+     */
+    private function getFormData() {
+        return [
+            'ten_dang_nhap' => trim($_POST['ten_dang_nhap']),
+            'password' => $_POST['password'],
+            'repassword' => $_POST['repassword'],
+            'otp' => isset($_POST['otp']) ? trim($_POST['otp']) : '',
+            'email' => trim($_POST['email'] ?? '')
+        ];
+    }
+    
+    /**
+     * Kiểm tra dữ liệu đầu vào
+     */
+    private function validateFormData($data) {
+        // Kiểm tra tên đăng nhập
+        $usernameValidation = $this->model->validateUsername($data['ten_dang_nhap']);
+        if (!$usernameValidation['valid']) {
+            return ['valid' => false, 'message' => '❌ ' . $usernameValidation['message']];
+        }
+        
+        // Kiểm tra mật khẩu
+        $passwordValidation = $this->model->validatePassword($data['password']);
+        if (!$passwordValidation['valid']) {
+            return ['valid' => false, 'message' => '❌ ' . $passwordValidation['message']];
+        }
+        
+        // Kiểm tra mật khẩu khớp
+        if ($data['password'] !== $data['repassword']) {
+            return ['valid' => false, 'message' => '❌ Mật khẩu không khớp'];
+        }
+        
+        // Kiểm tra OTP
+        if (empty($data['otp'])) {
+            return ['valid' => false, 'message' => '❌ Vui lòng nhập mã OTP'];
+        }
+        
+        // Kiểm tra email
+        if (empty($data['email'])) {
+            return ['valid' => false, 'message' => '❌ Vui lòng nhập email'];
+        }
+        
+        // Kiểm tra định dạng email
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return ['valid' => false, 'message' => '❌ Email không hợp lệ'];
+        }
+        
+        return ['valid' => true];
+    }
+    
+    /**
+     * Xác thực OTP
+     */
+    private function verifyOTP($data) {
+        $email = $data['email'];
+        $otp = $data['otp'];
+        
+        // Ghi log xác thực OTP
+        error_log("Xác thực OTP cho email: $email - OTP: $otp");
+        
+        $result = $this->model->verifyOTP($email, 'email', $otp);
+        
+        // Ghi log kết quả
+        error_log("Kết quả xác thực OTP: " . ($result['success'] ? 'Thành công' : 'Thất bại') . " - " . $result['message']);
+        
+        return $result;
+    }
+    
+    /**
+     * Thực hiện đăng ký
+     */
+    private function performRegistration($data) {
+        $email = $data['email'];
+        
+        // Kiểm tra email đã tồn tại -> trả JSON, không redirect
+        if ($this->model->checkEmailExists($email)) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => '❌ Email đã tồn tại'
+            ]);
+            exit;
+        }
+        
+        // Ghi log thông tin đăng ký
+        error_log("Đăng ký tài khoản: ten_dang_nhap=" . $data['ten_dang_nhap'] . ", email=$email");
+        
+        // Thực hiện đăng ký
+        $password_md5 = md5($data['password']);
+        $ok = $this->model->registerUser($data['ten_dang_nhap'], $email, '', $password_md5, 1);
+        
+        if ($ok) {
+            // Trả về JSON response thay vì redirect
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true, 
+                'message' => '✅ Đăng ký thành công! Vui lòng đăng nhập.'
+            ]);
+            exit;
+        } else {
+            // Trả về JSON response thay vì redirect
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false, 
+                'message' => '❌ Đăng ký thất bại!'
+            ]);
+            exit;
+        }
+    }
+    
 
-// Xử lý đăng nhập
-if (isset($_POST['login'])) {
-    $email = $_POST['email'];
-    $password = md5($_POST['password']); // Mã hoá MD5
-
-    $user = $model->checkLogin($email, $password);
-
-    if ($user) {
+    
+    /**
+     * Tạo session cho người dùng
+     */
+    private function createUserSession($user) {
         session_start();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['ten_dang_nhap'];
         $_SESSION['avatar'] = !empty($user['anh_dai_dien']) ? $user['anh_dai_dien'] : 'default-avatar.jpg';
         $_SESSION['role'] = $user['id_vai_tro'];
-
-        // Phân quyền chuyển trang
-        if ($user['id_vai_tro'] == 1) {
-            header("Location: " . $baseUrl . "ad");
-        } elseif ($user['id_vai_tro'] == 2) {
-            header("Location: " . $baseUrl . "index.php");
+    }
+    
+    /**
+     * Chuyển hướng dựa trên vai trò
+     */
+    private function redirectBasedOnRole($role) {
+        if ($role == 1) {
+            header("Location: " . $this->baseUrl . "ad");
+        } elseif ($role == 2) {
+            header("Location: " . $this->baseUrl . "index.php");
         } else {
-            header("Location: index.php?login&toast=" . urlencode("❌ Email không hợp lệ!") . "&type=error");
-            exit;
+            $this->redirectWithError('login', '❌ Email không hợp lệ!');
         }
         exit;
-    } else {
-        header("Location: index.php?login&toast=" . urlencode("❌ Email hoặc mật khẩu không đúng") . "&type=error");
+    }
+    
+    /**
+     * Chuyển hướng với thông báo lỗi
+     */
+    private function redirectWithError($page, $message) {
+        $url = ($page === 'login') ? '../index.php?login' : '../loginlogout/signup.php';
+        header("Location: $url?toast=" . urlencode($message) . "&type=error");
         exit;
+    }
+    
+    /**
+     * Chuyển hướng với thông báo thành công
+     */
+    private function redirectWithSuccess($page, $message) {
+        $url = ($page === 'login') ? '/index.php?login' : '../loginlogout/signup.php';
+        header("Location: $url?toast=" . urlencode($message) . "&type=success");
+        exit;
+    }
+    
+    /**
+     * Xử lý đặt lại mật khẩu
+     */
+    private function handleResetPassword() {
+        try {
+            $email = $_POST['email'];
+            $otp = $_POST['otp'];
+            $newPassword = $_POST['new_password'];
+            
+            // Ghi log
+            error_log("Đặt lại mật khẩu: email=$email, otp=$otp");
+            
+            // Xác thực OTP
+            $otpVerification = $this->model->verifyOTP($email, 'email', $otp);
+            
+            if (!$otpVerification['success']) {
+                echo json_encode(['success' => false, 'message' => '❌ ' . $otpVerification['message']]);
+                return;
+            }
+            
+            // Cập nhật mật khẩu mới
+            $password_md5 = md5($newPassword);
+            $ok = $this->model->updatePassword($email, $password_md5);
+            
+            if ($ok) {
+                echo json_encode(['success' => true, 'message' => '✅ Đặt lại mật khẩu thành công!']);
+            } else {
+                echo json_encode(['success' => false, 'message' => '❌ Không thể cập nhật mật khẩu!']);
+            }
+            
+        } catch (Exception $e) {
+            error_log("Lỗi đặt lại mật khẩu: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => '❌ Lỗi đặt lại mật khẩu: ' . $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * Xử lý kiểm tra tên đăng nhập real-time
+     */
+    private function handleCheckUsername() {
+        try {
+            $username = trim($_POST['username']);
+            
+            if (empty($username)) {
+                echo json_encode(['success' => false, 'message' => 'Tên đăng nhập không được để trống']);
+                return;
+            }
+            
+            $validation = $this->model->validateUsername($username);
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => $validation['valid'],
+                'message' => $validation['message'],
+                'available' => $validation['valid']
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Lỗi kiểm tra tên đăng nhập: " . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false, 
+                'message' => '❌ Lỗi kiểm tra tên đăng nhập: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Xử lý kiểm tra mật khẩu real-time
+     */
+    private function handleCheckPassword() {
+        try {
+            $password = $_POST['password'];
+            
+            if (empty($password)) {
+                echo json_encode(['success' => false, 'message' => 'Mật khẩu không được để trống']);
+                return;
+            }
+            
+            $validation = $this->model->validatePassword($password);
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => $validation['valid'],
+                'message' => $validation['message'],
+                'valid' => $validation['valid']
+            ]);
+            
+        } catch (Exception $e) {
+            error_log("Lỗi kiểm tra mật khẩu: " . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false, 
+                'message' => '❌ Lỗi kiểm tra mật khẩu: ' . $e->getMessage()
+            ]);
+        }
     }
 }
 
-// Xử lý đăng ký
-if (isset($_POST['register'])) {
-    $ten_dang_nhap = trim($_POST['ten_dang_nhap']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $repassword = $_POST['repassword'];
-
-    if ($password !== $repassword) {
-        header("Location: index.php?signup&toast=" . urlencode("❌ Mật khẩu không khớp") . "&type=error");
-    }
-
-    if ($model->checkEmailExists($email)) {
-        header("Location: index.php?signup&toast=" . urlencode("❌ Email đã tồn tại") . "&type=error");
-    }
-
-    // Thêm tài khoản mới
-    $password_md5 = md5($password);
-    $ok = $model->registerUser($ten_dang_nhap, $email, $password_md5);
-
-    if ($ok) {
-        header("Location: index.php?signup&toast=" . urlencode("✅ Đăng ký thành công! Vui lòng đăng nhập.") . "&type=success");
-        exit;
-    } else {
-        header("Location: index.php?signup&toast=" . urlencode("❌ Đăng ký thất bại!") . "&type=error");
-        exit;
-    }
-
-    $ok = $model->dayTin($idTin, $idNguoiDung);
-        if ($ok) {
-            header("Location: index.php?quan-ly-tin&toast=" . urlencode("🚀 Đã đẩy tin thành công!") . "&type=success");
-        } else {
-            header("Location: index.php?quan-ly-tin&toast=" . urlencode("❌ Có lỗi xảy ra khi đẩy tin!") . "&type=error");
-        }
-}
+// Khởi tạo controller và xử lý yêu cầu
+$controller = new LoginLogoutController();
+$controller->handleRequest();
 ?>
