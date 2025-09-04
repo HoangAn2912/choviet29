@@ -1,179 +1,324 @@
 <?php
-include_once("controller/cTopUp.php");
-$userId = $_SESSION['user_id'] ?? 0;
+// include_once("controller/cTopUp.php");
+// $userId = $_SESSION['user_id'] ?? 0;
 
-$cTopUp = new cTopUp();
-$cTopUp->xuLyNopTien($userId); // Xử lý nếu có POST
+// $cTopUp = new cTopUp();
+// $cTopUp->xuLyNopTien($userId); // Xử lý nếu có POST
 
-$lichsu = $cTopUp->getLichSu($userId); // Lấy lịch sử cho view
+// $lichsu = $cTopUp->getLichSu($userId); // Lấy lịch sử cho view
 ?>
 <!-- ...phần HTML giữ nguyên, chỉ dùng $lichsu để hiển thị bảng... -->
 
-<?php include_once("view/header.php"); ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-    <title>Chợ Việt - Nơi trao đổi hàng hóa</title>
-    <link rel="icon" href="img/choviet-favicon.ico" type="icon">
-
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Free HTML Templates" name="keywords">
-    <meta content="Free HTML Templates" name="description">
-
-    <!-- Favicon -->
-    <!-- <link href="img/favicon.ico" rel="icon"> -->
-
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/profile.css" rel="stylesheet">
-    <link href="css/managePost.css" rel="stylesheet">
-</head>
-</html>
-
-<div class="container my-4">
-  <div class="row">
-    <!-- Cột trái: Thông tin ngân hàng và QR -->
-    <div class="col-md-7 mb-4 d-flex">
-      <div class="card shadow-sm p-4 w-100">
-        <h5 class="text-uppercase font-weight-bold text-primary mb-3">Thông tin nạp tiền</h5>
-        <ul class="list-unstyled mb-3">
-          <li><strong>Ngân hàng:</strong> MB Bank</li>
-          <li><strong>Số tài khoản:</strong> 6369 36979 9999</li>
-          <li><strong>Chủ tài khoản:</strong> Nguyễn Phúc Hoàng An</li>
-        </ul>
-        <div class="text-center mt-auto">
-          <img src="img/qr_nap_tien.jpg" alt="QR Code" class="img-fluid border rounded" style="max-width: 300px;">
-          <p class="mt-2 font-italic text-muted mb-0">Quét mã để nạp nhanh qua app ngân hàng</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cột phải: Hướng dẫn nạp -->
-    <div class="col-md-5 mb-4 d-flex">
-      <div class="card shadow-sm p-4 w-100">
-        <h5 class="text-danger font-weight-bold mb-3">📌 HƯỚNG DẪN NẠP TIỀN</h5>
-        <ul class="mb-3 pl-3">
-          <li>Sao chép <strong class="text-dark">chính xác nội dung chuyển khoản</strong> hoặc <strong>quét mã QR</strong> bên trái.</li>
-          <li><strong>Số tiền nạp tối thiểu:</strong> <span class="text-danger">20.000 đ</span></li>
-          <li>Nội dung chuyển khoản phải <strong>ghi đúng như hướng dẫn dưới đây</strong> để kế toán phụ trách kiểm tra và cộng tiền. Nếu sai chúng tôi không hồi tiền về cho bạn</li>
-          <li><strong>Cú pháp:</strong> Mã chuyển khoản - Tên người dùng - Số tiền vừa nạp. (<i>Ví dụ: 1111 - Nguyễn Phúc Hoàng An - 20.000 đ.</i>)</li>
-        </ul>
-
-        <p class="mb-1 font-weight-bold text-muted">⚠️ Lưu ý quan trọng:</p>
-        <ul class="pl-3 text-muted small">
-          <li><strong class="text-danger">KHÔNG</strong> chuyển khoản qua MB Bank từ <b>23H đến 05H sáng</b>.</li>
-          <li>Trong khung giờ này hệ thống sẽ xử lý vào <b>sáng hôm sau</b>.</li>
-          <li>Mã chuyển khoản trong phần <b>trang cá nhân</b>.</li>
-          <li>Tiền sẽ về trong <b>5-10 phút</b>.</li>
-        </ul>
-        <hr>
-        <p class="mb-0"><span class="text-warning">💡 Gợi ý:</span> Ưu tiên sử dụng <b>MB Bank, TPBank, Techcombank</b> để nhận tiền nhanh.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form nạp tiền thủ công -->
-<div class="card mb-4">
-  <div class="card-header font-weight-bold">Nạp tiền thủ công (chuyển khoản)</div>
-  <div class="card-body">
-    <form action="" method="post" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="noi_dung_ck">Nội dung chuyển khoản <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="noi_dung_ck" name="noi_dung_ck" required>
-      </div>
-      <div class="form-group">
-        <label for="hinh_anh_ck">Ảnh chuyển khoản <span class="text-danger">*</span></label>
-        <input type="file" class="form-control-file" id="hinh_anh_ck" name="hinh_anh_ck" accept=".jpg,.jpeg,.png" required>
-      </div>
-      <button type="submit" name="submit_ck" class="btn btn-success">Gửi yêu cầu nạp tiền</button>
-    </form>
-  </div>
-</div>
-
 <?php
-// Hàm lấy màu trạng thái như managePost.php
-function getBadgeColorCK($status) {
-  $map = [
-    'Đang chờ duyệt' => 'warning',
-    'Đã duyệt' => 'success',
-    'Từ chối' => 'danger',
-  ];
-  return $map[$status] ?? 'secondary';
+
+include_once 'controller/vnpay/connection.php';
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
 }
 
-$lichsu = (new mTopUp())->getLichSuChuyenKhoan($userId);
+$user_id = $_SESSION['user_id'];
+
+$message = '';
+$error = '';
+
+if (isset($_GET['success']) && isset($_SESSION['payment_success'])) {
+    $amount = $_SESSION['payment_amount'];
+    $txn_ref = $_SESSION['payment_txn'];
+    
+    // Kiểm tra số dư đã được cộng thực sự
+    try {
+        $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+        $stmt->execute([$user_id]);
+        $account = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($account && $account['so_du'] >= $amount) {
+            $message = "✅ Nạp tiền thành công! Số tiền " . number_format($amount) . " VND đã được cộng vào tài khoản. Mã GD: " . $txn_ref;
+        } else {
+            $error = "Có lỗi xảy ra trong quá trình cộng tiền. Vui lòng liên hệ hỗ trợ.";
+        }
+    } catch(PDOException $e) {
+        $error = "Lỗi kiểm tra số dư: " . $e->getMessage();
+    }
+    
+    // Xóa session thông báo
+    unset($_SESSION['payment_success']);
+    unset($_SESSION['payment_amount']);
+    unset($_SESSION['payment_txn']);
+}
+
+if (isset($_GET['error']) && isset($_SESSION['payment_error'])) {
+    $error = $_SESSION['payment_error'];
+    unset($_SESSION['payment_error']);
+}
+
+// Lấy thông tin số dư hiện tại
+try {
+    $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+    $stmt->execute([$user_id]);
+    $account = $stmt->fetch(PDO::FETCH_ASSOC);
+    $current_balance = $account ? $account['so_du'] : 0;
+} catch(PDOException $e) {
+    $error = "Lỗi truy vấn database: " . $e->getMessage();
+}
+
+// Xử lý form nạp tiền
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $amount = (int)$_POST['amount'];
+    
+    if ($amount < 50000) {
+        $error = "Số tiền nạp tối thiểu là 50,000 VND";
+    } else {
+        // Chuyển hướng đến trang tạo thanh toán VNPay
+        header("Location: controller/vnpay/vnpay_create_payment.php?amount=" . $amount);
+        exit();
+    }
+}
 ?>
 
-<div class="card">
-  <div class="card-header font-weight-bold">Lịch sử chuyển khoản</div>
-  <div class="card-body p-0">
-    <div class="table-responsive">
-      <table class="table table-bordered mb-0">
-        <thead class="thead-light">
-          <tr>
-            <th>Thời gian</th>
-            <th>Nội dung CK</th>
-            <th>Ảnh CK</th>
-            <th>Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($lichsu as $row): ?>
-            <tr>
-              <td><?= htmlspecialchars($row['ngay_tao']) ?></td>
-              <td><?= htmlspecialchars($row['noi_dung_ck']) ?></td>
-              <td>
-                <?php if ($row['hinh_anh_ck']): ?>
-                  <img src="img/<?= htmlspecialchars($row['hinh_anh_ck']) ?>" width="60" style="cursor:pointer" onclick="showImageModal('img/<?= htmlspecialchars($row['hinh_anh_ck']) ?>')">
-                <?php endif; ?>
-              </td>
-              <td>
-                <span class="badge badge-<?= getBadgeColorCK($row['trang_thai_ck']) ?>">
-                  <?= htmlspecialchars($row['trang_thai_ck']) ?>
-                </span>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-          <?php if (empty($lichsu)): ?>
-            <tr><td colspan="4" class="text-center text-muted">Chưa có giao dịch chuyển khoản nào.</td></tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
+<?php include_once("view/header.php"); ?>
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp tiền</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #submitBtn.btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: point
+            er;
+            font-size: 16px;
+            width: 100%;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: #dc3545;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border-radius: 5px;
+        }
+        .success {
+            color: #155724;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 5px;
+        }
+        .balance {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .quick-amounts {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .quick-amount {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .quick-amount:hover {
+            background-color: #e9ecef;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Nạp tiền vào tài khoản</h2>
+        
+        <div class="balance">
+            <strong>Số dư hiện tại: <?php echo number_format($current_balance); ?> VND</strong>
+        </div>
+
+        <?php if ($error): ?>
+            <div class="error"><?php echo $error; ?></div>
+        <?php endif; ?>
+
+        <?php if ($message): ?>
+            <div class="success"><?php echo $message; ?></div>
+        <?php endif; ?>
+
+        <form method="POST" id="depositForm">
+            <div class="form-group">
+                <label for="amount">Số tiền cần nạp (VND):</label>
+                
+                <div class="quick-amounts">
+                    <div class="quick-amount" onclick="setAmount(50000)">50,000</div>
+                    <div class="quick-amount" onclick="setAmount(100000)">100,000</div>
+                    <div class="quick-amount" onclick="setAmount(200000)">200,000</div>
+                    <div class="quick-amount" onclick="setAmount(500000)">500,000</div>
+                    <div class="quick-amount" onclick="setAmount(1000000)">1,000,000</div>
+                </div>
+                
+                <input type="number" id="amount" name="amount" min="50000" step="1000" 
+                       placeholder="Nhập số tiền (tối thiểu 50,000 VND)" required>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">Nạp tiền qua VNPay</button>
+        </form>
+        
+        <!-- Thêm thông báo chờ thanh toán -->
+        <div id="waitingMessage" style="display: none; margin-top: 20px; padding: 15px; background-color: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
+            <p><strong>🔄 Đang chờ xác nhận thanh toán...</strong></p>
+            <p>Vui lòng hoàn thành thanh toán trên VNPay. Hệ thống sẽ tự động cập nhật khi giao dịch thành công.</p>
+            <div style="text-align: center; margin-top: 10px;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">
+            <strong>Lưu ý:</strong> Số tiền nạp tối thiểu là 50,000 VND. 
+            Bạn sẽ được chuy���n đến trang thanh toán VNPay để hoàn tất giao dịch.
+        </p>
     </div>
-  </div>
-</div>
 
-</div>
+    <script>
+        function setAmount(amount) {
+            document.getElementById('amount').value = amount;
+        }
+        
+        // Format số tiền khi nhập
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value;
+        });
+        
+        function checkBalance() {
+            window.location.reload();
+        }
+        
+        let currentTxnRef = null;
+        let checkInterval = null;
+        
+        // Lưu mã giao dịch khi submit form
+        document.getElementById('depositForm').addEventListener('submit', function(e) {
+            const amount = document.getElementById('amount').value;
+            if (amount < 50000) {
+                alert('Số tiền nạp tối thiểu là 50,000 VND');
+                e.preventDefault();
+                return;
+            }
+            
+            // Tạo mã giao dịch unique
+            currentTxnRef = <?php echo $user_id; ?> + '_' + Date.now();
+            localStorage.setItem('pending_txn_ref', currentTxnRef);
+            
+            // Hiển thị thông báo chờ
+            setTimeout(() => {
+                document.getElementById('waitingMessage').style.display = 'block';
+                startCheckingTransaction();
+            }, 2000);
+        });
+        
+        // Kiểm tra giao dịch pending khi load trang
+        window.addEventListener('load', function() {
+            const pendingTxn = localStorage.getItem('pending_txn_ref');
+            if (pendingTxn) {
+                currentTxnRef = pendingTxn;
+                document.getElementById('waitingMessage').style.display = 'block';
+                startCheckingTransaction();
+            }
+        });
+        
+        function startCheckingTransaction() {
+            if (!currentTxnRef) return;
+            
+            checkInterval = setInterval(() => {
+                fetch(`check_transaction_status.php?txn_ref=${currentTxnRef}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            clearInterval(checkInterval);
+                            localStorage.removeItem('pending_txn_ref');
+                            
+                            // Hiển thị thông báo thành công
+                            document.getElementById('waitingMessage').innerHTML = `
+                                <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
+                                    <h4>✅ Nạp tiền thành công!</h4>
+                                    <p>Số tiền: ${new Intl.NumberFormat('vi-VN').format(data.amount)} VND</p>
+                                    <p>Số dư mới: ${new Intl.NumberFormat('vi-VN').format(data.balance)} VND</p>
+                                    <p>Mã GD: ${data.txn_ref}</p>
+                                </div>
+                            `;
+                            
+                            // Reload trang sau 3 giây
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi kiểm tra giao dịch:', error);
+                    });
+            }, 3000); // Kiểm tra mỗi 3 giây
+        }
+        
+        if (window.location.search.includes('success=1') || window.location.search.includes('error=1')) {
+            // Xóa URL parameters sau 3 giây
+            setTimeout(function() {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
 
-<!-- Modal phóng to ảnh -->
-<div id="imgModal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
-  <span onclick="closeImgModal()" style="position:absolute;top:20px;right:40px;font-size:40px;color:#fff;cursor:pointer;z-index:2010;">&times;</span>
-  <img id="imgModalSrc" src="" style="max-width:90vw;max-height:90vh;box-shadow:0 0 20px #000;">
-</div>
-<script>
-function showImageModal(src) {
-  document.getElementById('imgModalSrc').src = src;
-  document.getElementById('imgModal').style.display = 'flex';
-}
-function closeImgModal() {
-  document.getElementById('imgModal').style.display = 'none';
-  document.getElementById('imgModalSrc').src = '';
-}
-</script>
 
 <?php include_once("view/footer.php"); ?>
 
