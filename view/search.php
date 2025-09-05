@@ -77,10 +77,10 @@ if (isset($_GET['keyword']) && !empty(trim($_GET['keyword']))) {
                         </div>
                         <div class="text-center py-3 px-2">
                             <a class="h6 text-decoration-none text-truncate d-block mb-2" href="index.php?detail&id=<?= $sp['id'] ?>">
-                                <?= htmlspecialchars($sp['tieu_de']) ?>
+                                <?= htmlspecialchars($sp['title']) ?>
                             </a>
-                            <div class="product-meta mb-1"><?= htmlspecialchars($sp['mo_ta']) ?></div>
-                            <div class="text-danger"><?= number_format($sp['gia']) ?> đ</div>
+                            <div class="product-meta mb-1"><?= htmlspecialchars($sp['description']) ?></div>
+                            <div class="text-danger"><?= number_format($sp['price']) ?> đ</div>
                         </div>
                     </div>
                 </div>

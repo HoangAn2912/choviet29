@@ -31,7 +31,7 @@ class cDuyetNapTien {
                 ];
             }
         
-            if ($transaction['trang_thai_ck'] != 'Đang chờ duyệt') {
+            if ($transaction['transfer_status'] != 'Đang chờ duyệt') {
                 return [
                     'success' => false,
                     'message' => 'Giao dịch này đã được xử lý trước đó'
@@ -39,7 +39,7 @@ class cDuyetNapTien {
             }
         
             // Extract amount from content or use custom amount
-            $amount = $customAmount !== null ? $customAmount : $this->model->extractAmountFromContent($transaction['noi_dung_ck']);
+            $amount = $customAmount !== null ? $customAmount : $this->model->extractAmountFromContent($transaction['transfer_content']);
         
             if ($amount <= 0) {
                 return [
@@ -60,7 +60,7 @@ class cDuyetNapTien {
                 }
             
                 // Update user balance
-                $balanceUpdated = $this->model->updateUserBalance($transaction['id_nguoi_dung'], $amount);
+                $balanceUpdated = $this->model->updateUserBalance($transaction['user_id'], $amount);
             
                 if (!$balanceUpdated) {
                     throw new Exception('Không thể cập nhật số dư tài khoản');
@@ -99,7 +99,7 @@ class cDuyetNapTien {
             ];
         }
         
-        if ($transaction['trang_thai_ck'] != 'Đang chờ duyệt') {
+        if ($transaction['transfer_status'] != 'Đang chờ duyệt') {
             return [
                 'success' => false,
                 'message' => 'Giao dịch này đã được xử lý trước đó'

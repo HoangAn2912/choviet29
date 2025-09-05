@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-id="${sub.id}" style="cursor: pointer;">
                                         <div class="d-flex align-items-center" style="gap: 10px;">
                                             <i class="fas fa-folder" style="color: #3D464D;"></i>
-                                            <span style="font-weight: 500; color: #333;">${sub.ten_loai_san_pham}</span>
+                                            <span style="font-weight: 500; color: #333;">${sub.category_name}</span>
                                         </div>
                                         <i class="fas fa-chevron-right" style="color: #888;"></i>
                                     </li>

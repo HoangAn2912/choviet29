@@ -10,8 +10,8 @@ class cDetailProduct {
         $product = $model->getDetailById($id);
 
         // Tính thời gian cập nhật dưới dạng "Cập nhật X phút/giờ/ngày trước"
-        if ($product && isset($product['ngay_cap_nhat'])) {
-            $product['thoi_gian_format'] = $helper->tinhThoiGian($product['ngay_cap_nhat']);
+        if ($product && isset($product['updated_date'])) {
+            $product['thoi_gian_format'] = $helper->tinhThoiGian($product['updated_date']);
         }
 
         include("view/detail.php");

@@ -11,10 +11,10 @@ class mGiaodich {
     
     // Get all transactions
     public function getAllTransactions() {
-        $query = "SELECT gd.*, nd.ten_dang_nhap 
-                 FROM giao_dich gd 
-                 LEFT JOIN nguoi_dung nd ON gd.id_nguoi_dung = nd.id 
-                 ORDER BY gd.ngay_tao DESC";
+        $query = "SELECT gd.*, nd.username 
+                 FROM transfer_history gd 
+                 LEFT JOIN users nd ON gd.user_id = nd.id 
+                 ORDER BY gd.created_date DESC";
         $result = $this->conn->query($query);
         $data = array();
         
@@ -29,28 +29,28 @@ class mGiaodich {
     
     // Get paginated transactions with filters
     public function getPaginatedTransactions($offset, $limit, $statusFilter = 'all', $typeFilter = 'all', $searchTerm = '') {
-        $query = "SELECT gd.*, nd.ten_dang_nhap 
-                 FROM giao_dich gd 
-                 LEFT JOIN nguoi_dung nd ON gd.id_nguoi_dung = nd.id 
+        $query = "SELECT gd.*, nd.username 
+                 FROM transfer_history gd 
+                 LEFT JOIN users nd ON gd.user_id = nd.id 
                  WHERE 1=1";
         
         // Apply status filter
         if ($statusFilter != 'all') {
-            $query .= " AND gd.trang_thai = '" . $this->conn->real_escape_string($statusFilter) . "'";
+            $query .= " AND gd.transfer_status = '" . $this->conn->real_escape_string($statusFilter) . "'";
         }
         
         // Apply type filter
         if ($typeFilter != 'all') {
-            $query .= " AND gd.loai_giao_dich = '" . $this->conn->real_escape_string($typeFilter) . "'";
+            $query .= " AND gd.transfer_type = '" . $this->conn->real_escape_string($typeFilter) . "'";
         }
         
         // Apply search filter
         if (!empty($searchTerm)) {
             $searchTerm = $this->conn->real_escape_string($searchTerm);
-            $query .= " AND (gd.id LIKE '%$searchTerm%' OR nd.ten_dang_nhap LIKE '%$searchTerm%')";
+            $query .= " AND (gd.id LIKE '%$searchTerm%' OR nd.username LIKE '%$searchTerm%')";
         }
         
-        $query .= " ORDER BY gd.ngay_tao DESC LIMIT $offset, $limit";
+        $query .= " ORDER BY gd.created_date DESC LIMIT $offset, $limit";
         
         $result = $this->conn->query($query);
         $data = array();
@@ -67,24 +67,24 @@ class mGiaodich {
     // Count transactions for pagination
     public function countTransactions($statusFilter = 'all', $typeFilter = 'all', $searchTerm = '') {
         $query = "SELECT COUNT(*) as total 
-                 FROM giao_dich gd 
-                 LEFT JOIN nguoi_dung nd ON gd.id_nguoi_dung = nd.id 
+                 FROM transfer_history gd 
+                 LEFT JOIN users nd ON gd.user_id = nd.id 
                  WHERE 1=1";
         
         // Apply status filter
         if ($statusFilter != 'all') {
-            $query .= " AND gd.trang_thai = '" . $this->conn->real_escape_string($statusFilter) . "'";
+            $query .= " AND gd.transfer_status = '" . $this->conn->real_escape_string($statusFilter) . "'";
         }
         
         // Apply type filter
         if ($typeFilter != 'all') {
-            $query .= " AND gd.loai_giao_dich = '" . $this->conn->real_escape_string($typeFilter) . "'";
+            $query .= " AND gd.transfer_type = '" . $this->conn->real_escape_string($typeFilter) . "'";
         }
         
         // Apply search filter
         if (!empty($searchTerm)) {
             $searchTerm = $this->conn->real_escape_string($searchTerm);
-            $query .= " AND (gd.id LIKE '%$searchTerm%' OR nd.ten_dang_nhap LIKE '%$searchTerm%')";
+            $query .= " AND (gd.id LIKE '%$searchTerm%' OR nd.username LIKE '%$searchTerm%')";
         }
         
         $result = $this->conn->query($query);
@@ -96,9 +96,9 @@ class mGiaodich {
     // Get transaction by ID
     public function getTransactionById($id) {
         $id = $this->conn->real_escape_string($id);
-        $query = "SELECT gd.*, nd.ten_dang_nhap 
-                 FROM giao_dich gd 
-                 LEFT JOIN nguoi_dung nd ON gd.id_nguoi_dung = nd.id 
+        $query = "SELECT gd.*, nd.username 
+                 FROM transfer_history gd 
+                 LEFT JOIN users nd ON gd.user_id = nd.id 
                  WHERE gd.id = '$id'";
         
         $result = $this->conn->query($query);
@@ -118,7 +118,7 @@ class mGiaodich {
         $status = $this->conn->real_escape_string($status);
         $date = date('Y-m-d H:i:s');
         
-        $query = "INSERT INTO giao_dich (id_nguoi_dung, loai_giao_dich, so_tien, trang_thai, ngay_tao) 
+        $query = "INSERT INTO transfer_history (id_users, transfer_type, amount, status, created_date) 
                  VALUES ('$userId', '$type', '$amount', '$status', '$date')";
         
         if ($this->conn->query($query)) {
@@ -133,7 +133,7 @@ class mGiaodich {
         $id = $this->conn->real_escape_string($id);
         $status = $this->conn->real_escape_string($status);
         
-        $query = "UPDATE giao_dich SET trang_thai = '$status' WHERE id = '$id'";
+        $query = "UPDATE transfer_history SET status = '$status' WHERE id = '$id'";
         
         return $this->conn->query($query);
     }
@@ -150,20 +150,20 @@ class mGiaodich {
         $idString = implode("','", $idList);
         $status = $this->conn->real_escape_string($status);
         
-        $query = "UPDATE giao_dich SET trang_thai = '$status' WHERE id IN ('$idString')";
+        $query = "UPDATE transfer_history SET status = '$status' WHERE id IN ('$idString')";
         
         return $this->conn->query($query);
     }
     
     // Get unique transaction types
     public function getTransactionTypes() {
-        $query = "SELECT DISTINCT loai_giao_dich FROM giao_dich ORDER BY loai_giao_dich";
+        $query = "SELECT DISTINCT transfer_type FROM transfer_history ORDER BY transfer_type";
         $result = $this->conn->query($query);
         $types = array();
         
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                $types[] = $row['loai_giao_dich'];
+                $types[] = $row['transfer_type'];
             }
         }
         
@@ -174,12 +174,12 @@ class mGiaodich {
     public function getTransactionStats() {
         $query = "SELECT 
                     COUNT(*) as total_transactions,
-                    SUM(CASE WHEN trang_thai = 'Hoàn thành' THEN 1 ELSE 0 END) as completed,
-                    SUM(CASE WHEN trang_thai = 'Đang xử lý' THEN 1 ELSE 0 END) as processing,
-                    SUM(CASE WHEN trang_thai = 'Hủy' THEN 1 ELSE 0 END) as cancelled,
-                    SUM(CASE WHEN loai_giao_dich = 'Nạp tiền' THEN so_tien ELSE 0 END) as total_deposits,
-                    SUM(CASE WHEN loai_giao_dich = 'Rút tiền' THEN so_tien ELSE 0 END) as total_withdrawals
-                 FROM giao_dich";
+                    SUM(CASE WHEN status = 'Hoàn thành' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Đang xử lý' THEN 1 ELSE 0 END) as processing,
+                    SUM(CASE WHEN status = 'Hủy' THEN 1 ELSE 0 END) as cancelled,
+                    SUM(CASE WHEN transfer_type = 'Nạp tiền' THEN amount ELSE 0 END) as total_deposits,
+                    SUM(CASE WHEN transfer_type = 'Rút tiền' THEN amount ELSE 0 END) as total_withdrawals
+                 FROM transfer_history";
         
         $result = $this->conn->query($query);
         
@@ -199,7 +199,7 @@ class mGiaodich {
     
     // Get users for dropdown
     public function getUsers() {
-        $query = "SELECT id, ten_dang_nhap FROM nguoi_dung WHERE id_vai_tro = 2 AND trang_thai_hd = 1 ORDER BY ten_dang_nhap";
+        $query = "SELECT id, username FROM users WHERE role_id = 2 AND is_active = 1 ORDER BY username";
         $result = $this->conn->query($query);
         $users = array();
         

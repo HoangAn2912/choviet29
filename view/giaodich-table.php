@@ -1,5 +1,5 @@
 <?php
-include_once("controller/cQLgiaodich.php");
+include_once("controller/cQLpriceodich.php");
 $p = new cGiaodich();
 
 // Pagination settings
@@ -71,7 +71,7 @@ if (isset($_POST['bulk_action']) && isset($_POST['transaction_ids'])) {
         }
         
         // Preserve pagination and filter parameters
-        $redirectUrl = "?giaodich&bulk_status={$action}&count={$successCount}";
+        $redirectUrl = "?priceodich&bulk_status={$action}&count={$successCount}";
         if ($statusFilter !== 'all') $redirectUrl .= "&status_filter={$statusFilter}";
         if ($typeFilter !== 'all') $redirectUrl .= "&type_filter={$typeFilter}";
         if (!empty($searchTerm)) $redirectUrl .= "&search=" . urlencode($searchTerm);
@@ -90,7 +90,7 @@ if (isset($_GET['update_status']) && isset($_GET['id']) && isset($_GET['status']
     $result = $p->updateTransactionStatus($id, $status);
     if ($result) {
         // Preserve pagination and filter parameters
-        $redirectUrl = "?giaodich&status=updated&action={$status}";
+        $redirectUrl = "?priceodich&status=updated&action={$status}";
         if ($statusFilter !== 'all') $redirectUrl .= "&status_filter={$statusFilter}";
         if ($typeFilter !== 'all') $redirectUrl .= "&type_filter={$typeFilter}";
         if (!empty($searchTerm)) $redirectUrl .= "&search=" . urlencode($searchTerm);
@@ -110,14 +110,14 @@ if (isset($_POST['btn_add_transaction'])) {
     
     $result = $p->addTransaction($userId, $type, $amount, $status);
     if ($result) {
-        header("Location: ?giaodich&status=added");
+        header("Location: ?priceodich&status=added");
         exit();
     }
 }
 
 // Function to generate pagination URL
 function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
-    $url = "?giaodich&page={$page}";
+    $url = "?priceodich&page={$page}";
     if ($statusFilter !== 'all') $url .= "&status_filter={$statusFilter}";
     if ($typeFilter !== 'all') $url .= "&type_filter={$typeFilter}";
     if (!empty($searchTerm)) $url .= "&search=" . urlencode($searchTerm);
@@ -132,7 +132,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Quản lý giao dịch</title>
+  <title>Quản lý priceo dịch</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="../admin/src/assets/vendors/mdi/css/materialdesignicons.min.css">
   <link rel="stylesheet" href="../admin/src/assets/vendors/css/vendor.bundle.base.css">
@@ -416,7 +416,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h3 class="card-title">Quản lý giao dịch</h3>
+        <h3 class="card-title">Quản lý priceo dịch</h3>
         
         <?php if (isset($_GET['status']) && $_GET['status'] == 'updated'): ?>
         <div class="action-message">
@@ -463,7 +463,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                 $actionText = 'hủy';
                 break;
             }
-            echo "Đã cập nhật thành {$actionText} thành công {$count} giao dịch.";
+            echo "Đã cập nhật thành {$actionText} thành công {$count} priceo dịch.";
           ?>
         </div>
         <?php endif; ?>
@@ -472,7 +472,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
         <div class="stats-cards">
           <div class="stats-card total">
             <div class="value"><?php echo $stats['total_transactions']; ?></div>
-            <div class="label">Tổng giao dịch</div>
+            <div class="label">Tổng priceo dịch</div>
           </div>
           <div class="stats-card completed">
             <div class="value"><?php echo $stats['completed']; ?></div>
@@ -490,12 +490,12 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
         
         <div class="top-actions">
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-            <i class="mdi mdi-plus-circle"></i> Thêm giao dịch mới
+            <i class="mdi mdi-plus-circle"></i> Thêm priceo dịch mới
           </button>
           
           <div class="filter-section">
             <form method="GET" action="">
-              <input type="hidden" name="giaodich" value="">
+              <input type="hidden" name="priceodich" value="">
               <div class="filter-group">
                 <label for="status_filter">Trạng thái</label>
                 <select name="status_filter" id="status_filter">
@@ -506,7 +506,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                 </select>
               </div>
               <div class="filter-group">
-                <label for="type_filter">Loại giao dịch</label>
+                <label for="type_filter">Loại priceo dịch</label>
                 <select name="type_filter" id="type_filter">
                   <option value="all" <?php echo $typeFilter === 'all' ? 'selected' : ''; ?>>Tất cả loại</option>
                   <?php foreach($transactionTypes as $type): ?>
@@ -520,7 +520,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
               </div>
               <div class="filter-buttons">
                 <button type="submit" class="btn btn-primary">Lọc</button>
-                <a href="?giaodich" class="btn btn-outline-secondary">Đặt lại</a>
+                <a href="?priceodich" class="btn btn-outline-secondary">Đặt lại</a>
               </div>
             </form>
           </div>
@@ -554,7 +554,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                   </th>
                   <th>ID</th>
                   <th>Người dùng</th>
-                  <th>Loại giao dịch</th>
+                  <th>Loại priceo dịch</th>
                   <th>Số tiền</th>
                   <th class="status-header" onclick="toggleStatusFilter()">
                     Trạng thái <i class="mdi mdi-arrow-down-drop-circle"></i>
@@ -567,25 +567,25 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                 <?php if (empty($data)): ?>
                 <tr>
                   <td colspan="8" class="empty-table-message">
-                    Không tìm thấy giao dịch nào<?php echo $statusFilter !== 'all' || $typeFilter !== 'all' || !empty($searchTerm) ? ' với điều kiện đã chọn' : ''; ?>.
+                    Không tìm thấy priceo dịch nào<?php echo $statusFilter !== 'all' || $typeFilter !== 'all' || !empty($searchTerm) ? ' với điều kiện đã chọn' : ''; ?>.
                   </td>
                 </tr>
                 <?php else: ?>
                   <?php foreach($data as $transaction): ?>
                     <?php
-                      $statusClass = $p->getStatusBadgeClass($transaction['trang_thai']);
-                      $typeClass = $p->getTypeBadgeClass($transaction['loai_giao_dich']);
+                      $statusClass = $p->getStatusBadgeClass($transaction['status']);
+                      $typeClass = $p->getTypeBadgeClass($transaction['loai_priceo_dich']);
                     ?>
                     <tr>
                       <td>
                         <input type="checkbox" class="transaction-checkbox" name="transaction_ids[]" value="<?php echo $transaction['id']; ?>">
                       </td>
                       <td><?php echo $transaction['id']; ?></td>
-                      <td><?php echo $transaction['ten_dang_nhap']; ?></td>
-                      <td><span class="status-badge <?php echo $typeClass; ?>"><?php echo $transaction['loai_giao_dich']; ?></span></td>
-                      <td><?php echo $p->formatCurrency($transaction['so_tien']); ?></td>
-                      <td><span class="status-badge <?php echo $statusClass; ?>"><?php echo $transaction['trang_thai']; ?></span></td>
-                      <td><?php echo $transaction['ngay_tao']; ?></td>
+                      <td><?php echo $transaction['username']; ?></td>
+                      <td><span class="status-badge <?php echo $typeClass; ?>"><?php echo $transaction['loai_priceo_dich']; ?></span></td>
+                      <td><?php echo $p->formatCurrency($transaction['amount']); ?></td>
+                      <td><span class="status-badge <?php echo $statusClass; ?>"><?php echo $transaction['status']; ?></span></td>
+                      <td><?php echo $transaction['created_date']; ?></td>
                       <td>
                         <button type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#viewTransactionModal" data-id="<?php echo $transaction['id']; ?>">
                           <i class="mdi mdi-eye"></i> Chi tiết
@@ -596,26 +596,26 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                             <i class="mdi mdi-pencil"></i> Cập nhật
                           </button>
                           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton<?php echo $transaction['id']; ?>">
-                            <?php if ($transaction['trang_thai'] != 'Hoàn thành'): ?>
+                            <?php if ($transaction['status'] != 'Hoàn thành'): ?>
                             <li>
-                              <a class="dropdown-item" href="?giaodich&update_status&id=<?php echo $transaction['id']; ?>&status=Hoàn thành&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu giao dịch này là hoàn thành?');">
+                              <a class="dropdown-item" href="?priceodich&update_status&id=<?php echo $transaction['id']; ?>&status=Hoàn thành&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu priceo dịch này là hoàn thành?');">
                                 <i class="mdi mdi-check-circle text-success"></i> Đánh dấu hoàn thành
                               </a>
                             </li>
                             <?php endif; ?>
                             
-                            <?php if ($transaction['trang_thai'] != 'Đang xử lý'): ?>
+                            <?php if ($transaction['status'] != 'Đang xử lý'): ?>
                             <li>
-                              <a class="dropdown-item" href="?giaodich&update_status&id=<?php echo $transaction['id']; ?>&status=Đang xử lý&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu giao dịch này là đang xử lý?');">
+                              <a class="dropdown-item" href="?priceodich&update_status&id=<?php echo $transaction['id']; ?>&status=Đang xử lý&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn đánh dấu priceo dịch này là đang xử lý?');">
                                 <i class="mdi mdi-clock-outline text-warning"></i> Đánh dấu đang xử lý
                               </a>
                             </li>
                             <?php endif; ?>
                             
-                            <?php if ($transaction['trang_thai'] != 'Hủy'): ?>
+                            <?php if ($transaction['status'] != 'Hủy'): ?>
                             <li>
-                              <a class="dropdown-item" href="?giaodich&update_status&id=<?php echo $transaction['id']; ?>&status=Hủy&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn hủy giao dịch này?');">
-                                <i class="mdi mdi-close-circle text-danger"></i> Hủy giao dịch
+                              <a class="dropdown-item" href="?priceodich&update_status&id=<?php echo $transaction['id']; ?>&status=Hủy&page=<?php echo $currentPage; ?>&status_filter=<?php echo $statusFilter; ?>&type_filter=<?php echo $typeFilter; ?>&search=<?php echo urlencode($searchTerm); ?>" onclick="return confirm('Bạn có chắc chắn muốn hủy priceo dịch này?');">
+                                <i class="mdi mdi-close-circle text-danger"></i> Hủy priceo dịch
                               </a>
                             </li>
                             <?php endif; ?>
@@ -633,7 +633,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
           <div class="pagination-info">
-            Hiển thị <?php echo count($data); ?> trên tổng số <?php echo $totalTransactions; ?> giao dịch
+            Hiển thị <?php echo count($data); ?> trên tổng số <?php echo $totalTransactions; ?> priceo dịch
           </div>
           <nav>
             <ul class="pagination">
@@ -697,7 +697,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
       <form method="POST">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Thêm giao dịch mới</h5>
+            <h5 class="modal-title">Thêm priceo dịch mới</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -709,14 +709,14 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
                 $users = $p->getUsers();
                 foreach($users as $user): 
                 ?>
-                  <option value="<?php echo $user['id']; ?>"><?php echo $user['ten_dang_nhap']; ?></option>
+                  <option value="<?php echo $user['id']; ?>"><?php echo $user['username']; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
             <div class="modal-form-group">
-              <label for="transaction_type">Loại giao dịch</label>
+              <label for="transaction_type">Loại priceo dịch</label>
               <select name="transaction_type" id="transaction_type" required>
-                <option value="">-- Chọn loại giao dịch --</option>
+                <option value="">-- Chọn loại priceo dịch --</option>
                 <?php foreach($transactionTypes as $type): ?>
                   <option value="<?php echo $type; ?>"><?php echo $type; ?></option>
                 <?php endforeach; ?>
@@ -738,7 +738,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-            <button type="submit" class="btn btn-primary" name="btn_add_transaction">Thêm giao dịch</button>
+            <button type="submit" class="btn btn-primary" name="btn_add_transaction">Thêm priceo dịch</button>
           </div>
         </div>
       </form>
@@ -750,7 +750,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Chi tiết giao dịch</h5>
+          <h5 class="modal-title">Chi tiết priceo dịch</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="transactionDetails">
@@ -759,7 +759,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
-            <p>Đang tải thông tin giao dịch...</p>
+            <p>Đang tải thông tin priceo dịch...</p>
           </div>
         </div>
         <div class="modal-footer">
@@ -827,7 +827,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
       
       if (action === '' || checkedCheckboxes.length === 0) {
         e.preventDefault();
-        alert('Vui lòng chọn hành động và ít nhất một giao dịch.');
+        alert('Vui lòng chọn hành động và ít nhất một priceo dịch.');
       } else {
         let actionText = '';
         switch (action) {
@@ -842,7 +842,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
             break;
         }
         
-        if (!confirm(`Bạn có chắc chắn muốn đánh dấu ${checkedCheckboxes.length} giao dịch đã chọn là ${actionText}?`)) {
+        if (!confirm(`Bạn có chắc chắn muốn đánh dấu ${checkedCheckboxes.length} priceo dịch đã chọn là ${actionText}?`)) {
           e.preventDefault();
         }
       }
@@ -870,7 +870,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
-          <p>Đang tải thông tin giao dịch...</p>
+          <p>Đang tải thông tin priceo dịch...</p>
         </div>
       `;
       
@@ -888,7 +888,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
         
         if (transaction) {
           let statusClass = '';
-          switch (transaction.trang_thai) {
+          switch (transaction.status) {
             case 'Hoàn thành':
               statusClass = 'bg-success text-white';
               break;
@@ -901,7 +901,7 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
           }
           
           let typeClass = '';
-          switch (transaction.loai_giao_dich) {
+          switch (transaction.loai_priceo_dich) {
             case 'Nạp tiền':
               typeClass = 'bg-primary text-white';
               break;
@@ -915,38 +915,38 @@ function getPaginationUrl($page, $statusFilter, $typeFilter, $searchTerm) {
           
           detailsContainer.innerHTML = `
             <div class="detail-row">
-              <div class="detail-label">ID giao dịch:</div>
+              <div class="detail-label">ID priceo dịch:</div>
               <div class="detail-value">${transaction.id}</div>
             </div>
             <div class="detail-row">
               <div class="detail-label">Người dùng:</div>
-              <div class="detail-value">${transaction.ten_dang_nhap}</div>
+              <div class="detail-value">${transaction.username}</div>
             </div>
             <div class="detail-row">
-              <div class="detail-label">Loại giao dịch:</div>
+              <div class="detail-label">Loại priceo dịch:</div>
               <div class="detail-value">
-                <span class="status-badge ${typeClass}">${transaction.loai_giao_dich}</span>
+                <span class="status-badge ${typeClass}">${transaction.loai_priceo_dich}</span>
               </div>
             </div>
             <div class="detail-row">
               <div class="detail-label">Số tiền:</div>
-              <div class="detail-value">${parseInt(transaction.so_tien).toLocaleString('vi-VN')} VNĐ</div>
+              <div class="detail-value">${parseInt(transaction.amount).toLocaleString('vi-VN')} VNĐ</div>
             </div>
             <div class="detail-row">
               <div class="detail-label">Trạng thái:</div>
               <div class="detail-value">
-                <span class="status-badge ${statusClass}">${transaction.trang_thai}</span>
+                <span class="status-badge ${statusClass}">${transaction.status}</span>
               </div>
             </div>
             <div class="detail-row">
               <div class="detail-label">Ngày tạo:</div>
-              <div class="detail-value">${transaction.ngay_tao}</div>
+              <div class="detail-value">${transaction.created_date}</div>
             </div>
           `;
         } else {
           detailsContainer.innerHTML = `
             <div class="alert alert-warning">
-              Không tìm thấy thông tin giao dịch với ID: ${transactionId}
+              Không tìm thấy thông tin priceo dịch với ID: ${transactionId}
             </div>
           `;
         }

@@ -79,21 +79,21 @@ try {
                         $update_result = $stmt->execute([$vnp_ResponseCode, $vnp_TxnRef]);
                         error_log("[v0] Transaction status update result: " . ($update_result ? 'success' : 'failed'));
                         
-                        $stmt = $pdo->prepare("SELECT * FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+                        $stmt = $pdo->prepare("SELECT * FROM transfer_accounts WHERE user_id = ?");
                         $stmt->execute([$user_id]);
                         $account = $stmt->fetch(PDO::FETCH_ASSOC);
                         
                         if ($account) {
-                            $old_balance = $account['so_du'];
+                            $old_balance = $account['balance'];
                             error_log("[v0] Current balance: $old_balance, Adding: $vnp_Amount");
                             
-                            $stmt = $pdo->prepare("UPDATE taikhoan_chuyentien SET so_du = so_du + ? WHERE id_nguoi_dung = ?");
+                            $stmt = $pdo->prepare("UPDATE transfer_accounts SET balance = balance + ? WHERE user_id = ?");
                             $result = $stmt->execute([$vnp_Amount, $user_id]);
                             error_log("[v0] Balance update execute result: " . ($result ? 'success' : 'failed'));
                             
                             if ($result) {
                                 // Kiểm tra số dư sau khi cập nhật
-                                $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+                                $stmt = $pdo->prepare("SELECT balance FROM transfer_accounts WHERE user_id = ?");
                                 $stmt->execute([$user_id]);
                                 $new_balance = $stmt->fetchColumn();
                                 error_log("[v0] Balance updated successfully. Old: $old_balance, New: $new_balance");
@@ -103,7 +103,7 @@ try {
                             }
                         } else {
                             error_log("[v0] Creating new account with balance: $vnp_Amount");
-                            $stmt = $pdo->prepare("INSERT INTO taikhoan_chuyentien (id_ck, id_nguoi_dung, so_du) VALUES (?, ?, ?)");
+                            $stmt = $pdo->prepare("INSERT INTO transfer_accounts (account_number, user_id, balance) VALUES (?, ?, ?)");
                             $result = $stmt->execute([$vnp_TxnRef, $user_id, $vnp_Amount]);
                             error_log("[v0] New account creation result: " . ($result ? 'success' : 'failed'));
                             

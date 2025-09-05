@@ -514,18 +514,18 @@ function getPaginationUrl($page, $parentFilter, $searchTerm) {
             <?php else: ?>
               <div class="parent-category-list">
                 <?php foreach($parentCategories as $parent): ?>
-                  <?php $childCount = $p->countChildCategories($parent['id_loai_san_pham_cha']); ?>
+                  <?php $childCount = $p->countChildCategories($parent['parent_category_id']); ?>
                   <div class="parent-category-item">
                     <div class="parent-category-name">
-                      <?php echo $parent['ten_loai_san_pham_cha']; ?>
+                      <?php echo $parent['parent_category_name']; ?>
                       <span class="child-count-badge"><?php echo $childCount; ?> danh mục con</span>
                     </div>
                     <div class="parent-category-actions">
-                      <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editParentCategoryModal" data-id="<?php echo $parent['id_loai_san_pham_cha']; ?>" data-name="<?php echo $parent['ten_loai_san_pham_cha']; ?>">
+                      <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editParentCategoryModal" data-id="<?php echo $parent['parent_category_id']; ?>" data-name="<?php echo $parent['parent_category_name']; ?>">
                         <i class="mdi mdi-pencil"></i>
                       </button>
                       <?php if ($childCount == 0): ?>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteParent(<?php echo $parent['id_loai_san_pham_cha']; ?>, '<?php echo $parent['ten_loai_san_pham_cha']; ?>')">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteParent(<?php echo $parent['parent_category_id']; ?>, '<?php echo $parent['parent_category_name']; ?>')">
                           <i class="mdi mdi-delete"></i>
                         </button>
                       <?php else: ?>
@@ -556,8 +556,8 @@ function getPaginationUrl($page, $parentFilter, $searchTerm) {
                   <select name="parent_filter" id="parent_filter">
                     <option value="all" <?php echo $parentFilter === 'all' ? 'selected' : ''; ?>>Tất cả danh mục cha</option>
                     <?php foreach($parentCategories as $parent): ?>
-                      <option value="<?php echo $parent['id_loai_san_pham_cha']; ?>" <?php echo $parentFilter == $parent['id_loai_san_pham_cha'] ? 'selected' : ''; ?>>
-                        <?php echo $parent['ten_loai_san_pham_cha']; ?>
+                      <option value="<?php echo $parent['parent_category_id']; ?>" <?php echo $parentFilter == $parent['parent_category_id'] ? 'selected' : ''; ?>>
+                        <?php echo $parent['parent_category_name']; ?>
                       </option>
                     <?php endforeach; ?>
                   </select>
@@ -595,19 +595,19 @@ function getPaginationUrl($page, $parentFilter, $searchTerm) {
                   <?php foreach($childCategories as $category): ?>
                     <tr>
                       <td><?php echo $category['id']; ?></td>
-                      <td><?php echo $category['ten_loai_san_pham']; ?></td>
+                      <td><?php echo $category['category_name']; ?></td>
                       <td>
-                        <span class="category-badge"><?php echo $category['ten_loai_san_pham_cha']; ?></span>
+                        <span class="category-badge"><?php echo $category['parent_category_name']; ?></span>
                       </td>
                       <td>
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editChildCategoryModal" 
                           data-id="<?php echo $category['id']; ?>" 
-                          data-name="<?php echo $category['ten_loai_san_pham']; ?>" 
-                          data-parent="<?php echo $category['id_loai_san_pham_cha']; ?>">
+                          data-name="<?php echo $category['category_name']; ?>" 
+                          data-parent="<?php echo $category['parent_category_id']; ?>">
                           <i class="mdi mdi-pencil"></i> Sửa
                         </button>
                         
-                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteChild(<?php echo $category['id']; ?>, '<?php echo $category['ten_loai_san_pham']; ?>')">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteChild(<?php echo $category['id']; ?>, '<?php echo $category['category_name']; ?>')">
                           <i class="mdi mdi-delete"></i> Xóa
                         </button>
                       </td>
@@ -748,7 +748,7 @@ function getPaginationUrl($page, $parentFilter, $searchTerm) {
               <select name="parent_id" id="parent_id" required>
                 <option value="">-- Chọn danh mục cha --</option>
                 <?php foreach($parentCategories as $parent): ?>
-                  <option value="<?php echo $parent['id_loai_san_pham_cha']; ?>"><?php echo $parent['ten_loai_san_pham_cha']; ?></option>
+                  <option value="<?php echo $parent['parent_category_id']; ?>"><?php echo $parent['parent_category_name']; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -781,7 +781,7 @@ function getPaginationUrl($page, $parentFilter, $searchTerm) {
               <select name="parent_id" id="edit_child_parent" required>
                 <option value="">-- Chọn danh mục cha --</option>
                 <?php foreach($parentCategories as $parent): ?>
-                  <option value="<?php echo $parent['id_loai_san_pham_cha']; ?>"><?php echo $parent['ten_loai_san_pham_cha']; ?></option>
+                  <option value="<?php echo $parent['parent_category_id']; ?>"><?php echo $parent['parent_category_name']; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>

@@ -75,7 +75,8 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Quản lý giao dịch nạp tiền</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/project/css/duyetnaptien.css">
+    <?php require_once '../helpers/url_helper.php'; ?>
+    <link rel="stylesheet" href="<?= getBasePath() ?>/css/duyetnaptien.css">
 </head>
 <body>
     <?php if (isset($errorMessage)): ?>
@@ -113,18 +114,18 @@ try {
                         <div class="transaction-details bg-light p-4 rounded mb-4">
                             <h5 class="mb-3">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Chi tiết giao dịch #<?php echo $transactionDetails['id_lich_su']; ?>
+                                Chi tiết giao dịch #<?php echo $transactionDetails['history_id']; ?>
                             </h5>
                             <div class="row">
                                 <div class="col-md-6">
                                     <table class="table table-borderless">
                                         <tr>
                                             <td><strong>ID giao dịch:</strong></td>
-                                            <td><?php echo $transactionDetails['id_lich_su']; ?></td>
+                                            <td><?php echo $transactionDetails['history_id']; ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Người dùng:</strong></td>
-                                            <td><?php echo $transactionDetails['ten_dang_nhap']; ?></td>
+                                            <td><?php echo $transactionDetails['username']; ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Email:</strong></td>
@@ -132,26 +133,26 @@ try {
                                         </tr>
                                         <tr>
                                             <td><strong>Nội dung:</strong></td>
-                                            <td><?php echo $transactionDetails['noi_dung_ck']; ?></td>
+                                            <td><?php echo $transactionDetails['transfer_content']; ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Trạng thái:</strong></td>
-                                            <td><?php echo getStatusBadge($transactionDetails['trang_thai_ck']); ?></td>
+                                            <td><?php echo getStatusBadge($transactionDetails['transfer_status']); ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Số dư hiện tại:</strong></td>
-                                            <td class="text-success fw-bold"><?php echo number_format($transactionDetails['so_du'], 0, ',', '.'); ?> VND</td>
+                                            <td class="text-success fw-bold"><?php echo number_format($transactionDetails['balance'], 0, ',', '.'); ?> VND</td>
                                         </tr>
                                         <tr>
                                             <td><strong>Ngày tạo:</strong></td>
-                                            <td><?php echo date('d/m/Y H:i:s', strtotime($transactionDetails['ngay_tao'])); ?></td>
+                                            <td><?php echo date('d/m/Y H:i:s', strtotime($transactionDetails['created_date'])); ?></td>
                                         </tr>
                                     </table>
                                 </div>
                                 <div class="col-md-6">
-                                    <?php if (!empty($transactionDetails['hinh_anh_ck'])): ?>
+                                    <?php if (!empty($transactionDetails['transfer_image'])): ?>
                                         <p><strong>Hình ảnh chuyển khoản:</strong></p>
-                                        <img src="/project/img/<?php echo $transactionDetails['hinh_anh_ck']; ?>" 
+                                        <img src="<?= getBasePath() ?>/img/<?php echo $transactionDetails['transfer_image']; ?>" 
                                              alt="Transfer Image" 
                                              class="img-fluid rounded border"
                                              style="max-height: 300px; cursor: pointer;"
@@ -165,12 +166,12 @@ try {
                                 </div>
                             </div>
                             
-                            <?php if ($transactionDetails['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                            <?php if ($transactionDetails['transfer_status'] == 'Đang chờ duyệt'): ?>
                             <div class="mt-4 border-top pt-3">
-                                <button class="btn btn-success me-2" onclick="showApproveModal(<?php echo $transactionDetails['id_lich_su']; ?>, '<?php echo $transactionDetails['noi_dung_ck']; ?>')">
+                                <button class="btn btn-success me-2" onclick="showApproveModal(<?php echo $transactionDetails['history_id']; ?>, '<?php echo $transactionDetails['transfer_content']; ?>')">
                                     <i class="fas fa-check me-1"></i> Phê duyệt
                                 </button>
-                                <button class="btn btn-danger me-2" onclick="rejectTransaction(<?php echo $transactionDetails['id_lich_su']; ?>)">
+                                <button class="btn btn-danger me-2" onclick="rejectTransaction(<?php echo $transactionDetails['history_id']; ?>)">
                                     <i class="fas fa-times me-1"></i> Từ chối
                                 </button>
                             </div>
@@ -267,7 +268,7 @@ try {
                                         <option value="">Tất cả người dùng</option>
                                         <?php foreach ($users as $user): ?>
                                             <option value="<?php echo $user['id']; ?>" <?php echo $userId === $user['id'] ? 'selected' : ''; ?>>
-                                                <?php echo $user['ten_dang_nhap']; ?>
+                                                <?php echo $user['username']; ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -327,44 +328,44 @@ try {
                                         <?php foreach ($transactions as $transaction): ?>
                                             <tr>
                                                 <td>
-                                                    <?php if ($transaction['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                                                    <?php if ($transaction['transfer_status'] == 'Đang chờ duyệt'): ?>
                                                         <input type="checkbox" name="transaction_ids[]" 
-                                                               value="<?php echo $transaction['id_lich_su']; ?>" 
+                                                               value="<?php echo $transaction['history_id']; ?>" 
                                                                class="form-check-input transaction-checkbox">
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="fw-bold"><?php echo $transaction['id_lich_su']; ?></td>
+                                                <td class="fw-bold"><?php echo $transaction['history_id']; ?></td>
                                                 <td>
                                                     <div>
-                                                        <strong><?php echo $transaction['ten_dang_nhap']; ?></strong>
+                                                        <strong><?php echo $transaction['username']; ?></strong>
                                                         <br>
                                                         <small class="text-muted"><?php echo $transaction['email']; ?></small>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <span class="text-truncate d-inline-block" style="max-width: 200px;" 
-                                                          title="<?php echo $transaction['noi_dung_ck']; ?>">
-                                                        <?php echo $transaction['noi_dung_ck']; ?>
+                                                          title="<?php echo $transaction['transfer_content']; ?>">
+                                                        <?php echo $transaction['transfer_content']; ?>
                                                     </span>
                                                 </td>
-                                                <td><?php echo getStatusBadge($transaction['trang_thai_ck']); ?></td>
+                                                <td><?php echo getStatusBadge($transaction['status_ck']); ?></td>
                                                 <td>
-                                                    <small><?php echo date('d/m/Y H:i', strtotime($transaction['ngay_tao'])); ?></small>
+                                                    <small><?php echo date('d/m/Y H:i', strtotime($transaction['created_date'])); ?></small>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group-vertical btn-group-sm" role="group">
-                                                        <a href="?view=<?php echo $transaction['id_lich_su']; ?>" 
+                                                        <a href="?view=<?php echo $transaction['history_id']; ?>" 
                                                            class="btn btn-info btn-sm">
                                                             <i class="fas fa-eye"></i> Xem
                                                         </a>
                                                         
-                                                        <?php if ($transaction['trang_thai_ck'] == 'Đang chờ duyệt'): ?>
+                                                        <?php if ($transaction['transfer_status'] == 'Đang chờ duyệt'): ?>
                                                             <button class="btn btn-success btn-sm" 
-                                                                    onclick="showApproveModal(<?php echo $transaction['id_lich_su']; ?>, '<?php echo $transaction['noi_dung_ck']; ?>')">
+                                                                    onclick="showApproveModal(<?php echo $transaction['history_id']; ?>, '<?php echo $transaction['transfer_content']; ?>')">
                                                                 <i class="fas fa-check"></i> Duyệt
                                                             </button>
                                                             <button class="btn btn-danger btn-sm" 
-                                                                    onclick="rejectTransaction(<?php echo $transaction['id_lich_su']; ?>)">
+                                                                    onclick="rejectTransaction(<?php echo $transaction['history_id']; ?>)">
                                                                 <i class="fas fa-times"></i> Từ chối
                                                             </button>
                                                         <?php endif; ?>
@@ -494,7 +495,7 @@ try {
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="/project/js/duyetnaptienscript.js"></script>
+    <script src="<?= getBasePath() ?>/js/duyetnaptienscript.js"></script>
 </body>
 </html>
 

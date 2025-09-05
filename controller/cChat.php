@@ -27,8 +27,8 @@ class cChat {
     
             $last = $this->getLastMessageFromFile($filePath);
     
-            $user['tin_cuoi'] = $last['noi_dung'];
-            $user['thoi_gian'] = $last['thoi_gian'];
+            $user['tin_cuoi'] = $last['content'];
+            $user['created_time'] = $last['created_time'];
         }
     
         return $users;
@@ -43,17 +43,17 @@ class cChat {
     
     // ✅ Đọc dòng cuối từ file JSON
     private function getLastMessageFromFile($filePath) {
-        if (!file_exists($filePath)) return ['noi_dung' => '', 'thoi_gian' => ''];
+        if (!file_exists($filePath)) return ['content' => '', 'created_time' => ''];
     
         $messages = json_decode(file_get_contents($filePath), true);
-        if (!is_array($messages) || count($messages) === 0) return ['noi_dung' => '', 'thoi_gian' => ''];
+        if (!is_array($messages) || count($messages) === 0) return ['content' => '', 'created_time' => ''];
     
         $last = end($messages);
         $timestamp = strtotime($last['timestamp']);
     
         return [
-            'noi_dung' => $last['noi_dung'],
-            'thoi_gian' => $this->formatThoiGian($timestamp)
+            'content' => $last['content'],
+            'created_time' => $this->formatThoiGian($timestamp)
         ];
     }
     

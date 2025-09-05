@@ -112,7 +112,7 @@ $chartDataJson = json_encode(array_values($chartData));
                 <option value="">Tất cả người dùng</option>
                 <?php foreach ($allUsers as $user): ?>
                   <option value="<?php echo $user['id']; ?>" <?php echo ($userId == $user['id']) ? 'selected' : ''; ?>>
-                    <?php echo $user['ten_dang_nhap']; ?>
+                    <?php echo $user['username']; ?>
                   </option>
                 <?php endforeach; ?>
               </select>
@@ -122,7 +122,8 @@ $chartDataJson = json_encode(array_values($chartData));
               <button type="submit" class="btn btn-primary">
                 <i class="mdi mdi-filter"></i> Lọc
               </button>
-              <a href="/project/ad/qldoanhthu" class="btn btn-outline-secondary">
+              <?php require_once '../helpers/url_helper.php'; ?>
+              <a href="<?= getBasePath() ?>/ad/qldoanhthu" class="btn btn-outline-secondary">
                 <i class="mdi mdi-refresh"></i> Đặt lại
               </a>
             </div>
@@ -244,7 +245,7 @@ $chartDataJson = json_encode(array_values($chartData));
                           </td>
                           <td>
                             <div class="d-flex flex-column">
-                              <span class="font-weight-bold"><?php echo $user['ten_dang_nhap']; ?></span>
+                              <span class="font-weight-bold"><?php echo $user['username']; ?></span>
                               <small><?php echo $user['total_posts']; ?> bài đăng</small>
                             </div>
                           </td>
@@ -283,18 +284,18 @@ $chartDataJson = json_encode(array_values($chartData));
                 <?php if (empty($revenueData)): ?>
                   <tr>
                     <td colspan="6" class="empty-table-message">
-                      Không tìm thấy dữ liệu doanh thu nào<?php echo ($startDate && $endDate) ? ' trong khoảng thời gian đã chọn' : ''; ?>.
+                                             Không tìm thấy dữ liệu doanh thu nào<?php echo ($startDate && $endDate) ? ' trong khoảng thời gian đã chọn' : ''; ?>.
                     </td>
                   </tr>
                 <?php else: ?>
                   <?php foreach ($revenueData as $item): ?>
                     <tr>
-                      <td><?php echo $item['san_pham_id']; ?></td>
-                      <td><?php echo $item['tieu_de']; ?></td>
-                      <td><?php echo formatCurrency($item['gia']); ?></td>
-                      <td><?php echo $item['ten_dang_nhap']; ?></td>
-                      <td><?php echo $item['ngay_tao'] ? date('d/m/Y', strtotime($item['ngay_tao'])) : 'N/A'; ?></td>
-                      <td class="font-weight-bold text-success"><?php echo formatCurrency($item['phi_doanh_thu']); ?></td>
+                      <td><?php echo $item['product_id']; ?></td>
+                      <td><?php echo $item['title']; ?></td>
+                      <td><?php echo formatCurrency($item['price']); ?></td>
+                      <td><?php echo $item['username']; ?></td>
+                      <td><?php echo $item['created_date'] ? date('d/m/Y', strtotime($item['created_date'])) : 'N/A'; ?></td>
+                      <td class="font-weight-bold text-success"><?php echo formatCurrency($item['revenue_fee']); ?></td>
                     </tr>
                   <?php endforeach; ?>
                 <?php endif; ?>

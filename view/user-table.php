@@ -348,9 +348,9 @@ function getPaginationUrl($page, $statusFilter) {
                 </tr>
                 <?php else: ?>
                   <?php foreach($data as $u): ?>
-                    <?php if ($u['id_vai_tro'] == 2): ?>
+                    <?php if ($u['role_id'] == 2): ?>
                       <?php
-                        $isActive = $u['trang_thai_hd'] == 1;
+                        $isActive = $u['is_active'] == 1;
                         $rowClass = !$isActive ? 'disabled-user' : '';
                         $statusClass = $isActive ? 'status-active' : 'status-disabled';
                         $statusText = $isActive ? 'Hoạt động' : 'Vô hiệu hóa';
@@ -360,13 +360,13 @@ function getPaginationUrl($page, $statusFilter) {
                           <input type="checkbox" class="user-checkbox" name="user_ids[]" value="<?php echo $u['id']; ?>">
                         </td>
                         <td class="py-1">
-                          <img src="../img/<?php echo $u['anh_dai_dien']; ?>" alt="image"/>
+                          <img src="../img/<?php echo $u['avatar']; ?>" alt="image"/>
                         </td>
                         <td><?php echo $u['id']; ?></td>
-                        <td><?php echo $u['ten_dang_nhap']; ?></td>
+                        <td><?php echo $u['username']; ?></td>
                         <td><?php echo $u['email']; ?></td>
-                        <td><?php echo $u['so_dien_thoai']; ?></td>
-                        <td><?php echo $u['dia_chi']; ?></td>
+                        <td><?php echo $u['phone']; ?></td>
+                        <td><?php echo $u['address']; ?></td>
                         <td><span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span></td>
                         <td>
                           <button type="button" class="btn btn-info mb-2">

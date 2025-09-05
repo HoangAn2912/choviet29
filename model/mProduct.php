@@ -10,9 +10,9 @@ class mProduct {
     }
 
     public function getSanPhamMoiNhat($limit = 100) {
-        $sql = "SELECT * FROM san_pham 
-            WHERE trang_thai_ban = 'Đang bán' AND trang_thai = 'Đã duyệt'
-            ORDER BY ngay_cap_nhat DESC, ngay_tao DESC
+        $sql = "SELECT * FROM products 
+            WHERE sale_status = 'Đang bán' AND status = 'Đã duyệt'
+            ORDER BY updated_date DESC, created_date DESC
             LIMIT ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $limit);
@@ -22,8 +22,8 @@ class mProduct {
 
         while ($row = $result->fetch_assoc()) {
             // Nếu có nhiều ảnh, tách lấy ảnh đầu tiên
-            if (!empty($row['hinh_anh'])) {
-                $dsAnh = array_map('trim', explode(',', $row['hinh_anh']));
+            if (!empty($row['image'])) {
+                $dsAnh = array_map('trim', explode(',', $row['image']));
                 $row['anh_dau'] = $dsAnh[0] ?? ''; // ảnh đầu tiên
             } else {
                 $row['anh_dau'] = '';
@@ -33,9 +33,9 @@ class mProduct {
         return $data;
     }
 
-    public function tinhThoiGian($ngay_tao) {
+    public function tinhThoiGian($created_date) {
         $now = new DateTime();
-        $created = new DateTime($ngay_tao);
+        $created = new DateTime($created_date);
         $diff = $now->diff($created);
     
         if ($diff->days == 0 && $diff->h == 0 && $diff->i < 60) return $diff->i . " phút trước";
@@ -48,7 +48,7 @@ class mProduct {
 
 
     public function getSanPhamById($id) {
-        $sql = "SELECT * FROM san_pham WHERE id = ? AND trang_thai = 'Đã duyệt'";
+        $sql = "SELECT * FROM products WHERE id = ? AND status = 'Đã duyệt'";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -56,15 +56,15 @@ class mProduct {
         $data = $result->fetch_assoc();
     
         // xử lý chuỗi ảnh thành mảng
-        if ($data && isset($data['hinh_anh'])) {
-            $data['ds_anh'] = array_map('trim', explode(',', $data['hinh_anh']));
+        if ($data && isset($data['image'])) {
+            $data['ds_anh'] = array_map('trim', explode(',', $data['image']));
         }
     
         return $data;
     }
     
     public function searchProducts($keyword) {
-        $sql = "SELECT * FROM san_pham WHERE trang_thai_ban = 'Đang bán' AND tieu_de LIKE ?";
+        $sql = "SELECT * FROM products WHERE sale_status = 'Đang bán' AND title LIKE ?";
         $stmt = $this->conn->prepare($sql);
         $likeKeyword = '%' . $keyword . '%';
         $stmt->bind_param("s", $likeKeyword);
@@ -73,8 +73,8 @@ class mProduct {
     
         $data = [];
         while ($row = $result->fetch_assoc()) {
-            if (!empty($row['hinh_anh'])) {
-                $dsAnh = array_map('trim', explode(',', $row['hinh_anh']));
+            if (!empty($row['image'])) {
+                $dsAnh = array_map('trim', explode(',', $row['image']));
                 $row['anh_dau'] = $dsAnh[0] ?? '';
             } else {
                 $row['anh_dau'] = '';

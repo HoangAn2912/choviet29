@@ -19,7 +19,7 @@ include_once("controller/cLoginLogout.php");
     }
         
         .form-container {
-            max-width: 400px;
+            max-width: 500px;
             margin: 50px auto;
             padding: 30px;
             background: rgba(255, 255, 255, 0.95);
@@ -29,6 +29,7 @@ include_once("controller/cLoginLogout.php");
         
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
         
         .form-group label {
@@ -170,23 +171,80 @@ include_once("controller/cLoginLogout.php");
             margin-top: 10px;
             text-align: center;
     }
+        
+        /* Password field + toggle (align with signup) */
+        .form-group input[type="password"] {
+            padding-right: 40px;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-30%) translateY(6px);
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+        .password-toggle:hover {
+            color: #fcb50e;
+        }
+        .password-toggle.active {
+            color: #fcb50e;
+        }
+
+        /* Login method toggle */
+        .login-method {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+        .login-method label {
+            margin: 0;
+            font-weight: 500;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
   </style>
 </head>
 <body>
     <div class="form-container">
         <!-- Form đăng nhập -->
         <div id="loginForm">
-            <h2 class="form-title">Đăng nhập</h2>
+            <h2 style="text-align: center; color: #fcb50e; margin-bottom: 30px;">Đăng nhập</h2>
             
             <form id="loginFormElement">
                 <div class="form-group">
-                    <label for="loginEmail">Email *</label>
-                    <input type="email" id="loginEmail" name="email" required>
+                    <label>Phương thức đăng nhập</label>
+                    <div class="login-method">
+                        <label><input type="radio" name="loginMethod" value="email" checked> Email</label>
+                        <label><input type="radio" name="loginMethod" value="username"> Tên đăng nhập</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loginEmail">Email hoặc Tên đăng nhập *</label>
+                    <input 
+                    placeholder="Ví dụ: choviet123@example.com"
+                    type="text" id="loginEmail" name="email" required>
       </div>
 
                 <div class="form-group">
                     <label for="loginPassword">Mật khẩu *</label>
-                    <input type="password" id="loginPassword" name="password" required>
+                    <input 
+                    placeholder="Ví dụ: Choviet123@"
+                    type="password" id="loginPassword" name="password" required>
+                    <span class="password-toggle" id="loginPasswordToggle" title="Hiển thị/Ẩn mật khẩu">
+                        <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    </span>
         </div>
 
                 <div class="form-group">
@@ -241,11 +299,25 @@ include_once("controller/cLoginLogout.php");
                 <div class="form-group">
                     <label for="newPassword">Mật khẩu mới *</label>
                     <input type="password" id="newPassword" name="newPassword" required>
+                    <span class="password-toggle" id="newPasswordToggle" title="Hiển thị/Ẩn mật khẩu">
+                        <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    </span>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirmNewPassword">Nhập lại mật khẩu mới *</label>
                     <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                    <span class="password-toggle" id="confirmNewPasswordToggle" title="Hiển thị/Ẩn mật khẩu">
+                        <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    </span>
                 </div>
                 
                 <div class="form-group">
@@ -288,11 +360,16 @@ include_once("controller/cLoginLogout.php");
                 
                 // Inputs
                 this.loginEmail = document.getElementById('loginEmail');
+                this.loginMethodRadios = document.querySelectorAll('input[name="loginMethod"]');
                 this.loginPassword = document.getElementById('loginPassword');
                 this.forgotEmail = document.getElementById('forgotEmail');
                 this.resetOtp = document.getElementById('resetOtp');
                 this.newPassword = document.getElementById('newPassword');
                 this.confirmNewPassword = document.getElementById('confirmNewPassword');
+                // Password toggle icons
+                this.loginPasswordToggle = document.getElementById('loginPasswordToggle');
+                this.newPasswordToggle = document.getElementById('newPasswordToggle');
+                this.confirmNewPasswordToggle = document.getElementById('confirmNewPasswordToggle');
                 
                 // Buttons
                 this.sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
@@ -309,6 +386,8 @@ include_once("controller/cLoginLogout.php");
             bindEvents() {
                 // Đăng nhập
                 this.loginFormElement.addEventListener('submit', (e) => this.handleLogin(e));
+                // Chuyển đổi phương thức đăng nhập (email <-> username)
+                this.loginMethodRadios.forEach(r => r.addEventListener('change', () => this.updateLoginMethod()))
                 
                 // Quên mật khẩu
                 this.forgotPasswordLink.addEventListener('click', (e) => this.showForgotPassword(e));
@@ -330,6 +409,33 @@ include_once("controller/cLoginLogout.php");
                 this.resetOtp.addEventListener('input', () => this.validateField(this.resetOtp));
                 this.newPassword.addEventListener('input', () => this.validateField(this.newPassword));
                 this.confirmNewPassword.addEventListener('input', () => this.validateField(this.confirmNewPassword));
+
+                // Toggle password visibility
+                if (this.loginPasswordToggle) {
+                    this.loginPasswordToggle.addEventListener('click', () => this.togglePasswordVisibility(this.loginPassword, this.loginPasswordToggle));
+                }
+                if (this.newPasswordToggle) {
+                    this.newPasswordToggle.addEventListener('click', () => this.togglePasswordVisibility(this.newPassword, this.newPasswordToggle));
+                }
+                if (this.confirmNewPasswordToggle) {
+                    this.confirmNewPasswordToggle.addEventListener('click', () => this.togglePasswordVisibility(this.confirmNewPassword, this.confirmNewPasswordToggle));
+                }
+            }
+
+            /**
+             * Cập nhật kiểu input/placeholder theo phương thức đăng nhập
+             */
+            updateLoginMethod() {
+                const method = [...this.loginMethodRadios].find(r => r.checked)?.value || 'email';
+                if (method === 'email') {
+                    this.loginEmail.type = 'email';
+                    this.loginEmail.placeholder = 'Ví dụ: choviet123@example.com';
+                } else {
+                    this.loginEmail.type = 'text';
+                    this.loginEmail.placeholder = 'Ví dụ: choviet123';
+                }
+                // Reset trạng thái lỗi/thành công khi chuyển phương thức
+                this.loginEmail.classList.remove('error', 'success');
             }
             
             /**
@@ -559,6 +665,36 @@ include_once("controller/cLoginLogout.php");
             }
             
             /**
+             * Bật/tắt hiển thị mật khẩu (giống trang đăng ký)
+             */
+            togglePasswordVisibility(passwordField, toggleButton) {
+                if (!passwordField || !toggleButton) return;
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleButton.innerHTML = `
+                        <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                            <line x1="1" y1="23" x2="23" y2="1" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    `;
+                    toggleButton.classList.add('active');
+                    toggleButton.title = 'Ẩn mật khẩu';
+                } else {
+                    passwordField.type = 'password';
+                    toggleButton.innerHTML = `
+                        <svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    `;
+                    toggleButton.classList.remove('active');
+                    toggleButton.title = 'Hiển thị mật khẩu';
+                }
+            }
+            /**
              * Hiển thị thông báo toast
              */
             showToast(message, type = 'info') {
@@ -603,7 +739,8 @@ include_once("controller/cLoginLogout.php");
         
         // Khởi tạo form khi trang đã tải xong
         document.addEventListener('DOMContentLoaded', () => {
-            new LoginForm();
+            const lf = new LoginForm();
+            lf.updateLoginMethod();
         });
     </script>
 </body>

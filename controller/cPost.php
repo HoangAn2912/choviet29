@@ -4,15 +4,15 @@ include_once("model/mPost.php");
 class cPost {
     public function dangTin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idLoaiSanPham = intval($_POST['id_loai_san_pham'] ?? 0);
+            $idLoaiSanPham = intval($_POST['category_id'] ?? 0);
             if ($idLoaiSanPham == 0) {
                 header("Location: index.php?toast=" . urlencode("❌ Bạn chưa chọn danh mục sản phẩm!") . "&type=error");
                 exit;
             }
 
-            $tieuDe = trim($_POST['tieu_de'] ?? '');
-            $gia = floatval($_POST['gia'] ?? 0);
-            $moTa = trim($_POST['mo_ta'] ?? '');
+            $tieuDe = trim($_POST['title'] ?? '');
+            $price = floatval($_POST['price'] ?? 0);
+            $moTa = trim($_POST['description'] ?? '');
             $idNguoiDang = $_SESSION['user_id'] ?? 0;
 
             if ($idNguoiDang == 0) {
@@ -22,11 +22,11 @@ class cPost {
 
             $anhTenList = [];
 
-            if (isset($_FILES['hinh_anh'])) {
-                $total = count($_FILES['hinh_anh']['name']);
+            if (isset($_FILES['image'])) {
+                $total = count($_FILES['image']['name']);
                 for ($i = 0; $i < $total; $i++) {
-                    $tmpName = $_FILES['hinh_anh']['tmp_name'][$i];
-                    $fileName = $_FILES['hinh_anh']['name'][$i];
+                    $tmpName = $_FILES['image']['tmp_name'][$i];
+                    $fileName = $_FILES['image']['name'][$i];
 
                     $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                     if (!in_array($ext, ['jpg', 'jpeg', 'png'])) {
@@ -55,8 +55,8 @@ class cPost {
             $soLuong = $model->demSoLuongTin($idNguoiDang);
 
             if ($soLuong >= 3) {
-                $thongTin = $model->layThongTinNguoiDung($idNguoiDang);
-                $soDu = intval($thongTin['so_du'] ?? 0);
+                            $thongTin = $model->layThongTinNguoiDung($idNguoiDang);
+            $soDu = intval($thongTin['balance'] ?? 0);
 
                 if ($soDu < 11000) {
                     header("Location: index.php?toast=" . urlencode("❌ Tài khoản không đủ 11.000đ để đăng tin.") . "&type=error");
@@ -64,7 +64,7 @@ class cPost {
                 }
             }
 
-            $result = $model->insertSanPham($tieuDe, $gia, $moTa, $hinhAnh, $idNguoiDang, $idLoaiSanPham);
+            $result = $model->insertSanPham($tieuDe, $price, $moTa, $hinhAnh, $idNguoiDang, $idLoaiSanPham);
 
             if ($result) {
                 header("Location: index.php?toast=" . urlencode("🎉 Đăng tin thành công! Tin đang chờ duyệt.") . "&type=success");
@@ -160,24 +160,24 @@ public function capNhatTrangThaiBan() {
     public function suaTin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_GET['id'] ?? 0);
-            // $idLoaiSanPham = intval($_POST['id_loai_san_pham'] ?? 0);
-            $tieuDe = trim($_POST['tieu_de'] ?? '');
-            $gia = floatval($_POST['gia'] ?? 0);
-            $moTa = trim($_POST['mo_ta'] ?? '');
+            // $idLoaiSanPham = intval($_POST['category_id'] ?? 0);
+            $tieuDe = trim($_POST['title'] ?? '');
+            $price = floatval($_POST['price'] ?? 0);
+            $moTa = trim($_POST['description'] ?? '');
             $idNguoiDang = $_SESSION['user_id'] ?? 0;
 
             $model = new mPost();
             $tinCu = $model->laySanPhamTheoId($id);
-            if (!$tinCu || $tinCu['id_nguoi_dung'] != $idNguoiDang) {
+            if (!$tinCu || $tinCu['user_id'] != $idNguoiDang) {
                 header("Location: index.php?toast=" . urlencode("❌ Không tìm thấy tin!") . "&type=error");
                 exit;
             }
-            $idLoaiSanPham = $tinCu['id_loai_san_pham'];
-            $anhTenList = explode(',', $tinCu['hinh_anh']);
-            if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['name'][0] != '') {
+            $idLoaiSanPham = $tinCu['category_id'];
+            $anhTenList = explode(',', $tinCu['image']);
+            if (isset($_FILES['image']) && $_FILES['image']['name'][0] != '') {
                 $anhTenList = [];
-                foreach ($_FILES['hinh_anh']['tmp_name'] as $i => $tmpName) {
-                    $fileName = $_FILES['hinh_anh']['name'][$i];
+                foreach ($_FILES['image']['tmp_name'] as $i => $tmpName) {
+                    $fileName = $_FILES['image']['name'][$i];
                     $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                     if (!in_array($ext, ['jpg', 'jpeg', 'png'])) continue;
                     $newName = uniqid() . '.' . $ext;
@@ -190,7 +190,7 @@ public function capNhatTrangThaiBan() {
             }
 
             $hinhAnh = implode(',', $anhTenList);
-            $ok = $model->capNhatSanPham($id, $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $idNguoiDang);
+            $ok = $model->capNhatSanPham($id, $tieuDe, $price, $moTa, $hinhAnh, $idLoaiSanPham, $idNguoiDang);
 
             if ($ok) {
                 header("Location: index.php?quan-ly-tin&toast=" . urlencode("✅ Đã cập nhật và chuyển về chờ duyệt!") . "&type=success");

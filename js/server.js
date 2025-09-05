@@ -1,9 +1,32 @@
-console.log("🟡 Đang chạy đúng file server.js JSON");
-
 const WebSocket = require('ws');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+
+// Cấu hình động - có thể thay đổi theo môi trường
+let CONFIG = {
+  hostname: process.env.HOSTNAME || 'localhost',
+  port: process.env.PORT || 8080,
+  basePath: process.env.BASE_PATH || '/choviet29' // Có thể thay đổi qua environment variable
+};
+
+console.log("🟡 Đang chạy đúng file server.js JSON");
+console.log("🔍 Current working directory:", process.cwd());
+console.log("🔍 CONFIG loaded:", CONFIG);
+
+// Thử load config từ file nếu có
+try {
+  const configPath = path.join(__dirname, '../config/server_config.js');
+  if (fs.existsSync(configPath)) {
+    const fileConfig = require(configPath);
+    CONFIG = { ...CONFIG, ...fileConfig };
+    console.log('📁 Đã load config từ file:', configPath);
+  }
+} catch (err) {
+  console.log('⚠️ Không thể load config file, sử dụng config mặc định');
+}
+
+console.log('🔧 Config hiện tại:', CONFIG);
 
 const wss = new WebSocket.Server({ port: 3000 });
 let clients = {};
@@ -20,15 +43,27 @@ wss.on('connection', function connection(ws) {
     }
 
     if (data.type === 'message') {
-      const { from, to, noi_dung, id_san_pham } = data;
+      const { from, to, content, product_id } = data;
       const timestamp = new Date().toISOString();
 
       const ids = [from, to].sort((a, b) => a - b);
       const fileName = `chat_${ids[0]}_${ids[1]}.json`;
 
-      // ✅ CHỈ dùng thư mục 'chat/' ngang cấp với 'api'
-      const chatFolderPath = path.join(__dirname, "../chat");
+      // ✅ Sửa lỗi: Đảm bảo đường dẫn luôn đúng với thư mục choviet29
+      // Sử dụng cấu hình từ file config nếu có, nếu không thì dùng đường dẫn tương đối
+      let chatFolderPath;
+      if (CONFIG.chatPath) {
+        chatFolderPath = CONFIG.chatPath;
+      } else {
+        // Sử dụng process.cwd() để lấy thư mục hiện tại thay vì __dirname
+        const currentDir = process.cwd();
+        chatFolderPath = path.join(currentDir, "chat");
+      }
+      
       const filePath = path.join(chatFolderPath, fileName);
+      
+      console.log("🔍 Chat folder path:", chatFolderPath);
+      console.log("🔍 Full file path:", filePath);
 
       // ✅ Tạo thư mục chat nếu chưa có
       if (!fs.existsSync(chatFolderPath)) {
@@ -43,9 +78,9 @@ wss.on('connection', function connection(ws) {
 
           const postFileName = JSON.stringify({ from, to, file_name: fileName });
           const req2 = http.request({
-            hostname: 'localhost',
-            port: 8080,
-            path: '/project/api/chat-save-filename.php',
+            hostname: CONFIG.hostname,
+            port: CONFIG.port,
+            path: CONFIG.basePath + '/api/chat-save-filename.php',
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -85,11 +120,11 @@ wss.on('connection', function connection(ws) {
       if (clients[from]) clients[from].send(socketMessage);
 
       // ✅ Gọi API lưu vào DB nếu cần
-      const postData = JSON.stringify({ from, to, content: noi_dung, id_san_pham: id_san_pham || null });
+      const postData = JSON.stringify({ from, to, content: content, product_id: product_id || null });
       const req = http.request({
-        hostname: 'localhost',
-        port: 8080,
-        path: '/project/api/chat-api.php',
+        hostname: CONFIG.hostname,
+        port: CONFIG.port,
+        path: CONFIG.basePath + '/api/chat-api.php',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -10,20 +10,20 @@ class cReview {
     public function themDanhGia() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model = new mReview();
-        $idNguoiDanhGia = $_POST['id_nguoi_danh_gia'];
-        $idNguoiDuocDanhGia = $_POST['id_nguoi_duoc_danh_gia'];
-        $idSanPham = $_POST['id_san_pham'];
-        $soSao = $_POST['so_sao'];
-        $binhLuan = trim($_POST['binh_luan']);
+        $reviewer_id = $_POST['reviewer_id'];
+$reviewed_user_id = $_POST['reviewed_user_id'];
+$product_id = $_POST['product_id'];
+$rating = $_POST['rating'];
+$comment = trim($_POST['comment']);
 
         // Kiểm tra đã đánh giá chưa
-        if ($model->daDanhGia($idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham)) {
-           header("Location: ../index.php?tin-nhan&to=$idNguoiDuocDanhGia&msg=" . urlencode("Bạn đã đánh giá người này cho sản phẩm này rồi!"));
+        if ($model->daDanhGia($reviewer_id, $reviewed_user_id, $product_id)) {
+           header("Location: ../index.php?tin-nhan&to=$reviewed_user_id&msg=" . urlencode("Bạn đã đánh giá người này cho sản phẩm này rồi!"));
             exit;
         }
 
-        $ok = $model->themDanhGia($idNguoiDanhGia, $idNguoiDuocDanhGia, $idSanPham, $soSao, $binhLuan);
-        header("Location: ../index.php?tin-nhan&to=$idNguoiDuocDanhGia&danhgia=" . ($ok ? "success" : "fail"));
+        $ok = $model->themDanhGia($reviewer_id, $reviewed_user_id, $product_id, $rating, $comment);
+        header("Location: ../index.php?tin-nhan&to=$reviewed_user_id&danhgia=" . ($ok ? "success" : "fail"));
         exit;
         }
     }

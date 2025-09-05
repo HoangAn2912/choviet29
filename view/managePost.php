@@ -23,7 +23,7 @@ $tin = null;
 if (isset($_GET['sua'])) {
     $tinId = intval($_GET['sua']);
     $tin = $postCtrl->laySanPhamTheoId($tinId);
-    if (!$tin || $tin['id_nguoi_dung'] != $userId) {
+    if (!$tin || $tin['user_id'] != $userId) {
         echo "<script>alert('Không tìm thấy bài viết hoặc bạn không có quyền chỉnh sửa.'); window.location.href='index.php?quan-ly-tin';</script>";
         exit;
     }
@@ -32,8 +32,8 @@ if (isset($_GET['sua'])) {
 });</script>";
 }
 $tenLoai = '';
-if ($tin && isset($tin['id_loai_san_pham'])) {
-    $tenLoai = $postCtrl->layTenLoaiSanPham($tin['id_loai_san_pham']);
+if ($tin && isset($tin['category_id'])) {
+    $tenLoai = $postCtrl->layTenLoaiSanPham($tin['category_id']);
 }
 
 function getBadgeColor($status) {
@@ -64,12 +64,12 @@ function getNoProductText($status) {
 <div class="container my-2">
   <div class="d-flex justify-content-between align-items-center mb-2" id="profileUser">
     <div class="d-flex align-items-center">
-      <img src="img/<?= htmlspecialchars($user['anh_dai_dien'] ?? 'default-avatar.png') ?>" class="rounded-circle mr-3" alt="Avatar" width="50" height="50" style="object-fit: cover;">
-      <div><div class="font-weight-bold"><?= htmlspecialchars($user['ten_dang_nhap'] ?? 'Tên đăng nhập') ?></div></div>
+      <img src="img/<?= htmlspecialchars($user['avatar'] ?? 'default-avatar.png') ?>" class="rounded-circle mr-3" alt="Avatar" width="50" height="50" style="object-fit: cover;">
+      <div><div class="font-weight-bold"><?= htmlspecialchars($user['username'] ?? 'Tên đăng nhập') ?></div></div>
     </div>
     <div class="d-flex align-items-center">
       <i class="fas fa-coins text-warning mr-2"></i>
-      <span class="font-weight-bold text-dark"><?= number_format($user['so_du'] ?? 0, 0, ',', '.') ?> đ</span>
+      <span class="font-weight-bold text-dark"><?= number_format($user['balance'] ?? 0, 0, ',', '.') ?> đ</span>
       <button onclick="window.location.href='index.php?nap-tien'" class="btn btn-success btn-sm ml-3 rounded-circle" title="Nạp thêm" style="width: 30px; height: 30px; padding: 0;">+</button>
     </div>
   </div>
@@ -92,10 +92,10 @@ function getNoProductText($status) {
       <?php $hasProduct = false; ?>
       <?php foreach ($posts as $post): ?>
         <?php
-            if ($post['trang_thai'] === 'Chờ duyệt' || $post['trang_thai'] === 'Từ chối') {
-                $status = $post['trang_thai'];
+            if ($post['status'] === 'Chờ duyệt' || $post['status'] === 'Từ chối') {
+                $status = $post['status'];
             } else {
-                $status = $post['trang_thai_ban'];
+                $status = $post['sale_status'];
             }
             ?>
         <?php if ($status === $statusTab): ?>
@@ -104,19 +104,19 @@ function getNoProductText($status) {
             <div class="card shadow-sm product-card">
               <div class="row no-gutters align-items-stretch" style="min-height: 220px;">
                 <div class="col-md-3">
-                  <img src="img/<?= explode(',', $post['hinh_anh'])[0] ?>" class="card-img-top product-image">
+                  <img src="img/<?= explode(',', $post['image'])[0] ?>" class="card-img-top product-image">
                 </div>
                 <div class="col-md-9 d-flex flex-column justify-content-center">
                   <div class="card-body pb-2">
-                    <h5 class="card-title mb-2"><?= htmlspecialchars($post['tieu_de']) ?></h5>
-                    <p class="text-danger font-weight-bold mb-1"><?= number_format($post['gia']) ?> đ</p>
+                    <h5 class="card-title mb-2"><?= htmlspecialchars($post['title']) ?></h5>
+                    <p class="text-danger font-weight-bold mb-1"><?= number_format($post['price']) ?> đ</p>
                     <p class="card-text small text-muted mb-1">
                       <i class="fas fa-map-marker-alt mr-1" style="color:rgb(49, 49, 49);"></i>
-                      <?= htmlspecialchars($user['dia_chi'] ?? 'Chưa cập nhật') ?>
+                      <?= htmlspecialchars($user['address'] ?? 'Chưa cập nhật') ?>
                     </p>
                     <p class="card-text small text-muted mb-1">
                       <i class="fas fa-clock mr-1" style="color: #6c757d;"></i>
-                      Cập nhật: <?= $post['thoi_gian_cu_the'] ?>
+                      Cập nhật: <?= $post['thoi_pricen_cu_the'] ?>
                     </p>
                     <p class="card-text small text-muted">
                       <i class="fas fa-info-circle mr-1" style="color: #007bff;"></i>Trạng thái:
@@ -180,15 +180,15 @@ function getNoProductText($status) {
             <label for="tieuDeSua" class="font-weight-bold">
               Tiêu đề bài đăng <span class="text-danger">*</span>
             </label>
-            <input type="text" class="form-control" id="tieuDeSua" name="tieu_de" placeholder="Nhập tên sản phẩm cần bán" value="<?= htmlspecialchars($tin['tieu_de'] ?? '') ?>" required>
+                         <input type="text" class="form-control" id="tieuDeSua" name="title" placeholder="Nhập tên sản phẩm cần bán" value="<?= htmlspecialchars($tin['title'] ?? '') ?>" required>
           </div>
 
           <!-- Giá bán -->
           <div class="form-group">
-            <label for="giaSua" class="font-weight-bold">
+            <label for="priceSua" class="font-weight-bold">
               Giá bán (đ) <span class="text-danger">*</span>
             </label>
-            <input type="number" class="form-control" id="giaSua" name="gia" placeholder="Nhập số tiền cần bán" value="<?= htmlspecialchars($tin['gia'] ?? '') ?>" required>
+                         <input type="number" class="form-control" id="priceSua" name="price" placeholder="Nhập số tiền cần bán" value="<?= htmlspecialchars($tin['price'] ?? '') ?>" required>
           </div>
 
           <!-- Mô tả chi tiết -->
@@ -196,7 +196,7 @@ function getNoProductText($status) {
             <label for="moTaSua" class="font-weight-bold">
               Mô tả chi tiết <span class="text-danger">*</span>
             </label>
-            <textarea class="form-control" id="moTaSua" name="mo_ta" rows="5" placeholder="Mô tả chi tiết sản phẩm..." required><?= htmlspecialchars($tin['mo_ta'] ?? '') ?></textarea>
+                         <textarea class="form-control" id="moTaSua" name="description" rows="5" placeholder="Mô tả chi tiết sản phẩm..." required><?= htmlspecialchars($tin['description'] ?? '') ?></textarea>
           </div>
 
           <!-- Loại sản phẩm -->
@@ -211,8 +211,8 @@ function getNoProductText($status) {
           <div class="form-group">
             <label class="font-weight-bold">Ảnh hiện tại</label>
             <div class="preview-anh-cu mb-2">
-              <?php if (!empty($tin['hinh_anh'])): ?>
-                <?php foreach (explode(',', $tin['hinh_anh']) as $img): ?>
+                             <?php if (!empty($tin['image'])): ?>
+                 <?php foreach (explode(',', $tin['image']) as $img): ?>
                   <img src="img/<?= htmlspecialchars($img) ?>" width="80" style="margin: 5px; object-fit: cover;">
                 <?php endforeach; ?>
               <?php endif; ?>
@@ -224,7 +224,7 @@ function getNoProductText($status) {
             <label for="hinhAnhSua" class="font-weight-bold">
               Hình ảnh sản phẩm <span class="text-danger">*</span>
             </label>
-            <input type="file" class="form-control-file" id="hinhAnhSua" name="hinh_anh[]" accept=".jpg,.jpeg,.png" multiple>
+                         <input type="file" class="form-control-file" id="hinhAnhSua" name="image[]" accept=".jpg,.jpeg,.png" multiple>
             <small class="form-text text-muted mt-2">Chọn từ 2 đến 6 hình ảnh (định dạng .jpg, .png).</small>
           </div>
 

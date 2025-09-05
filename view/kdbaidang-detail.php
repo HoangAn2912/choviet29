@@ -14,16 +14,17 @@ if(isset($_GET['id'])){
     <!-- Bootstrap CSS -->
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/project/css/kdbaidangct.css">
+    <?php require_once '../helpers/url_helper.php'; ?>
+    <link rel="stylesheet" href="<?= getBasePath() ?>/css/kdbaidangct.css">
 </head>
 <body>
 <div class="container">
     <?php foreach($dt as $ct) { ?>
-    <?php $images = explode(', ', $ct['hinh_anh']); ?>
+    <?php $images = explode(', ', $ct['image']); ?>
     <div class="mb-4">
-        <h1 class="product-title"><?php echo $ct['tieu_de']; ?></h1>
+        <h1 class="product-title"><?php echo $ct['title']; ?></h1>
         <div class="meta-info">
-            <span><i class="far fa-calendar me-1"></i> Đăng ngày: <?php echo $ct['ngay_cap_nhat']; ?></span>
+            <span><i class="far fa-calendar me-1"></i> Đăng ngày: <?php echo $ct['updated_date']; ?></span>
             <span class="mx-2">•</span>
             <span><i class="far fa-user me-1"></i> Bởi: <?php echo $ct['ho_ten']; ?></span>
             <span class="mx-2">•</span>
@@ -35,11 +36,11 @@ if(isset($_GET['id'])){
         <!-- Product Images -->
         <div class="col-md-6">
             <div class="card p-3">
-                <img src="/project/img/<?php echo $images[0]; ?>" alt="<?php echo $ct['tieu_de']; ?>" class="main-image mb-3" id="mainImage">
+                <img src="<?= getBasePath() ?>/img/<?php echo $images[0]; ?>" alt="<?php echo $ct['title']; ?>" class="main-image mb-3" id="mainImage">
                 
                 <div class="d-flex overflow-auto gap-2 pb-2">
                     <?php foreach($images as $img) { ?>
-                        <img src="/project/img/<?php echo $img; ?>" alt="Thumbnail" class="thumbnail" onclick="changeImage(this, '/project/img/<?php echo $img; ?>')">
+                        <img src="<?= getBasePath() ?>/img/<?php echo $img; ?>" alt="Thumbnail" class="thumbnail" onclick="changeImage(this, '<?= getBasePath() ?>/img/<?php echo $img; ?>')">
                     <?php } ?>
                 </div>
             </div>
@@ -50,12 +51,12 @@ if(isset($_GET['id'])){
             <div class="card p-4">
                 <div class="d-flex justify-content-between align-items-start mb-4">
                     <div>
-                        <div class="price"><?php echo number_format($ct['gia'], 0, ',', '.'); ?> VNĐ</div>
-                        <span class="badge <?php echo ($ct['trang_thai'] == 'Đã duyệt') ? 'badge-success' : 'badge-pending'; ?> mt-2">
-                            <?php echo $ct['trang_thai']; ?>
+                        <div class="price"><?php echo number_format($ct['price'], 0, ',', '.'); ?> VNĐ</div>
+                        <span class="badge <?php echo ($ct['status'] == 'Đã duyệt') ? 'badge-success' : 'badge-pending'; ?> mt-2">
+                            <?php echo $ct['status']; ?>
                         </span>
                     </div>
-                    <a href="/project/ad/kdbaidang" class="btn btn-secondary">
+                    <a href="<?= getBasePath() ?>/ad/kdbaidang" class="btn btn-secondary">
                         <i class="fa fa-arrow-left"></i>     Quay lại
                     </a>
                 </div>
@@ -66,7 +67,7 @@ if(isset($_GET['id'])){
                     <div class="detail-icon"><i class="fas fa-tag"></i></div>
                     <div>
                         <div class="detail-label">Loại sản phẩm</div>
-                        <div class="detail-value"><?php echo $ct['ten_loai_san_pham']; ?></div>
+                        <div class="detail-value"><?php echo $ct['category_name']; ?></div>
                     </div>
                 </div>
 
@@ -82,7 +83,7 @@ if(isset($_GET['id'])){
                     <div class="detail-icon"><i class="fas fa-dollar-sign"></i></div>
                     <div>
                         <div class="detail-label">Giá</div>
-                        <div class="detail-value"><?php echo number_format($ct['gia'], 0, ',', '.'); ?> VNĐ</div>
+                        <div class="detail-value"><?php echo number_format($ct['price'], 0, ',', '.'); ?> VNĐ</div>
                     </div>
                 </div>
 
@@ -90,7 +91,7 @@ if(isset($_GET['id'])){
                     <div class="detail-icon"><i class="fas fa-clock"></i></div>
                     <div>
                         <div class="detail-label">Ngày đăng</div>
-                        <div class="detail-value"><?php echo $ct['ngay_cap_nhat']; ?></div>
+                        <div class="detail-value"><?php echo $ct['updated_date']; ?></div>
                     </div>
                 </div>
             </div>
@@ -100,52 +101,52 @@ if(isset($_GET['id'])){
             <div class="col-12">
                 <div class="card p-4">
                     <h3 class="fs-4 fw-bold mb-3">Mô tả sản phẩm</h3>
-                    <p class="mb-0"><?php echo nl2br($ct['mo_ta']); ?></p>
+                    <p class="mb-0"><?php echo nl2br($ct['comment']); ?></p>
                 </div>
             </div>
         </div>
     <?php
-        $trang_thai = $ct['trang_thai'];
-        $trang_thai_ban = $ct['trang_thai_ban'];
+        $status = $ct['status'];
+        $status_ban = $ct['status_ban'];
         $timeline = [
             [
                 'status' => 'Tạo bài đăng',
-                'date' => $ct['ngay_tao'],
+                'date' => $ct['created_date'],
                 'class' => 'active'
             ]
         ];
         
-        if($trang_thai == "Chờ duyệt") {
+        if($status == "Chờ duyệt") {
             $timeline[] = [
                 'status' => 'Đang chờ duyệt',
-                'date' => $ct['ngay_tao'],
+                'date' => $ct['created_date'],
                 'class' => 'pending'
             ];
-        } else if($trang_thai == "Đã duyệt") {
+        } else if($status == "Đã duyệt") {
             $timeline[] = [
                 'status' => 'Đang chờ duyệt',
-                'date' => $ct['ngay_tao'],
+                'date' => $ct['created_date'],
                 'class' => 'active'
             ];
             $timeline[] = [
                 'status' => 'Đã duyệt bởi Admin',
-                'date' => $ct['ngay_cap_nhat'],
+                'date' => $ct['updated_date'],
                 'class' => 'active'
             ];
-        } else if($trang_thai == "Từ chối duyệt") {
+        } else if($status == "Từ chối duyệt") {
             $timeline[] = [
                 'status' => 'Đang chờ duyệt',
-                'date' => $ct['ngay_tao'],
+                'date' => $ct['created_date'],
                 'class' => 'active'
             ];
             $timeline[] = [
                 'status' => 'Từ chối bởi Admin',
-                'date' => $ct['ngay_cap_nhat'],
+                'date' => $ct['updated_date'],
                 'class' => 'rejected'
             ];
         }
         
-        if($trang_thai_ban == "Đã bán") {
+        if($status_ban == "Đã bán") {
             $timeline[] = [
                 'status' => 'Đã bán',
                 'date' => '',

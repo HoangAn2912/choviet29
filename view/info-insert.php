@@ -9,23 +9,24 @@
 
     $hoten = $_POST['ho_ten'];
     $email = $_POST['email'];
-    $mat_khau = $_POST['mat_khau'];
-    $nhap_lai = $_POST['nhap_lai_mat_khau'];
-    $sdt = $_POST['so_dien_thoai'];
-    $dc = $_POST['dia_chi'];
+    $password = $_POST['password'];
+    $repassword = $_POST['repassword'];
+    $phone = $_POST['phone'];
+    $address = $_POST['address'];
 
     // So sánh mật khẩu
-    if ($mat_khau !== $nhap_lai) {
+    if ($password !== $repassword) {
         $message = '<div class="alert alert-danger">Mật khẩu không khớp. Vui lòng nhập lại.</div>';
     } else {
-        $mk = md5($mat_khau);
+        $mk = md5($password);
         $anh = 'default.jpg';
 
         // Xử lý ảnh đại diện nếu có
-        if (isset($_FILES['anh_dai_dien']) && $_FILES['anh_dai_dien']['error'] === 0) {
-            if ($_FILES['anh_dai_dien']['name']) {
-                $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/project/img/';
-                $ext = pathinfo($_FILES['anh_dai_dien']['name'], PATHINFO_EXTENSION);
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
+            if ($_FILES['avatar']['name']) {
+                require_once '../helpers/url_helper.php';
+                $upload_dir = $_SERVER['DOCUMENT_ROOT'] . getBasePath() . '/img/';
+                $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
                 $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (in_array(strtolower($ext), $allowed_extensions)) {
@@ -33,7 +34,7 @@
                     $file_name = $ten_file . '.' . $ext;
                     $target_path = $upload_dir . $file_name;
 
-                    if (move_uploaded_file($_FILES['anh_dai_dien']['tmp_name'], $target_path)) {
+                    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_path)) {
                         $anh = $file_name;
                     } else {
                         $message = "Có lỗi trong việc upload file.";
@@ -49,7 +50,7 @@
             $result = $p->getinsertuser($hoten, $email, $mk, $sdt, $dc, $anh);
 
             if ($result) {
-                header("Location: /project/ad/taikhoan");
+                header("Location: " . getBasePath() . "/ad/taikhoan");
                 exit();
             } else {
                 $message = '<div class="alert alert-danger">Không thể thêm người dùng. Vui lòng thử lại.</div>';
@@ -71,7 +72,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/project/css/admin-them.css">
+    <?php require_once '../helpers/url_helper.php'; ?>n    <link rel="stylesheet" href="<?= getBasePath() ?>/css/admin-them.css">
     </head>
 
     <body>
@@ -104,18 +105,18 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="mat_khau" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="mat_khau" name="mat_khau" required>
+                        <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+<input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <div class="mb-3">
-                        <label for="nhap_lai_mat_khau" class="form-label">Nhập lại mật khẩu <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="nhap_lai_mat_khau" name="nhap_lai_mat_khau" required>
+                        <label for="repassword" class="form-label">Nhập lại mật khẩu <span class="text-danger">*</span></label>
+<input type="password" class="form-control" id="repassword" name="repassword" required>
                     </div>
                     </div>
                     <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
-                        <input type="text" class="form-control" id="so_dien_thoai" name="so_dien_thoai">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+<input type="text" class="form-control" id="phone" name="phone">
                     </div>
                     </div>
                 </div>
@@ -123,20 +124,20 @@
                 <div class="row mb-3">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="anh_dai_dien" class="form-label">Ảnh đại diện</label>
-                        <input type="file" class="form-control" id="anh_dai_dien" name="anh_dai_dien">
+                        <label for="avatar" class="form-label">Ảnh đại diện</label>
+<input type="file" class="form-control" id="avatar" name="avatar">
                         <small class="text-muted">Không chọn ảnh sẽ dùng ảnh mặc định</small>
                     </div>
                 </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="dia_chi" class="form-label">Địa chỉ</label>
-                    <textarea class="form-control" id="dia_chi" name="dia_chi" rows="3"></textarea>
+                    <label for="address" class="form-label">Địa chỉ</label>
+<textarea class="form-control" id="address" name="address" rows="3"></textarea>
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="/project/ad/taikhoan" class="btn btn-secondary">
+                    <a href="<?= getBasePath() ?>/ad/taikhoan" class="btn btn-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Quay lại
                     </a>
                     <button type="submit" class="btn btn-primary">

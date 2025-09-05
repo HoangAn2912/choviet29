@@ -10,7 +10,7 @@ $user_id = $_SESSION['user_id'];
 echo "<h3>Debug Balance for User ID: $user_id</h3>";
 
 // Kiểm tra tài khoản
-$stmt = $pdo->prepare("SELECT * FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+        $stmt = $pdo->prepare("SELECT * FROM transfer_accounts WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,10 +38,10 @@ if (isset($_GET['test_add'])) {
     $amount = 50000;
     try {
         if ($account) {
-            $stmt = $pdo->prepare("UPDATE taikhoan_chuyentien SET so_du = so_du + ? WHERE id_nguoi_dung = ?");
+            $stmt = $pdo->prepare("UPDATE transfer_accounts SET balance = balance + ? WHERE user_id = ?");
             $result = $stmt->execute([$amount, $user_id]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO taikhoan_chuyentien (id_ck, id_nguoi_dung, so_du) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO transfer_accounts (account_number, user_id, balance) VALUES (?, ?, ?)");
             $result = $stmt->execute(['TEST_' . time(), $user_id, $amount]);
         }
         

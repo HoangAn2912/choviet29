@@ -24,10 +24,10 @@ try {
     
     if ($transaction && $transaction['status'] === 'success') {
         // Lấy số dư hiện tại
-        $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+        $stmt = $pdo->prepare("SELECT balance FROM transfer_accounts WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
-        $current_balance = $account ? $account['so_du'] : 0;
+        $current_balance = $account ? $account['balance'] : 0;
         
         echo json_encode([
             'success' => true, 

@@ -29,11 +29,11 @@ if (isset($_GET['success']) && isset($_SESSION['payment_success'])) {
     
     // Kiểm tra số dư đã được cộng thực sự
     try {
-        $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+        $stmt = $pdo->prepare("SELECT balance FROM transfer_accounts WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($account && $account['so_du'] >= $amount) {
+        if ($account && $account['balance'] >= $amount) {
             $message = "✅ Nạp tiền thành công! Số tiền " . number_format($amount) . " VND đã được cộng vào tài khoản. Mã GD: " . $txn_ref;
         } else {
             $error = "Có lỗi xảy ra trong quá trình cộng tiền. Vui lòng liên hệ hỗ trợ.";
@@ -55,10 +55,10 @@ if (isset($_GET['error']) && isset($_SESSION['payment_error'])) {
 
 // Lấy thông tin số dư hiện tại
 try {
-    $stmt = $pdo->prepare("SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?");
+    $stmt = $pdo->prepare("SELECT balance FROM transfer_accounts WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $account = $stmt->fetch(PDO::FETCH_ASSOC);
-    $current_balance = $account ? $account['so_du'] : 0;
+    $current_balance = $account ? $account['balance'] : 0;
 } catch(PDOException $e) {
     $error = "Lỗi truy vấn database: " . $e->getMessage();
 }
@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Thêm thông báo chờ thanh toán -->
         <div id="waitingMessage" style="display: none; margin-top: 20px; padding: 15px; background-color: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
             <p><strong>🔄 Đang chờ xác nhận thanh toán...</strong></p>
-            <p>Vui lòng hoàn thành thanh toán trên VNPay. Hệ thống sẽ tự động cập nhật khi giao dịch thành công.</p>
+            <p>Vui lòng hoàn thành thanh toán trên VNPay. Hệ thống sẽ tự động cập nhật khi priceo dịch thành công.</p>
             <div style="text-align: center; margin-top: 10px;">
                 <div class="spinner"></div>
             </div>
@@ -224,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <p style="margin-top: 20px; font-size: 14px; color: #666;">
             <strong>Lưu ý:</strong> Số tiền nạp tối thiểu là 50,000 VND. 
-            Bạn sẽ được chuy���n đến trang thanh toán VNPay để hoàn tất giao dịch.
+            Bạn sẽ được chuy���n đến trang thanh toán VNPay để hoàn tất priceo dịch.
         </p>
     </div>
 
@@ -246,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         let currentTxnRef = null;
         let checkInterval = null;
         
-        // Lưu mã giao dịch khi submit form
+        // Lưu mã priceo dịch khi submit form
         document.getElementById('depositForm').addEventListener('submit', function(e) {
             const amount = document.getElementById('amount').value;
             if (amount < 50000) {
@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 return;
             }
             
-            // Tạo mã giao dịch unique
+            // Tạo mã priceo dịch unique
             currentTxnRef = <?php echo $user_id; ?> + '_' + Date.now();
             localStorage.setItem('pending_txn_ref', currentTxnRef);
             
@@ -266,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }, 2000);
         });
         
-        // Kiểm tra giao dịch pending khi load trang
+        // Kiểm tra priceo dịch pending khi load trang
         window.addEventListener('load', function() {
             const pendingTxn = localStorage.getItem('pending_txn_ref');
             if (pendingTxn) {
@@ -304,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     })
                     .catch(error => {
-                        console.error('Lỗi kiểm tra giao dịch:', error);
+                        console.error('Lỗi kiểm tra priceo dịch:', error);
                     });
             }, 3000); // Kiểm tra mỗi 3 giây
         }

@@ -6,7 +6,7 @@ class qlthongtin{
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "SELECT * FROM nguoi_dung order by id asc";
+        $sql = "SELECT * FROM users order by id asc";
         $rs = mysqli_query($p, $sql);
         
         $data = array();
@@ -22,7 +22,7 @@ class qlthongtin{
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "SELECT * FROM nguoi_dung WHERE id = '$id'";
+        $sql = "SELECT * FROM users WHERE id = '$id'";
         $rs = mysqli_query($p, $sql);
         
         $data = array();
@@ -34,18 +34,18 @@ class qlthongtin{
     }
     
     // Update user information
-    function updateUser($id, $hoten, $email, $sdt, $dc, $anh, $vai_tro) {
+    function updateUser($id, $hoten, $email, $sdt, $dc, $anh, $role_id) {
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "UPDATE nguoi_dung SET 
-                ten_dang_nhap = '$hoten', 
+        $sql = "UPDATE users SET 
+                username = '$hoten', 
                 email = '$email', 
-                so_dien_thoai = '$sdt', 
-                dia_chi = '$dc', 
-                anh_dai_dien = '$anh',
-                id_vai_tro = '$vai_tro',
-                ngay_cap_nhat = NOW()
+                phone = '$sdt', 
+                address = '$dc', 
+                avatar = '$anh',
+                role_id = '$role_id',
+                updated_date = NOW()
                 WHERE id = '$id'";
                 
         $rs = mysqli_query($p, $sql);
@@ -54,19 +54,19 @@ class qlthongtin{
     }
     
     // Update user with password
-    function updateUserWithPassword($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro) {
+    function updateUserWithPassword($id, $username, $email, $password, $phone, $address, $avatar, $role_id) {
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "UPDATE nguoi_dung SET 
-                ten_dang_nhap = '$hoten', 
+        $sql = "UPDATE users SET 
+                username = '$hoten', 
                 email = '$email',
-                mat_khau = '$mat_khau', 
-                so_dien_thoai = '$sdt', 
-                dia_chi = '$dc', 
-                anh_dai_dien = '$anh',
-                id_vai_tro = '$vai_tro',
-                ngay_cap_nhat = NOW()
+                password = '$password', 
+                phone = '$sdt', 
+                address = '$dc', 
+                avatar = '$anh',
+                role_id = '$role_id',
+                updated_date = NOW()
                 WHERE id = '$id'";
                 
         $rs = mysqli_query($p, $sql);
@@ -74,14 +74,14 @@ class qlthongtin{
         return $rs;
     }
     
-    // Disable user (set trang_thai_hd = 0)
+    // Disable user (set is_active = 0)
     function disableUser($id) {
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "UPDATE nguoi_dung SET 
-                trang_thai_hd = 0,
-                ngay_cap_nhat = NOW()
+        $sql = "UPDATE users SET 
+                is_active = 0,
+                updated_date = NOW()
                 WHERE id = '$id'";
                 
         $rs = mysqli_query($p, $sql);
@@ -89,14 +89,14 @@ class qlthongtin{
         return $rs;
     }
     
-    // Restore user (set trang_thai_hd = 1)
+    // Restore user (set is_active = 1)
     function restoreUser($id) {
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "UPDATE nguoi_dung SET 
-                trang_thai_hd = 1,
-                ngay_cap_nhat = NOW()
+        $sql = "UPDATE users SET 
+                is_active = 1,
+                updated_date = NOW()
                 WHERE id = '$id'";
                 
         $rs = mysqli_query($p, $sql);
@@ -109,15 +109,15 @@ class qlthongtin{
         $con = new Connect();
         $p = $con->connect();
         
-        $whereClause = "WHERE id_vai_tro = 2";
+        $whereClause = "WHERE role_id = 2";
         
         if ($statusFilter === 'active') {
-            $whereClause .= " AND trang_thai_hd = 1";
+            $whereClause .= " AND is_active = 1";
         } else if ($statusFilter === 'disabled') {
-            $whereClause .= " AND trang_thai_hd = 0";
+            $whereClause .= " AND is_active = 0";
         }
         
-        $sql = "SELECT * FROM nguoi_dung {$whereClause} ORDER BY id LIMIT {$offset}, {$limit}";
+        $sql = "SELECT * FROM users {$whereClause} ORDER BY id LIMIT {$offset}, {$limit}";
         $rs = mysqli_query($p, $sql);
         
         $data = array();
@@ -133,15 +133,15 @@ class qlthongtin{
         $con = new Connect();
         $p = $con->connect();
         
-        $whereClause = "WHERE id_vai_tro = 2";
+        $whereClause = "WHERE role_id = 2";
         
         if ($statusFilter === 'active') {
-            $whereClause .= " AND trang_thai_hd = 1";
+            $whereClause .= " AND is_active = 1";
         } else if ($statusFilter === 'disabled') {
-            $whereClause .= " AND trang_thai_hd = 0";
+            $whereClause .= " AND is_active = 0";
         }
         
-        $sql = "SELECT COUNT(*) as total FROM nguoi_dung {$whereClause}";
+        $sql = "SELECT COUNT(*) as total FROM users {$whereClause}";
         $rs = mysqli_query($p, $sql);
         $row = mysqli_fetch_assoc($rs);
         
@@ -151,8 +151,8 @@ class qlthongtin{
 	public function insertuser($hoten, $email, $mk, $sdt, $dc, $anh) {
 		$p = new Connect();
 		$con = $p->connect();
-		$sql = "INSERT INTO nguoi_dung 
-				(ten_dang_nhap, email, mat_khau, so_dien_thoai, dia_chi, id_vai_tro, anh_dai_dien, ngay_tao, ngay_cap_nhat, trang_thai_hd) 
+		$sql = "INSERT INTO users 
+				(username, email, password, phone, address, role_id, avatar, created_date, updated_date, is_active) 
 				VALUES (?, ?, ?, ?, ?, 2, ?, NOW(), NULL, 1)"	;
 		$stmt = $con->prepare($sql);
 		if (!$stmt) {

@@ -30,17 +30,17 @@ if (!is_array($messages) || count($messages) === 0) {
 
 $first = $messages[0];
 
-// ✅ Lấy id_san_pham từ DB dòng đầu tiên
+// ✅ Lấy product_id từ DB dòng đầu tiên
 require_once("../model/mChat.php");
 $model = new mChat();
 $row = $model->getFirstMessage($first['from'], $first['to']);
-$idSanPham = $row['id_san_pham'] ?? 0;
+$idSanPham = $row['product_id'] ?? 0;
 
 // ✅ Trả kết quả đầy đủ
 echo json_encode([
     "id_nguoi_gui" => $first['from'],
     "id_nguoi_nhan" => $first['to'],
-    "id_san_pham" => $idSanPham,
+    "product_id" => $idSanPham,
     "thoi_gian" => $first['timestamp']
 ]);
 exit;

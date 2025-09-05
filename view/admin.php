@@ -6,7 +6,8 @@ if ($_SESSION['role'] != 1) {
         alert('Bạn không đủ thẩm quyền truy cập!');
         
     </script>";
-    header("refresh: 0; url='/project/index.php?login'");
+    require_once '../helpers/url_helper.php';
+    header("refresh: 0; url='" . getBaseUrl() . "/index.php?login'");
     exit;
 }
 ?>
@@ -18,18 +19,19 @@ if ($_SESSION['role'] != 1) {
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Admin</title>
   <!-- plugins:css -->
-  <link rel="stylesheet" href="/project/admin/src/assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="/project/admin/src/assets/vendors/css/vendor.bundle.base.css">
+  <?php require_once '../helpers/url_helper.php'; ?>
+  <link rel="stylesheet" href="<?= getBasePath() ?>/admin/src/assets/vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="<?= getBasePath() ?>/admin/src/assets/vendors/css/vendor.bundle.base.css">
   <!-- endinject -->
   <!-- plugin css for this page -->
-  <link rel="stylesheet" href="/project/admin/src/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+  <link rel="stylesheet" href="<?= getBasePath() ?>/admin/src/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <!-- End plugin css for this page -->
   <!-- inject:css -->
-  <link rel="stylesheet" href="/project/admin/src/assets/css/style.css">
+  <link rel="stylesheet" href="<?= getBasePath() ?>/admin/src/assets/css/style.css">
   <!-- endinject -->
-  <link rel="shortcut icon" href="/project/admin/src/assets/images/favicon.ico" />
+  <link rel="shortcut icon" href="<?= getBasePath() ?>/admin/src/assets/images/favicon.ico" />
   
 </head>
 <body>
@@ -59,7 +61,7 @@ if ($_SESSION['role'] != 1) {
           
           <li class="nav-item nav-profile dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-              <img src="/project/img/<?php echo $_SESSION['avatar']; ?>" alt="profile" />
+              <img src="<?= getBasePath() ?>/img/<?php echo $_SESSION['avatar']; ?>" alt="profile" />
               <span class="nav-profile-name"><?php echo $_SESSION['user_name']; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
@@ -67,7 +69,7 @@ if ($_SESSION['role'] != 1) {
                 <i class="mdi mdi-cog text-primary"></i>
                 Settings
               </a>
-              <a class="dropdown-item" href="/project?action=logout">
+              <a class="dropdown-item" href="<?= getBasePath() ?>?action=logout">
                 <i class="mdi mdi-logout text-primary"></i>
                 Đăng xuất
               </a>
@@ -91,37 +93,37 @@ if ($_SESSION['role'] != 1) {
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad">
               <i class="mdi mdi-account-circle menu-icon" style="color: black;"></i>
               Thông tin cá nhân
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/taikhoan" aria-expanded="false" aria-controls="auth">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad/taikhoan" aria-expanded="false" aria-controls="auth">
               <i class="mdi mdi-account-multiple menu-icon" style="color: black;"></i>
               Quản lý tài khoản
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/qldoanhthu" aria-expanded="false" aria-controls="form-elements">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad/qldoanhthu" aria-expanded="false" aria-controls="form-elements">
               <i class="mdi mdi-cash-multiple menu-icon" style="color: black;"></i>
               Quản lý doanh thu
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/loaisanpham" aria-expanded="false" aria-controls="form-elements">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad/loaisanpham" aria-expanded="false" aria-controls="form-elements">
               <i class="mdi mdi-format-list-bulleted menu-icon" style="color: black;"></i>
               Quản lý danh mục
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/kdbaidang" aria-expanded="false" aria-controls="ui-basic">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad/kdbaidang" aria-expanded="false" aria-controls="ui-basic">
               <i class="mdi mdi-checkbox-marked-outline menu-icon" style="color: black;"></i>
               Kiểm duyệt bài đăng
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project/ad/kdnaptien" aria-expanded="false" aria-controls="auth">
+            <a class="nav-link" href="<?= getBasePath() ?>/ad/kdnaptien" aria-expanded="false" aria-controls="auth">
               <i class="mdi mdi-bank-transfer menu-icon" style="color: black;"></i>
               Kiểm duyệt nạp tiền
             </a>
@@ -175,26 +177,26 @@ if ($_SESSION['role'] != 1) {
   <!-- container-scroller -->
 
   <!-- plugins:js -->
-  <script src="/project/admin/src/assets/vendors/js/vendor.bundle.base.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/vendors/js/vendor.bundle.base.js"></script>
   <!-- endinject -->
   <!-- Plugin js for this page-->
-  <script src="/project/admin/src/assets/vendors/chart.js/chart.umd.js"></script>
-  <script src="/project/admin/src/assets/vendors/datatables.net/jquery.dataTables.js"></script>
-  <script src="/project/admin/src/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/vendors/chart.js/chart.umd.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/vendors/datatables.net/jquery.dataTables.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
   <!-- End plugin js for this page-->
   <!-- inject:js -->
-  <script src="/project/admin/src/assets/js/off-canvas.js"></script>
-  <script src="/project/admin/src/assets/js/hoverable-collapse.js"></script>
-  <script src="/project/admin/src/assets/js/template.js"></script>
-  <script src="/project/admin/src/assets/js/settings.js"></script>
-  <script src="/project/admin/src/assets/js/todolist.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/off-canvas.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/hoverable-collapse.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/template.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/settings.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/todolist.js"></script>
   <!-- endinject -->
   <!-- Custom js for this page-->
-  <script src="/project/admin/src/assets/js/dashboard.js"></script>
-    <script src="/project/admin/src/assets/js/proBanner.js"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/dashboard.js"></script>
+    <script src="<?= getBasePath() ?>/admin/src/assets/js/proBanner.js"></script>
 
   <!-- End custom js for this page-->
-  <script src="/project/admin/src/assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="<?= getBasePath() ?>/admin/src/assets/js/jquery.cookie.js" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

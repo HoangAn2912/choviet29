@@ -15,16 +15,16 @@ class cqlthongtin {
     }
     
     // Update user information
-    function getupdateuser($id, $hoten, $email, $sdt, $dc, $anh, $vai_tro) {
+    function getupdateuser($id, $hoten, $email, $sdt, $dc, $anh, $role_id) {
         $p = new qlthongtin();
-        $data = $p->updateUser($id, $hoten, $email, $sdt, $dc, $anh, $vai_tro);
+        $data = $p->updateUser($id, $hoten, $email, $sdt, $dc, $anh, $role_id);
         return $data;
     }
     
     // Update user with password
-    function getupdateuser_with_password($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro) {
+    function getupdateuser_with_password($id, $username, $email, $password, $phone, $address, $avatar, $role_id) {
         $p = new qlthongtin();
-        $data = $p->updateUserWithPassword($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro);
+        $data = $p->updateUserWithPassword($id, $username, $email, $password, $phone, $address, $avatar, $role_id);
         return $data;
     }
     
@@ -55,9 +55,9 @@ class cqlthongtin {
     }
 
     // Add new user
-    function adduser($hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro) {
-        $p = new qlthongtin();
-        $data = $p->insertUser($hoten, $email, $mat_khau, $sdt, $dc, $anh, $vai_tro);
+    function adduser($username, $email, $password, $phone, $address, $avatar, $role_id) {
+    $p = new qlthongtin();
+    $data = $p->insertUser($username, $email, $password, $phone, $address, $avatar, $role_id);
         return $data;
     }
     public function getinsertuser($hoten, $email, $mk, $sdt, $dc, $anh) {

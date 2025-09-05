@@ -15,9 +15,9 @@ echo "</head><body>";
 
 echo "<h2>Kiểm tra cấu trúc database</h2>";
 
-// Kiểm tra bảng nguoi_dung
-echo "<h3>Bảng nguoi_dung:</h3>";
-$result = $conn->query("SHOW COLUMNS FROM nguoi_dung");
+// Kiểm tra bảng users
+echo "<h3>Bảng users:</h3>";
+$result = $conn->query("SHOW COLUMNS FROM users");
 if ($result) {
     echo "<table>";
     echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
@@ -75,11 +75,11 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
-// Kiểm tra bảng taikhoan_chuyentien
-echo "<h3>Bảng taikhoan_chuyentien:</h3>";
-$result = $conn->query("SHOW TABLES LIKE 'taikhoan_chuyentien'");
+// Kiểm tra bảng transfer_accounts
+echo "<h3>Bảng transfer_accounts:</h3>";
+$result = $conn->query("SHOW TABLES LIKE 'transfer_accounts'");
 if ($result && $result->num_rows > 0) {
-    $result = $conn->query("SHOW COLUMNS FROM taikhoan_chuyentien");
+    $result = $conn->query("SHOW COLUMNS FROM transfer_accounts");
     if ($result) {
         echo "<table>";
         echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
@@ -96,19 +96,19 @@ if ($result && $result->num_rows > 0) {
         echo "</table>";
     }
 } else {
-    echo "Bảng taikhoan_chuyentien không tồn tại. Tạo bảng mới...<br>";
+    echo "Bảng transfer_accounts không tồn tại. Tạo bảng mới...<br>";
     
-    $sql = "CREATE TABLE taikhoan_chuyentien (
+    $sql = "CREATE TABLE transfer_accounts (
         id INT AUTO_INCREMENT PRIMARY KEY,
         id_ck INT NOT NULL,
-        id_nguoi_dung INT NOT NULL,
-        so_du DECIMAL(15,2) DEFAULT 0.00,
+        user_id INT NOT NULL,
+        balance DECIMAL(15,2) DEFAULT 0.00,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (id_nguoi_dung) REFERENCES nguoi_dung(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )";
     
     if ($conn->query($sql)) {
-        echo "✅ Tạo bảng taikhoan_chuyentien thành công!<br>";
+        echo "✅ Tạo bảng transfer_accounts thành công!<br>";
     } else {
         echo "❌ Lỗi tạo bảng: " . $conn->error . "<br>";
     }

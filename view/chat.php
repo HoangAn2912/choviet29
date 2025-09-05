@@ -11,7 +11,7 @@ $cUser = new cUser();
 
 $current_user_id = $_SESSION['user_id'];
 $to_user_id = isset($_GET['to']) ? intval($_GET['to']) : 0;
-$id_san_pham = isset($_GET['id_san_pham']) ? intval($_GET['id_san_pham']) : 0;
+$product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
 $conversations = $cChat->getConversationUsers($current_user_id);
 $receiver = ($to_user_id) ? $cUser->getUserById($to_user_id) : null;
 ?>
@@ -20,7 +20,7 @@ $receiver = ($to_user_id) ? $cUser->getUserById($to_user_id) : null;
 <script>
 const CURRENT_USER_ID = <?= $current_user_id ?>;
 const TO_USER_ID = <?= $to_user_id ?>;
-const ID_SAN_PHAM = <?= $id_san_pham ?>;
+const ID_SAN_PHAM = <?= $product_id ?>;
 </script>
 <?php endif; ?>
 
@@ -88,10 +88,10 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
             data-id="<?= $user['id'] ?>"
             style="cursor: pointer;" 
             onclick="window.location.href='?tin-nhan&to=<?= $user['id'] ?>'">
-          <img src="img/<?= htmlspecialchars($user['anh_dai_dien']) ?>" class="mr-3 rounded-circle" width="50" height="50">
+          <img src="img/<?= htmlspecialchars($user['avatar']) ?>" class="mr-3 rounded-circle" width="50" height="50">
           <div class="media-body">
-            <h6 class="mb-0 font-weight-bold"><?= htmlspecialchars($user['ten_dang_nhap']) ?></h6>
-            <small class="text-muted"><?= htmlspecialchars($user['thoi_gian']) ?></small><br>
+            <h6 class="mb-0 font-weight-bold"><?= htmlspecialchars($user['username']) ?></h6>
+            <small class="text-muted"><?= htmlspecialchars($user['thoi_pricen']) ?></small><br>
             <small><?= htmlspecialchars($user['tin_cuoi']) ?></small>
           </div>
         </li>
@@ -104,16 +104,16 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
       <?php if ($receiver): ?>
       <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
         <div class="d-flex align-items-center">
-        <img src="img/<?= htmlspecialchars($receiver['anh_dai_dien']) ?>" class="rounded-circle mr-2" width="40" height="40">
-      <strong><?= htmlspecialchars($receiver['ten_dang_nhap']) ?></strong>
+        <img src="img/<?= htmlspecialchars($receiver['avatar']) ?>" class="rounded-circle mr-2" width="40" height="40">
+      <strong><?= htmlspecialchars($receiver['username']) ?></strong>
     </div>
 
       </div>
 
       <div id="chatMessages" class="flex-grow-1 overflow-auto mb-3" style="max-height: 60vh;"></div>
 
-      <form class="d-flex align-items-center" id="formChat" onsubmit="event.preventDefault(); sendMessage(this.noi_dung.value); this.noi_dung.value='';">
-        <input name="noi_dung" type="text" class="form-control" placeholder="Nhập tin nhắn..." required>
+      <form class="d-flex align-items-center" id="formChat" onsubmit="event.preventDefault(); sendMessage(this.content.value); this.content.value='';">
+<input name="content" type="text" class="form-control" placeholder="Nhập tin nhắn..." required>
         <button class="btn btn-warning text-white ml-2"><i class="fa fa-paper-plane"></i></button>
       </form>
       <?php else: ?>
@@ -130,9 +130,9 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
 <div class="modal fade" id="modalDanhGia" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
   <form action="api/review-api.php?act=themDanhGia" method="post">
-      <input type="hidden" name="id_nguoi_danh_gia" value="">
-      <input type="hidden" name="id_nguoi_duoc_danh_gia" value="">
-      <input type="hidden" name="id_san_pham" value="">
+      <input type="hidden" name="reviewer_id" value="">
+<input type="hidden" name="reviewed_user_id" value="">
+<input type="hidden" name="product_id" value="">
 
       <div class="modal-header">
         <h5 class="modal-title">Đánh giá người bán</h5>
@@ -141,14 +141,14 @@ const ID_SAN_PHAM = <?= $id_san_pham ?>;
 
       <div class="modal-body">
         <label>Số sao</label>
-        <select name="so_sao" class="form-control" required>
+        <select name="rating" class="form-control" required>
           <?php for ($i = 5; $i >= 1; $i--): ?>
             <option value="<?= $i ?>"><?= $i ?> sao</option>
           <?php endfor; ?>
         </select>
 
         <label class="mt-2">Bình luận</label>
-        <textarea name="binh_luan" class="form-control" required></textarea>
+        <textarea name="comment" class="form-control" required></textarea>
       </div>
 
       <div class="modal-footer">
@@ -212,7 +212,7 @@ document.getElementById("searchUserInput").addEventListener("input", function ()
 async function checkFirstMessageAndShowButton(from, to, selector) {
   try {
     // Kiểm tra đã đánh giá chưa
-    const checkRes = await fetch(`api/check-reviewed.php?from=${from}&to=${to}&id_san_pham=${ID_SAN_PHAM}`);
+    const checkRes = await fetch(`api/check-reviewed.php?from=${from}&to=${to}&product_id=${ID_SAN_PHAM}`);
     if (!checkRes.ok) return;
     const checkData = await checkRes.json();
     if (checkData.reviewed) return; // Đã đánh giá thì không hiển thị nút
@@ -222,13 +222,13 @@ console.log('API check-reviewed:', checkData);
     if (!res.ok) return;
     const msg = await res.json();
 
-    const firstTime = new Date(msg.thoi_gian).getTime();
+    const firstTime = new Date(msg.thoi_pricen).getTime();
     const now = Date.now();
-    const isSender = msg.id_nguoi_gui == from;
+    const isSender = msg.sender_id == from;
     const timePassed = (now - firstTime) > 3600000; // hơn 1 giờ
 
     if (isSender && timePassed) {
-      const html = `<a href="index.php?action=danhgia&from=${msg.id_nguoi_gui}&to=${msg.id_nguoi_nhan}&id_san_pham=${msg.id_san_pham}" 
+      const html = `<a href="index.php?action=danhprice&from=${msg.sender_id}&to=${msg.receiver_id}&product_id=${msg.product_id}" 
   class="btn btn-sm btn-outline-warning mt-1">Viết đánh giá</a>`;
       const el = document.querySelector(selector);
       if (el && !el.querySelector('.btn-outline-warning')) {
@@ -249,9 +249,9 @@ function openReviewModal(idNguoiDanhGia, idNguoiDuocDanhGia, idSanPham) {
   }
 
   // Gán dữ liệu vào form
-  modalEl.querySelector('input[name="id_nguoi_danh_gia"]').value = idNguoiDanhGia;
-  modalEl.querySelector('input[name="id_nguoi_duoc_danh_gia"]').value = idNguoiDuocDanhGia;
-  modalEl.querySelector('input[name="id_san_pham"]').value = idSanPham;
+  modalEl.querySelector('input[name="reviewer_id"]').value = idNguoiDanhGia;
+modalEl.querySelector('input[name="reviewed_user_id"]').value = idNguoiDuocDanhGia;
+  modalEl.querySelector('input[name="product_id"]').value = idSanPham;
 
   // Delay để đảm bảo bootstrap đã load
   setTimeout(() => {

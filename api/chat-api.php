@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $from = intval($data['from']);
     $to = intval($data['to']);
     $content = trim($data['content']);
-    $idSanPham = isset($data['id_san_pham']) ? intval($data['id_san_pham']) : null;
+    $idSanPham = isset($data['product_id']) ? intval($data['product_id']) : null;
 
     if ($content === "") {
         echo json_encode(["status" => "empty"]);

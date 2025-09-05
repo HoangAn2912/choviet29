@@ -26,6 +26,22 @@ include_once("controller/cLoginLogout.php");
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
+        .form-switch {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .form-switch a {
+            color: #fcb50e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .form-switch a:hover {
+            text-decoration: underline;
+        }
         
         .form-group {
             margin-bottom: 20px;
@@ -250,8 +266,8 @@ include_once("controller/cLoginLogout.php");
         
         <form id="registerForm">
             <div class="form-group">
-                <label for="ten_dang_nhap">Tên đăng nhập *</label>
-                <input type="text" id="ten_dang_nhap" name="ten_dang_nhap" 
+                <label for="username">Tên đăng nhập *</label>
+<input type="text" id="username" name="username" 
                        placeholder="Ví dụ: choviet123" 
                        pattern="[a-zA-Z][a-zA-Z0-9_]{2,19}" 
                        title="Tên đăng nhập phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, số và dấu gạch dưới, độ dài 3-20 ký tự" 
@@ -297,7 +313,9 @@ include_once("controller/cLoginLogout.php");
             
             <div class="form-group">
                 <label for="email">Email *</label>
-                <input type="email" id="email" name="email" required>
+                <input 
+                placeholder="Ví dụ: choviet123@example.com"
+                type="email" id="email" name="email" required>
 					</div>
             
             <div class="form-group" id="otpGroup" style="display: none;">
@@ -319,7 +337,7 @@ include_once("controller/cLoginLogout.php");
         </div>
         </form>
         
-        <div style="text-align: center; margin-top: 20px;">
+        <div class="form-switch" style="text-align: center; margin-top: 20px;">
             <a href="index.php?login" style="color: #fcb50e; text-decoration: none;">
                 Đã có tài khoản? Đăng nhập ngay
             </a>
@@ -346,7 +364,8 @@ include_once("controller/cLoginLogout.php");
                 this.registerBtnGroup = document.getElementById('registerBtnGroup');
                 this.registerBtn = document.getElementById('registerBtn');
                 
-                this.tenDangNhap = document.getElementById('ten_dang_nhap');
+                this.username = document.getElementById('username');
+                this.tenDangNhap = document.getElementById('username'); // Alias for compatibility
                 this.password = document.getElementById('password');
                 this.repassword = document.getElementById('repassword');
                 this.email = document.getElementById('email');
@@ -594,10 +613,12 @@ include_once("controller/cLoginLogout.php");
                     try {
                         const jsonResult = JSON.parse(result);
                         if (jsonResult.success) {
-                            // Hiển thị toast thành công 
-                            this.showToast(jsonResult.message, 'success', 5000);
-                            this.registerBtn.disabled = false;
-                            this.registerBtn.textContent = 'Đăng ký';
+                            // Hiển thị toast thành công và chuyển hướng
+                            this.showToast(jsonResult.message, 'success', 3000);
+                            // Chuyển hướng sang trang đăng nhập sau 3 giây
+                            setTimeout(() => {
+                                window.location.href = 'index.php?login';
+                            }, 3000);
                         } else {
                             // Hiển thị toast lỗi
                             this.showToast(jsonResult.message, 'error');
@@ -606,10 +627,11 @@ include_once("controller/cLoginLogout.php");
                         }
                     } catch (e) {
                         console.error('Lỗi parse JSON:', e);
-                        // Fallback: chỉ hiển thị thông báo, không chuyển hướng
-                        this.showToast('Đăng ký thành công!', 'success', 5000);
-                        this.registerBtn.disabled = false;
-                        this.registerBtn.textContent = 'Đăng ký';
+                        // Fallback: hiển thị thông báo và chuyển hướng
+                        this.showToast('Đăng ký thành công! Chuyển hướng đến trang đăng nhập...', 'success', 3000);
+                        setTimeout(() => {
+                            window.location.href = 'index.php?login';
+                        }, 3000);
                     }
                     
                 } catch (error) {

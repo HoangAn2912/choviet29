@@ -3,7 +3,8 @@ require_once 'model/mLoginLogout.php';
 require_once 'model/mProfile.php';
 require_once 'controller/cProfile.php';
 include_once("controller/cReview.php");
-$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project/';
+require_once __DIR__ . '/../../helpers/url_helper.php';
+$baseUrl = getBaseUrl() . '/';
 $model = new mProfile();
 $cReview = new cReview();
 $cProfile = new cProfile();
@@ -29,7 +30,7 @@ $reviews = $cReview->getReviewsBySeller($idNguoiDung);
 $sanPhamDangHienThi = $cProfile->getSanPhamDangHienThi($idNguoiDung);
 $sanPhamDaBan = $cProfile->getSanPhamDaBan($idNguoiDung);
 $avatarPath = 'img/';
-$anh = $user['anh_dai_dien'] ?? '';
+$anh = $user['avatar'] ?? '';
 $avatarFile = 'default.jpg';
 $countDangHienThi = $cProfile->countSanPhamDangHienThi($idNguoiDung);
 $countDaBan = $cProfile->countSanPhamDaBan($idNguoiDung);
@@ -83,9 +84,9 @@ include_once("view/header.php");
                 <?php
                     $avatarPath = 'img/';
                     $avatarFile = 'default.jpg';
-                    if (!empty($user['anh_dai_dien'])) {
-                        $anh = basename($user['anh_dai_dien']);
-                        $absolutePath = $_SERVER['DOCUMENT_ROOT'] . '/project/' . $avatarPath . $anh;
+                    if (!empty($user['avatar'])) {
+                        $anh = basename($user['avatar']);
+                        $absolutePath = $_SERVER['DOCUMENT_ROOT'] . getBasePath() . '/' . $avatarPath . $anh;
                         if (file_exists($absolutePath)) {
                             $avatarFile = $anh;
                         }
@@ -96,9 +97,9 @@ include_once("view/header.php");
                      class="profile-avatar mb-3"
                      onerror="this.onerror=null;this.src='img/default.jpg';">
 
-                <h5 class="mb-1"><?= htmlspecialchars($user['ten_dang_nhap']) ?></h5>
+                <h5 class="mb-1"><?= htmlspecialchars($user['username']) ?></h5>
                 <p class="text-muted small">
-                    <?= ($idNguoiDung == $_SESSION['user_id']) ? "Chào mừng bạn đến với trang cá nhân của bạn." : "Đây là trang cá nhân của " . htmlspecialchars($user['ten_dang_nhap']) . "." ?>
+                    <?= ($idNguoiDung == $_SESSION['user_id']) ? "Chào mừng bạn đến với trang cá nhân của bạn." : "Đây là trang cá nhân của " . htmlspecialchars($user['username']) . "." ?>
                 </p>
                    
                 <div class="info-left text-left mt-3">
@@ -117,13 +118,13 @@ include_once("view/header.php");
                     <p class="text-muted">(Chưa có đánh giá)</p>
                 <?php endif; ?>
                     <p><i class="fas fa-envelope" style="color: #3D464D;"></i> Email:  <?= htmlspecialchars($user['email']) ?></p>
-                    <p><i class="fas fa-phone" style="color: #3D464D;"></i> SĐT: <?= htmlspecialchars($user['so_dien_thoai']) ?></p>
+                    <p><i class="fas fa-phone" style="color: #3D464D;"></i> SĐT: <?= htmlspecialchars($user['phone']) ?></p>
                     <?php if ($idNguoiDung == $_SESSION['user_id']): ?>
                         <p><i class="fas fa-credit-card" style="color: #3D464D;"></i> Mã tài khoản: <?= htmlspecialchars($user['id_ck']) ?></p>
                     <?php endif; ?>
-                    <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['dia_chi']) ?></p>
-                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày sinh: <?= date('d/m/Y', strtotime($user['ngay_sinh'])) ?></p>
-                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['ngay_tao'])) ?></p>
+                    <p><i class="fas fa-map-marker-alt" style="color: #3D464D;"></i>  Địa chỉ: <?= htmlspecialchars($user['address']) ?></p>
+                    <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày sinh: <?= date('d/m/Y', strtotime($user['birth_date'])) ?></p>
+                                         <p><i class="fas fa-calendar-alt" style="color: #3D464D;"></i> Ngày tham gia: <?= date('d/m/Y', strtotime($user['created_date'])) ?></p>
                 </div>
 
 
@@ -132,10 +133,10 @@ include_once("view/header.php");
                         <i class="fas fa-edit mr-1"></i> Chỉnh sửa thông tin
                     </button>
                     <div class="mt-2 text-center">
-                        <small>URL trang cá nhân: <a href="<?= $friendlyUrl ?>">localhost:8080/choviet29/<?= $friendlyUrl ?></a></small>
+                        <small>URL trang cá nhân: <a href="<?= $friendlyUrl ?>"><?= getBaseUrl() ?>/<?= $friendlyUrl ?></a></small>
                     </div>
                 <?php else: ?>
-                    <a href="index.php?chat_with=<?= $idNguoiDung ?>" class="btn btn-warning mt-3 w-100 text-white">
+                    <a href="index.php?tin-nhan&to=<?= $idNguoiDung ?>" class="btn btn-warning mt-3 w-100 text-white">
                         <i class="fas fa-comment mr-1" style="color: #3D464D;"></i> Nhắn tin
                     </a>
                 <?php endif; ?>
@@ -165,11 +166,11 @@ include_once("view/header.php");
                     <?php else: ?>
                         <?php foreach ($sanPhamDangHienThi as $sp): ?>
                             <div class="d-flex mb-3 align-items-start">
-                                <img src="img/<?= explode(',', $sp['hinh_anh'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
+                                <img src="img/<?= explode(',', $sp['image'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
                                 <div>
-                                    <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
-                                    <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tao'])) ?></small>
+                                    <strong><?= htmlspecialchars($sp['title']) ?></strong><br>
+                                    <span class="text-danger"><?= number_format($sp['price'], 0, ',', '.') ?> đ</span><br>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['created_date'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -186,11 +187,11 @@ include_once("view/header.php");
                     <?php else: ?>
                         <?php foreach ($sanPhamDaBan as $sp): ?>
                             <div class="d-flex mb-3 align-items-start">
-                                <img src="img/<?= explode(',', $sp['hinh_anh'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
+                                <img src="img/<?= explode(',', $sp['image'])[0] ?>" style="width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right: 15px;">
                                 <div>
-                                    <strong><?= htmlspecialchars($sp['tieu_de']) ?></strong><br>
-                                    <span class="text-danger"><?= number_format($sp['gia'], 0, ',', '.') ?> đ</span><br>
-                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['ngay_tao'])) ?></small>
+                                    <strong><?= htmlspecialchars($sp['title']) ?></strong><br>
+                                    <span class="text-danger"><?= number_format($sp['price'], 0, ',', '.') ?> đ</span><br>
+                                    <small class="text-muted">Cập nhật: <?= date('d/m/Y H:i', strtotime($sp['created_date'])) ?></small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -212,21 +213,21 @@ include_once("view/header.php");
                         <div class="d-flex mb-3 align-items-start">
                             <?php
                                 $firstImg = '';
-                                if (!empty($review['hinh_san_pham'])) {
-                                    $arr = explode(',', $review['hinh_san_pham']);
+                                if (!empty($review['image'])) {
+                                    $arr = explode(',', $review['image']);
                                     $firstImg = trim($arr[0]);
                                 }
                                 ?>
                                 <img src="img/<?= htmlspecialchars($firstImg) ?>" alt="" style="width:80px; height:80px; object-fit:cover; margin-right:15px; border-radius:4px;">
                             <div>
                                 <div class="mb-1">
-                                    <strong><?= htmlspecialchars($review['ten_nguoi_danh_gia']) ?></strong>
-                                    <small class="text-muted ml-2"><?= date('d/m/Y', strtotime($review['ngay_danh_gia'])) ?></small>
+                                                                         <strong><?= htmlspecialchars($review['reviewer_name']) ?></strong>
+                                     <small class="text-muted ml-2"><?= date('d/m/Y', strtotime($review['review_date'])) ?></small>
                                 </div>
                                 <div class="rating mb-1">
                                     <?php
-                                    $full = floor($review['so_sao']);
-                                    $half = $review['so_sao'] - $full >= 0.5;
+                                    $full = floor($review['rating']);
+$half = $review['rating'] - $full >= 0.5;
                                     for ($i = 1; $i <= 5; $i++) {
                                         if ($i <= $full) echo '<i class="fas fa-star text-warning"></i>';
                                         elseif ($half && $i === $full + 1) echo '<i class="fas fa-star-half-alt text-warning"></i>';
@@ -235,9 +236,9 @@ include_once("view/header.php");
                                     ?>
                                 </div>
                                 <div class="product-name mb-1">
-                                    <strong><?= htmlspecialchars($review['ten_san_pham']) ?></strong> - <span class="text-danger"><?= number_format($review['gia_ban'], 0, ',', '.') ?> đ</span>
+                                    <strong><?= htmlspecialchars($review['title']) ?></strong> - <span class="text-danger"><?= number_format($review['price'], 0, ',', '.') ?> đ</span>
                                 </div>
-                                <div class="review-comment"><?= htmlspecialchars($review['mo_ta']) ?></div>
+                                <div class="review-comment"><?= htmlspecialchars($review['description']) ?></div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -268,24 +269,24 @@ include_once("view/header.php");
 
       <div class="form-group">
         <label>Số điện thoại</label>
-        <input type="text" name="so_dien_thoai" class="form-control" value="<?= htmlspecialchars($user['so_dien_thoai']) ?>"
+        <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>"
        pattern="[0-9]{10,11}" title="Vui lòng nhập số điện thoại hợp lệ (10–11 chữ số)">
       </div>
 
       <div class="form-group">
         <label>Địa chỉ</label>
-        <input type="text" name="dia_chi" class="form-control" value="<?= htmlspecialchars($user['dia_chi']) ?>">
+        <input type="text" name="address" class="form-control" value="<?= htmlspecialchars($user['address']) ?>">
       </div>
 
       <div class="form-group">
         <label>Ngày sinh</label>
-        <input type="date" name="ngay_sinh" class="form-control" max="<?= date('Y-m-d') ?>"
-       value="<?= htmlspecialchars($user['ngay_sinh']) ?>">
+        <input type="date" name="birth_date" class="form-control" max="<?= date('Y-m-d') ?>"
+value="<?= htmlspecialchars($user['birth_date']) ?>">
       </div>
 
       <div class="form-group">
         <label>Ảnh đại diện mới (tuỳ chọn)</label>
-        <input type="file" name="anh_dai_dien" class="form-control-file" accept=".jpg,.jpeg,.png">
+        <input type="file" name="avatar" class="form-control-file" accept=".jpg,.jpeg,.png">
       </div>
 
       <button type="submit" class="btn btn-warning w-100 font-weight-bold text-white">Cập nhật</button>

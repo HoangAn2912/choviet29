@@ -1,7 +1,7 @@
 <?php
 class Connect {
     public function connect() {
-        $con = mysqli_connect("localhost", "admin", "123456", "choviet");
+        $con = mysqli_connect("localhost", "admin", "123456", "choviet29");
         if (!$con) {
             echo "Lỗi kết nối cơ sở dữ liệu: " . mysqli_connect_error();
             exit();

@@ -32,7 +32,7 @@ function sendMessage(noiDung) {
       from: CURRENT_USER_ID,
       to: TO_USER_ID,
       noi_dung: noiDung,
-      id_san_pham: ID_SAN_PHAM
+      product_id: ID_SAN_PHAM
     }));
   }
 }
@@ -56,7 +56,8 @@ socket.addEventListener("message", (event) => {
 // Load tin nhắn cũ từ file
 window.addEventListener("DOMContentLoaded", () => {
   chatBox = document.getElementById('chatMessages');
-  fetch(`/project/api/chat-file-api.php?from=${CURRENT_USER_ID}&to=${TO_USER_ID}`)
+  const basePath = window.location.pathname.replace(/\/[^\/]*$/, '');
+  fetch(`${basePath}/api/chat-file-api.php?from=${CURRENT_USER_ID}&to=${TO_USER_ID}`)
     .then(res => res.json())
     .then(messages => {
       messages.forEach(msg => renderMessage(msg, false));

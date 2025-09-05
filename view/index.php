@@ -167,8 +167,8 @@ $i = 0;
                             <img class="img-fluid" src="img/<?= $img ?>" alt="">
                         </div>
                         <div class="flex-fill pl-3">
-                            <h6><?= htmlspecialchars($cat['ten_loai_san_pham']) ?></h6>
-                            <small class="text-body"><?= $cat['so_luong'] ?> sản phẩm</small>
+                            <h6><?= htmlspecialchars($cat['category_name']) ?></h6>
+                            <small class="text-body"><?= $cat['quantity'] ?> sản phẩm</small>
                         </div>
                     </div>
                 </a>
@@ -201,11 +201,11 @@ $i = 0;
                     </div>
                     <div class="text-center py-3 px-2">
                     <a class="h6 text-decoration-none text-truncate d-block mb-2" href="index.php?detail&id=<?= $sp['id'] ?>">
-                            <?= htmlspecialchars($sp['tieu_de']) ?>
+                            <?= htmlspecialchars($sp['title']) ?>
                         </a>
-                        <div class="product-meta mb-1"><?= htmlspecialchars($sp['mo_ta']) ?></div>
+                        <div class="product-meta mb-1"><?= htmlspecialchars($sp['description']) ?></div>
                         
-                        <div class="text-danger"><?= number_format($sp['gia']) ?> đ</div>
+                        <div class="text-danger"><?= number_format($sp['price']) ?> đ</div>
                     </div>
                 </div>
             </div>

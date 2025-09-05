@@ -12,13 +12,13 @@ class mCategory {
     public function layDanhMuc() {
         $sql = "
             SELECT 
-                cha.id_loai_san_pham_cha AS id_cha,
-                cha.ten_loai_san_pham_cha AS ten_cha,
+                cha.parent_category_id AS id_cha,
+                cha.parent_category_name AS ten_cha,
                 con.id AS id_con,
-                con.ten_loai_san_pham AS ten_con
-            FROM loai_san_pham_cha cha
-            LEFT JOIN loai_san_pham con ON cha.id_loai_san_pham_cha = con.id_loai_san_pham_cha
-            ORDER BY cha.id_loai_san_pham_cha, con.id
+                con.category_name AS ten_con
+            FROM parent_categories cha
+            LEFT JOIN product_categories con ON cha.parent_category_id = con.parent_category_id
+            ORDER BY cha.parent_category_id, con.id
         ";
 
         $result = $this->conn->query($sql);
@@ -32,7 +32,7 @@ class mCategory {
     }
 // hiển thị sản phẩm khi đang trạng thái đang bán và tìm được trên danh mục
     public function getProductsByCategoryId($id_loai) {
-        $sql = "SELECT * FROM san_pham WHERE id_loai_san_pham = ? AND trang_thai_ban = 'Đang bán'";
+        $sql = "SELECT * FROM products WHERE category_id = ? AND sale_status = 'Đang bán'";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id_loai);
         $stmt->execute();
@@ -48,13 +48,13 @@ class mCategory {
         $sql = "
             SELECT 
                 con.id AS id_loai,
-                con.ten_loai_san_pham,
-                COUNT(sp.id) AS so_luong
-            FROM loai_san_pham con
-            LEFT JOIN san_pham sp ON con.id = sp.id_loai_san_pham AND sp.trang_thai_ban = 'Đang bán'
-            WHERE con.ten_loai_san_pham NOT LIKE 'Khác'
-            GROUP BY con.id, con.ten_loai_san_pham
-            ORDER BY con.ten_loai_san_pham ASC
+                con.category_name AS category_name,
+                COUNT(sp.id) AS quantity
+            FROM product_categories con
+            LEFT JOIN products sp ON con.id = sp.category_id AND sp.sale_status = 'Đang bán'
+            WHERE con.category_name NOT LIKE 'Khác'
+            GROUP BY con.id, con.category_name
+            ORDER BY con.category_name ASC
         ";
     
         $result = $this->conn->query($sql);
@@ -68,7 +68,7 @@ class mCategory {
     }
 
     public function getUserById($id) {
-        $sql = "SELECT id, ten_dang_nhap, anh_dai_dien FROM nguoi_dung WHERE id = ?";
+        $sql = "SELECT id, username, avatar FROM users WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();

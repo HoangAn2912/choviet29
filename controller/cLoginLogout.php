@@ -10,7 +10,8 @@ class LoginLogoutController {
     
     public function __construct() {
         $this->model = new mLoginLogout();
-        $this->baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/project3/';
+        require_once __DIR__ . '/../helpers/url_helper.php';
+        $this->baseUrl = getBaseUrl() . '/';
     }
     
     /**
@@ -38,18 +39,20 @@ class LoginLogoutController {
      * Xử lý đăng nhập
      */
     private function handleLogin() {
-        $email = $_POST['email'];
+        // Cho phép nhập email hoặc tên đăng nhập qua cùng một input
+        $identifier = $_POST['email'];
         $password = md5($_POST['password']); // Mã hoá MD5
         
-        $user = $this->model->checkLogin($email, $password);
+        // Ưu tiên phương thức linh hoạt: email hoặc tên đăng nhập
+        $user = $this->model->checkLoginByIdentifier($identifier, $password);
         
         if ($user) {
             $this->createUserSession($user);
-            $this->redirectBasedOnRole($user['id_vai_tro']);
+            $this->redirectBasedOnRole($user['role_id']);
         } else {
             // Trả về JSON thay vì chuyển hướng
             header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => '❌ Tài khoản hoặc mật khẩu không đúng']);
+            echo json_encode(['success' => false, 'message' => '❌ Email/Tên đăng nhập hoặc mật khẩu không đúng']);
             exit;
         }
     }
@@ -104,7 +107,7 @@ class LoginLogoutController {
      */
     private function getFormData() {
         return [
-            'ten_dang_nhap' => trim($_POST['ten_dang_nhap']),
+            'username' => trim($_POST['username']),
             'password' => $_POST['password'],
             'repassword' => $_POST['repassword'],
             'otp' => isset($_POST['otp']) ? trim($_POST['otp']) : '',
@@ -117,7 +120,7 @@ class LoginLogoutController {
      */
     private function validateFormData($data) {
         // Kiểm tra tên đăng nhập
-        $usernameValidation = $this->model->validateUsername($data['ten_dang_nhap']);
+        $usernameValidation = $this->model->validateUsername($data['username']);
         if (!$usernameValidation['valid']) {
             return ['valid' => false, 'message' => '❌ ' . $usernameValidation['message']];
         }
@@ -186,18 +189,18 @@ class LoginLogoutController {
         }
         
         // Ghi log thông tin đăng ký
-        error_log("Đăng ký tài khoản: ten_dang_nhap=" . $data['ten_dang_nhap'] . ", email=$email");
+        error_log("Đăng ký tài khoản: username=" . $data['username'] . ", email=$email");
         
         // Thực hiện đăng ký
         $password_md5 = md5($data['password']);
-        $ok = $this->model->registerUser($data['ten_dang_nhap'], $email, '', $password_md5, 1);
+        $ok = $this->model->registerUser($data['username'], $email, '', $password_md5, 1);
         
         if ($ok) {
             // Trả về JSON response thay vì redirect
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true, 
-                'message' => '✅ Đăng ký thành công! Vui lòng đăng nhập.'
+                'message' => '✅ Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'
             ]);
             exit;
         } else {
@@ -219,9 +222,9 @@ class LoginLogoutController {
     private function createUserSession($user) {
         session_start();
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['ten_dang_nhap'];
-        $_SESSION['avatar'] = !empty($user['anh_dai_dien']) ? $user['anh_dai_dien'] : 'default-avatar.jpg';
-        $_SESSION['role'] = $user['id_vai_tro'];
+        $_SESSION['user_name'] = $user['username'];
+        $_SESSION['avatar'] = !empty($user['avatar']) ? $user['avatar'] : 'default-avatar.jpg';
+        $_SESSION['role'] = $user['role_id'];
     }
     
     /**

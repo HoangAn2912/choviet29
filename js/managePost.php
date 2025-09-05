@@ -136,16 +136,16 @@ function xacNhanSuaTin(id) {
         // Gán dữ liệu vào form sửa
         const form = document.getElementById('formSuaTin');
         form.action = `index.php?action=suaTin&id=${id}`;
-        form.querySelector('input[name="tieu_de"]').value = sp.tieu_de;
-        form.querySelector('input[name="gia"]').value = sp.gia;
-        form.querySelector('textarea[name="mo_ta"]').value = sp.mo_ta;
-        form.querySelector('input[name="id_loai_san_pham"]').value = sp.id_loai_san_pham;
+        form.querySelector('input[name="title"]').value = sp.title;
+        form.querySelector('input[name="price"]').value = sp.price;
+        form.querySelector('textarea[name="description"]').value = sp.description;
+        form.querySelector('input[name="category_id"]').value = sp.category_id;
 
         // Hiển thị ảnh hiện tại
         const previewContainer = form.querySelector('.preview-anh-cu');
         if (previewContainer) {
           previewContainer.innerHTML = ''; // clear trước
-          sp.hinh_anh.split(',').forEach(name => {
+          sp.image.split(',').forEach(name => {
             previewContainer.innerHTML += `<img src="img/${name}" width="80" style="margin: 5px; object-fit: cover;">`;
           });
         }

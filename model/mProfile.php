@@ -4,11 +4,11 @@ require_once 'mConnect.php';
 class mProfile extends Connect {
     public function getUserById($id) {
         $conn = $this->connect();
-        $stmt = $conn->prepare("SELECT nguoi_dung.*, taikhoan_chuyentien.id_ck
-                                FROM nguoi_dung
-                                LEFT JOIN taikhoan_chuyentien 
-                                ON nguoi_dung.id = taikhoan_chuyentien.id_nguoi_dung
-                                WHERE nguoi_dung.id = ?");
+        $stmt = $conn->prepare("SELECT users.*, transfer_accounts.account_number
+                                FROM users
+                                LEFT JOIN transfer_accounts 
+                                ON users.id = transfer_accounts.user_id
+                                WHERE users.id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
@@ -16,7 +16,7 @@ class mProfile extends Connect {
 
     public function getRatingStats($userId) {
         $conn = $this->connect(); // <-- thêm dòng này để lấy kết nối
-        $stmt = $conn->prepare("SELECT COUNT(*) as total_reviews, AVG(so_sao) as average_rating FROM danh_gia WHERE id_nguoi_duoc_danh_gia = ?");
+        $stmt = $conn->prepare("SELECT COUNT(*) as total_reviews, AVG(rating) as average_rating FROM reviews WHERE reviewed_user_id = ?");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -25,11 +25,11 @@ class mProfile extends Connect {
 
     public function getSanPhamTheoTrangThai($userId, $trangThaiBan) {
         $conn = $this->connect();
-        $sql = "SELECT id, tieu_de, gia, hinh_anh, ngay_cap_nhat 
-                FROM san_pham 
-                WHERE id_nguoi_dung = ? 
-                AND trang_thai = 'Đã duyệt' 
-                AND trang_thai_ban = ?";
+        $sql = "SELECT id, title, price, image, updated_date 
+                FROM products 
+                WHERE user_id = ? 
+                AND status = 'Đã duyệt' 
+                AND sale_status = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $userId, $trangThaiBan);
         $stmt->execute();
@@ -37,9 +37,9 @@ class mProfile extends Connect {
     }
 
 
-    public function capNhatThongTin($id, $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien = null) {
+    public function capNhatThongTin($id, $email, $phone, $address, $birth_date, $avatar = null) {
         // Kiểm tra tuổi
-        $dob = new DateTime($ngay_sinh);
+        $dob = new DateTime($birth_date);
         $today = new DateTime();
         $age = $today->diff($dob)->y;
         if ($age < 18) {
@@ -47,14 +47,14 @@ class mProfile extends Connect {
         }
 
         $conn = $this->connect();
-        if ($anh_dai_dien) {
-            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_sinh=?, anh_dai_dien=? WHERE id=?";
+        if ($avatar) {
+            $sql = "UPDATE users SET email=?, phone=?, address=?, birth_date=?, avatar=? WHERE id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssssi", $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $anh_dai_dien, $id);
+            $stmt->bind_param("sssssi", $email, $phone, $address, $birth_date, $avatar, $id);
         } else {
-            $sql = "UPDATE nguoi_dung SET email=?, so_dien_thoai=?, dia_chi=?, ngay_sinh=? WHERE id=?";
+            $sql = "UPDATE users SET email=?, phone=?, address=?, birth_date=? WHERE id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssi", $email, $so_dien_thoai, $dia_chi, $ngay_sinh, $id);
+            $stmt->bind_param("ssssi", $email, $phone, $address, $birth_date, $id);
         }
         $stmt->execute();
         return true;
@@ -62,7 +62,7 @@ class mProfile extends Connect {
     
     public function countSanPhamTheoTrangThai($userId, $trangThaiBan) {
         $conn = $this->connect();
-        $sql = "SELECT COUNT(*) as total FROM san_pham WHERE id_nguoi_dung = ? AND trang_thai = 'Đã duyệt' AND trang_thai_ban = ?";
+        $sql = "SELECT COUNT(*) as total FROM products WHERE user_id = ? AND status = 'Đã duyệt' AND sale_status = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $userId, $trangThaiBan);
         $stmt->execute();
@@ -74,7 +74,7 @@ class mProfile extends Connect {
         $conn = $this->connect();
         $cleanUsername = $this->createSlug($username);
         
-        $stmt = $conn->prepare("SELECT id FROM nguoi_dung WHERE LOWER(REPLACE(REPLACE(REPLACE(ten_dang_nhap, ' ', ''), 'đ', 'd'), 'Đ', 'D')) = ?");
+        $stmt = $conn->prepare("SELECT id FROM users WHERE LOWER(REPLACE(REPLACE(REPLACE(username, ' ', ''), 'đ', 'd'), 'Đ', 'D')) = ?");
         $stmt->bind_param("s", $cleanUsername);
         $stmt->execute();
         $result = $stmt->get_result();

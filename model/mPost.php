@@ -9,19 +9,19 @@ class mPost {
         $this->conn = $db->connect();
     }
 
-    public function insertSanPham($tieuDe, $gia, $moTa, $hinhAnh, $idNguoiDung, $idLoaiSanPham) {
+    public function insertSanPham($title, $price, $description, $image, $user_id, $category_id) {
         $ngayTao = date('Y-m-d H:i:s');
         $trangThai = 'Chờ duyệt';
         $trangThaiBan = 'Đang bán';
     
         // Bước 1: Đếm số lượng bài đăng đã có
-        $sqlCount = "SELECT COUNT(*) as so_luong FROM san_pham WHERE id_nguoi_dung = ?";
+        $sqlCount = "SELECT COUNT(*) as quantity FROM products WHERE user_id = ?";
         $stmtCount = $this->conn->prepare($sqlCount);
         $stmtCount->bind_param("i", $idNguoiDung);
         $stmtCount->execute();
         $resultCount = $stmtCount->get_result();
         $rowCount = $resultCount->fetch_assoc();
-        $soLuong = (int)$rowCount['so_luong'];
+        $soLuong = (int)$rowCount['quantity'];
         $stmtCount->close();
     
         // Bước 2: Nếu đã có từ 3 bài trở lên => trừ phí và lưu lịch sử
@@ -30,13 +30,13 @@ class mPost {
             $phiDangBai = 11000;
     
             // Kiểm tra số dư hiện tại
-            $sqlCheck = "SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?";
+            $sqlCheck = "SELECT balance FROM transfer_accounts WHERE user_id = ?";
             $stmtCheck = $this->conn->prepare($sqlCheck);
             $stmtCheck->bind_param("i", $idNguoiDung);
             $stmtCheck->execute();
             $resultCheck = $stmtCheck->get_result();
             $rowCheck = $resultCheck->fetch_assoc();
-            $soDuHienTai = (int)$rowCheck['so_du'];
+            $soDuHienTai = (int)$rowCheck['balance'];
             $stmtCheck->close();
     
             if ($soDuHienTai < $phiDangBai) {
@@ -44,7 +44,7 @@ class mPost {
             }
     
             // Cập nhật số dư
-            $sqlUpdate = "UPDATE taikhoan_chuyentien SET so_du = so_du - ? WHERE id_nguoi_dung = ?";
+            $sqlUpdate = "UPDATE transfer_accounts SET balance = balance - ? WHERE user_id = ?";
             $stmtUpdate = $this->conn->prepare($sqlUpdate);
             $stmtUpdate->bind_param("ii", $phiDangBai, $idNguoiDung);
             $stmtUpdate->execute();
@@ -52,17 +52,17 @@ class mPost {
         }
     
         // Bước 3: Thêm sản phẩm mới
-        $sqlInsert = "INSERT INTO san_pham (tieu_de, gia, mo_ta, hinh_anh, ngay_tao, trang_thai, trang_thai_ban, id_nguoi_dung, id_loai_san_pham) 
+        $sqlInsert = "INSERT INTO products (title, price, description, image, created_date, status, sale_status, user_id, category_id) 
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmtInsert = $this->conn->prepare($sqlInsert);
-        $stmtInsert->bind_param("sdssssssi", $tieuDe, $gia, $moTa, $hinhAnh, $ngayTao, $trangThai, $trangThaiBan, $idNguoiDung, $idLoaiSanPham);
+        $stmtInsert->bind_param("sdssssssi", $title, $price, $description, $image, $created_date, $status, $sale_status, $user_id, $category_id);
         $result = $stmtInsert->execute();
         $idSanPhamMoi = $stmtInsert->insert_id;
         $stmtInsert->close();
     
         // Bước 4: Ghi vào lịch sử phí nếu đã trừ tiền
         if ($soLuong >= 3 && $result) {
-            $sqlLichSu = "INSERT INTO lich_su_phi_dang_bai (id_san_pham, id_nguoi_dung, so_tien, ngay_tao) 
+            $sqlLichSu = "INSERT INTO posting_fee_history (product_id, user_id, amount, created_date) 
                           VALUES (?, ?, ?, CURDATE())";
             $stmtLichSu = $this->conn->prepare($sqlLichSu);
             $stmtLichSu->bind_param("iid", $idSanPhamMoi, $idNguoiDung, $phiDangBai);
@@ -74,12 +74,12 @@ class mPost {
     }
     
     public function layTatCaTinDangTheoNguoiDung($userId) {
-        $sql = "SELECT sp.*, tk.so_du 
-                FROM san_pham sp
-                INNER JOIN nguoi_dung nd ON sp.id_nguoi_dung = nd.id 
-                INNER JOIN taikhoan_chuyentien tk ON nd.id = tk.id_nguoi_dung 
-                WHERE sp.id_nguoi_dung = ?
-                ORDER BY sp.ngay_cap_nhat DESC";
+        $sql = "SELECT sp.*, tk.balance 
+                FROM products sp
+                INNER JOIN users nd ON sp.user_id = nd.id 
+                INNER JOIN transfer_accounts tk ON nd.id = tk.user_id 
+                WHERE sp.user_id = ?
+                ORDER BY sp.updated_date DESC";
     
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $userId);
@@ -88,16 +88,16 @@ class mPost {
         $posts = [];
     
         while ($row = $result->fetch_assoc()) {
-            $row['thoi_gian_cu_the'] = $this->tinhThoiGian($row['ngay_cap_nhat']);
+            $row['thoi_gian_cu_the'] = $this->tinhThoiGian($row['updated_date']);
             $posts[] = $row;
         }
     
         return $posts;
     }
     
-    public function tinhThoiGian($ngay_cap_nhat) {
+    public function tinhThoiGian($updated_date) {
         $now = new DateTime();
-        $created = new DateTime($ngay_cap_nhat);
+        $created = new DateTime($updated_date);
         $diff = $now->diff($created);
     
         if ($diff->days == 0 && $diff->h == 0 && $diff->i < 60) return $diff->i . " phút trước";
@@ -110,13 +110,13 @@ class mPost {
 
     public function demSoLuongTheoTrangThai($userId) {
         $sql = "SELECT 
-                    SUM(CASE WHEN sp.trang_thai_ban = 'Đang bán' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đang bán',
-                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã bán' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã bán',
-                    SUM(CASE WHEN sp.trang_thai_ban = 'Đã ẩn' AND sp.trang_thai = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã ẩn',
-                    SUM(CASE WHEN sp.trang_thai = 'Chờ duyệt' AND sp.trang_thai_ban = 'Đang bán' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
-                    SUM(CASE WHEN sp.trang_thai = 'Từ chối' AND sp.trang_thai_ban = 'Đang bán'THEN 1 ELSE 0 END) AS 'Từ chối'
-                FROM san_pham sp
-                WHERE sp.id_nguoi_dung = ?";
+                    SUM(CASE WHEN sp.sale_status = 'Đang bán' AND sp.status = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đang bán',
+                    SUM(CASE WHEN sp.sale_status = 'Đã bán' AND sp.status = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã bán',
+                    SUM(CASE WHEN sp.sale_status = 'Đã ẩn' AND sp.status = 'Đã duyệt' THEN 1 ELSE 0 END) AS 'Đã ẩn',
+                    SUM(CASE WHEN sp.status = 'Chờ duyệt' AND sp.sale_status = 'Đang bán' THEN 1 ELSE 0 END) AS 'Chờ duyệt',
+                    SUM(CASE WHEN sp.status = 'Từ chối' AND sp.sale_status = 'Đang bán'THEN 1 ELSE 0 END) AS 'Từ chối'
+                FROM products sp
+                WHERE sp.user_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -125,9 +125,9 @@ class mPost {
     }
 
     public function layThongTinNguoiDung($userId) {
-        $sql = "SELECT nd.anh_dai_dien, nd.ten_dang_nhap, tk.so_du, nd.dia_chi
-                FROM nguoi_dung nd
-                INNER JOIN taikhoan_chuyentien tk ON nd.id = tk.id_nguoi_dung
+        $sql = "SELECT nd.avatar, nd.username, tk.balance, nd.address
+                FROM users nd
+                INNER JOIN transfer_accounts tk ON nd.id = tk.user_id
                 WHERE nd.id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $userId);
@@ -137,7 +137,7 @@ class mPost {
     }
 
     public function demSoLuongTin($userId) {
-        $sql = "SELECT COUNT(*) as count FROM san_pham WHERE id_nguoi_dung = ?";
+        $sql = "SELECT COUNT(*) as count FROM products WHERE user_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -146,7 +146,7 @@ class mPost {
     }
     
     public function updateTrangThaiBan($idTin, $trangThaiBanMoi) {
-        $sql = "UPDATE san_pham SET trang_thai_ban = ?, ngay_cap_nhat = NOW() WHERE id = ?";
+        $sql = "UPDATE products SET sale_status = ?, updated_date = NOW() WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("si", $trangThaiBanMoi, $idTin);
         $result = $stmt->execute();
@@ -155,7 +155,7 @@ class mPost {
     }
 
     public function laySanPhamTheoId($id) {
-        $sql = "SELECT * FROM san_pham WHERE id = ?";
+        $sql = "SELECT * FROM products WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -164,7 +164,7 @@ class mPost {
     }
 
     public function layTenLoaiSanPham($idLoai) {
-        $sql = "SELECT ten_loai_san_pham FROM loai_san_pham WHERE id = ?";
+        $sql = "SELECT category_name FROM product_categories WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $idLoai);
         $stmt->execute();
@@ -174,53 +174,53 @@ class mPost {
         return $tenLoai;
     }
     
-    public function capNhatSanPham($id, $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $idNguoiDung) {
-        $sql = "UPDATE san_pham SET 
-                        tieu_de = ?, 
-                        gia = ?, 
-                        mo_ta = ?, 
-                        hinh_anh = ?, 
-                        id_loai_san_pham = ?, 
-                        trang_thai = 'Chờ duyệt', 
-                        ngay_cap_nhat = NOW() 
-                    WHERE id = ? AND id_nguoi_dung = ?";
+    public function capNhatSanPham($id, $title, $price, $description, $image, $category_id, $user_id) {
+        $sql = "UPDATE products SET 
+                        title = ?, 
+                        price = ?, 
+                        description = ?, 
+                        image = ?, 
+                        category_id = ?, 
+                        status = 'Chờ duyệt', 
+                        updated_date = NOW() 
+                    WHERE id = ? AND user_id = ?";
         $stmt = $this->conn->prepare($sql);
         echo $tieuDe;
-        echo $gia;
+        echo $price;
         echo $moTa;
         echo $hinhAnh;      
         echo $idLoaiSanPham;
         echo $id;
         echo $idNguoiDung;
-        $stmt->bind_param("sdssiii", $tieuDe, $gia, $moTa, $hinhAnh, $idLoaiSanPham, $id, $idNguoiDung);
+        $stmt->bind_param("sdssiii", $title, $price, $description, $image, $category_id, $id, $user_id);
         return $stmt->execute();
     }
 
     public function laySoDuNguoiDung($idNguoiDung) {
-        $sql = "SELECT so_du FROM taikhoan_chuyentien WHERE id_nguoi_dung = ?";
+        $sql = "SELECT balance FROM transfer_accounts WHERE user_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $idNguoiDung);
         $stmt->execute();
         $res = $stmt->get_result()->fetch_assoc();
-        return intval($res['so_du'] ?? 0);
+        return intval($res['balance'] ?? 0);
     }
     
     public function dayTin($idTin, $idNguoiDung) {
         // 1. Trừ tiền
-        $stmt = $this->conn->prepare("UPDATE taikhoan_chuyentien SET so_du = so_du - 11000 WHERE id_nguoi_dung = ? AND so_du >= 11000");
+        $stmt = $this->conn->prepare("UPDATE transfer_accounts SET balance = balance - 11000 WHERE user_id = ? AND balance >= 11000");
         $stmt->bind_param("i", $idNguoiDung);
         $stmt->execute();
         if ($stmt->affected_rows <= 0) return false;
         $stmt->close();
     
         // 2. Ghi lịch sử đẩy tin
-        $stmt2 = $this->conn->prepare("INSERT INTO lich_su_day_tin (id_san_pham, id_nguoi_dung, so_tien, thoi_gian_day) VALUES (?, ?, 11000, NOW())");
+        $stmt2 = $this->conn->prepare("INSERT INTO promotion_history (product_id, user_id, amount, promotion_time) VALUES (?, ?, 11000, NOW())");
         $stmt2->bind_param("ii", $idTin, $idNguoiDung);
         $stmt2->execute();
         $stmt2->close();
 
         // 3. Cập nhật trạng thái bài viết => Chờ duyệt
-        $stmt3 = $this->conn->prepare("UPDATE san_pham SET trang_thai = 'Chờ duyệt', ngay_cap_nhat = NOW() WHERE id = ? AND id_nguoi_dung = ?");
+        $stmt3 = $this->conn->prepare("UPDATE products SET status = 'Chờ duyệt', updated_date = NOW() WHERE id = ? AND user_id = ?");
         $stmt3->bind_param("ii", $idTin, $idNguoiDung);
         $stmt3->execute();
         $stmt3->close();

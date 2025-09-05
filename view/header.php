@@ -176,13 +176,13 @@ if (isset($_SESSION['user_id'])) {
                                     <?php
                                     $avatarPath = 'img/';
                                     $avatarFile = 'default-avatar.jpg';
-                                    if (!empty($userHeader['anh_dai_dien']) && file_exists($avatarPath . $userHeader['anh_dai_dien'])) {
-                                        $avatarFile = $userHeader['anh_dai_dien'];
-                                    }
+                                    if (!empty($userHeader['avatar']) && file_exists($avatarPath . $userHeader['avatar'])) {
+    $avatarFile = $userHeader['avatar'];
+}
                                     ?>
                                     <img src="<?= $avatarPath . htmlspecialchars($avatarFile) ?>" class="rounded-circle mr-2" style="width: 32px; height: 32px; object-fit: cover;">
                                     <span style="color: white; font-weight: 400;">
-                                        <?= htmlspecialchars($userHeader['ten_dang_nhap']) ?>
+                                        <?= htmlspecialchars($userHeader['username']) ?>
                                     </span>
                                 <?php else: ?>
 
@@ -193,7 +193,7 @@ if (isset($_SESSION['user_id'])) {
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right"> 
                                     <?php if (isset($_SESSION['user_id'])): ?>
-                                        <a class="dropdown-item" href="<?= urlencode($userHeader['ten_dang_nhap'] ?? '') ?>">Quản lý thông tin</a>
+                                        <a class="dropdown-item" href="<?= urlencode($userHeader['username'] ?? '') ?>">Quản lý thông tin</a>
                                         <a class="dropdown-item" href="?action=logout">Đăng xuất</a>
                                     <?php else: ?>
                                         <a class="dropdown-item" href="?login">Đăng nhập</a>
@@ -268,14 +268,14 @@ if (isset($_SESSION['user_id'])) {
         <div id="form-dang-tin" style="display: none;">
         <form id="submitForm" action="index.php?action=dangTin" method="POST" enctype="multipart/form-data" data-userid="<?= $_SESSION['user_id'] ?? 0 ?>"
         >
-        <input type="hidden" id="idLoaiSanPham" name="id_loai_san_pham" required>
+                        <input type="hidden" id="idLoaiSanPham" name="category_id" required>
 
             <!-- Tiêu đề tin đăng -->
             <div class="form-group">
             <label for="tieuDe" class="font-weight-bold">
                 Tiêu đề bài đăng <span class="text-danger">*</span>
             </label>
-            <input type="text" class="form-control" id="tieuDe" name="tieu_de" placeholder="Nhập tên sản phẩm cần bán" required>
+                            <input type="text" class="form-control" id="tieuDe" name="title" placeholder="Nhập tên sản phẩm cần bán" required>
             </div>
 
             <!-- Giá bán -->
@@ -283,7 +283,7 @@ if (isset($_SESSION['user_id'])) {
             <label for="giaBan" class="font-weight-bold">
                 Giá bán (đ) <span class="text-danger">*</span>
             </label>
-            <input type="number" class="form-control" id="giaBan" name="gia" placeholder="Nhập số tiền cần bán" required>
+                            <input type="number" class="form-control" id="giaBan" name="price" placeholder="Nhập số tiền cần bán" required>
             </div>
 
             <!-- Mô tả chi tiết -->
@@ -291,7 +291,7 @@ if (isset($_SESSION['user_id'])) {
             <label for="moTa" class="font-weight-bold">
                 Mô tả chi tiết <span class="text-danger">*</span>
             </label>
-            <textarea class="form-control" id="moTa" name="mo_ta" rows="5" placeholder="Mô tả chi tiết sản phẩm..." required></textarea>
+                            <textarea class="form-control" id="moTa" name="description" rows="5" placeholder="Mô tả chi tiết sản phẩm..." required></textarea>
             </div>
 
             <!-- Hình ảnh sản phẩm -->
@@ -299,7 +299,7 @@ if (isset($_SESSION['user_id'])) {
             <label for="hinhAnh" class="font-weight-bold">
                 Hình ảnh sản phẩm <span class="text-danger">*</span>
             </label>
-            <input type="file" class="form-control-file" id="hinhAnh" name="hinh_anh[]" accept=".jpg,.jpeg,.png" multiple required>
+                            <input type="file" class="form-control-file" id="hinhAnh" name="image[]" accept=".jpg,.jpeg,.png" multiple required>
             <small class="form-text text-muted mt-2">Chọn từ 2 đến 6 hình ảnh (định dạng .jpg, .png).</small>
             </div>
 

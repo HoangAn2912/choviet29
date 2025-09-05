@@ -4,7 +4,7 @@ require_once 'mConnect.php';
 class mChat extends Connect {
     public function saveMessage($from, $to, $content) {
         $conn = $this->connect();
-        $stmt = $conn->prepare("INSERT INTO tin_nhan (id_nguoi_gui, id_nguoi_nhan, noi_dung) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)");
         $stmt->bind_param("iis", $from, $to, $content);
         return $stmt->execute();
     }    
@@ -14,10 +14,10 @@ class mChat extends Connect {
         
         // Đảm bảo chỉ lấy các tin nhắn từ 2 người, không bị hoán vị lặp
         $stmt = $conn->prepare("
-            SELECT * FROM tin_nhan 
-            WHERE (id_nguoi_gui = ? AND id_nguoi_nhan = ?) 
-               OR (id_nguoi_gui = ? AND id_nguoi_nhan = ?)
-            ORDER BY thoi_gian ASC
+            SELECT * FROM messages 
+            WHERE (sender_id = ? AND receiver_id = ?) 
+               OR (sender_id = ? AND receiver_id = ?)
+            ORDER BY created_time ASC
         ");
         
         // 🛠 Gắn đúng giá trị
@@ -29,21 +29,21 @@ class mChat extends Connect {
 
     public function getConversationUsers($currentUserId) {
         $conn = $this->connect();
-        $stmt = $conn->prepare("SELECT u.id, u.ten_dang_nhap, u.anh_dai_dien,
-                (SELECT noi_dung FROM tin_nhan 
-                 WHERE (id_nguoi_gui = u.id AND id_nguoi_nhan = ?) OR (id_nguoi_gui = ? AND id_nguoi_nhan = u.id)
-                 ORDER BY thoi_gian DESC LIMIT 1) as tin_cuoi,
-                (SELECT DATE_FORMAT(thoi_gian, '%H:%i %d/%m') FROM tin_nhan 
-                 WHERE (id_nguoi_gui = u.id AND id_nguoi_nhan = ?) OR (id_nguoi_gui = ? AND id_nguoi_nhan = u.id)
-                 ORDER BY thoi_gian DESC LIMIT 1) as thoi_gian
-            FROM nguoi_dung u
+        $stmt = $conn->prepare("SELECT u.id, u.username, u.avatar,
+                (SELECT content FROM messages 
+                 WHERE (sender_id = u.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = u.id)
+                 ORDER BY created_time DESC LIMIT 1) as tin_cuoi,
+                (SELECT DATE_FORMAT(created_time, '%H:%i %d/%m') FROM messages 
+                 WHERE (sender_id = u.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = u.id)
+                 ORDER BY created_time DESC LIMIT 1) as created_time
+            FROM users u
             WHERE u.id != ?
               AND EXISTS (
-                  SELECT 1 FROM tin_nhan t 
-                  WHERE (t.id_nguoi_gui = ? AND t.id_nguoi_nhan = u.id) 
-                     OR (t.id_nguoi_gui = u.id AND t.id_nguoi_nhan = ?)
+                  SELECT 1 FROM messages t 
+                  WHERE (t.sender_id = ? AND t.receiver_id = u.id) 
+                     OR (t.sender_id = u.id AND t.receiver_id = ?)
               )
-            ORDER BY thoi_gian DESC
+            ORDER BY created_time DESC
         ");
         
         $stmt->bind_param("iiiiiii", 
@@ -63,9 +63,9 @@ class mChat extends Connect {
         $fileName = "chat_" . $min . "_" . $max . ".json";
     
         // ⚠️ Kiểm tra nếu chưa có dòng nào thì mới insert tên file vào DB
-        $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM tin_nhan WHERE 
-            (id_nguoi_gui = ? AND id_nguoi_nhan = ?) OR 
-            (id_nguoi_gui = ? AND id_nguoi_nhan = ?)");
+        $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM messages WHERE 
+            (sender_id = ? AND receiver_id = ?) OR 
+            (sender_id = ? AND receiver_id = ?)");
         $stmtCheck->bind_param("iiii", $from, $to, $to, $from);
         $stmtCheck->execute();
         $stmtCheck->bind_result($count);
@@ -74,7 +74,7 @@ class mChat extends Connect {
     
         if ($count == 0) {
             // ✅ Chỉ lưu 1 dòng duy nhất để ghi nhớ tên file
-            $stmt = $conn->prepare("INSERT INTO tin_nhan (id_nguoi_gui, id_nguoi_nhan, id_san_pham, noi_dung, thoi_gian) 
+            $stmt = $conn->prepare("INSERT INTO messages (sender_id, receiver_id, product_id, content, created_time) 
                                     VALUES (?, ?, ?, ?, NOW())");
             $stmt->bind_param("iiis", $from, $to, $idSanPham, $fileName);
             return $stmt->execute();
@@ -98,10 +98,10 @@ class mChat extends Connect {
     
     public function getChatFileName($user1, $user2) {
         $conn = $this->connect();
-        $stmt = $conn->prepare("SELECT noi_dung FROM tin_nhan 
-            WHERE ((id_nguoi_gui = ? AND id_nguoi_nhan = ?) 
-                OR (id_nguoi_gui = ? AND id_nguoi_nhan = ?))
-                ORDER BY thoi_gian ASC LIMIT 1");
+        $stmt = $conn->prepare("SELECT content FROM messages 
+            WHERE ((sender_id = ? AND receiver_id = ?) 
+                OR (sender_id = ? AND receiver_id = ?))
+                ORDER BY created_time ASC LIMIT 1");
         $stmt->bind_param("iiii", $user1, $user2, $user2, $user1);
         $stmt->execute();
         $stmt->bind_result($fileName);
@@ -114,9 +114,9 @@ class mChat extends Connect {
         $conn = $this->connect();
     
         // Kiểm tra xem đã tồn tại đoạn chat chưa
-        $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM tin_nhan WHERE 
-            (id_nguoi_gui = ? AND id_nguoi_nhan = ?) 
-            OR (id_nguoi_gui = ? AND id_nguoi_nhan = ?)");
+        $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM messages WHERE 
+            (sender_id = ? AND receiver_id = ?) 
+            OR (sender_id = ? AND receiver_id = ?)");
         $stmtCheck->bind_param("iiii", $from, $to, $to, $from);
         $stmtCheck->execute();
         $stmtCheck->bind_result($count);
@@ -124,7 +124,7 @@ class mChat extends Connect {
         $stmtCheck->close();
     
         if ($count == 0) {
-            $stmt = $conn->prepare("INSERT INTO tin_nhan (id_nguoi_gui, id_nguoi_nhan, noi_dung, thoi_gian) 
+            $stmt = $conn->prepare("INSERT INTO messages (sender_id, receiver_id, content, created_time) 
                                     VALUES (?, ?, ?, NOW())");
             $stmt->bind_param("iis", $from, $to, $fileName);
             return $stmt->execute();
@@ -138,16 +138,16 @@ class mChat extends Connect {
         $file2 = "chat/chat_{$user2_id}_{$user1_id}.json";
         $file = file_exists($file1) ? $file1 : (file_exists($file2) ? $file2 : null);
     
-        if (!$file) return ['noi_dung' => '', 'thoi_gian' => ''];
+        if (!$file) return ['content' => '', 'created_time' => ''];
     
         $messages = json_decode(file_get_contents($file), true);
-        if (!$messages || count($messages) === 0) return ['noi_dung' => '', 'thoi_gian' => ''];
+        if (!$messages || count($messages) === 0) return ['content' => '', 'created_time' => ''];
     
         $last = end($messages);
         $timestamp = strtotime($last['timestamp']);
         return [
-            'noi_dung' => $last['noi_dung'],
-            'thoi_gian' => $this->tinhThoiGian($timestamp)
+            'content' => $last['content'],
+            'created_time' => $this->tinhThoiGian($timestamp)
         ];
     }
     
@@ -163,7 +163,7 @@ class mChat extends Connect {
 
     public function demTinNhanChuaDoc($idNguoiDung) {
         $conn = (new mConnect())->connect();
-        $sql = "SELECT COUNT(*) AS so_chua_doc FROM tin_nhan WHERE id_nguoi_nhan = ? AND da_doc = 0";
+        $sql = "SELECT COUNT(*) AS so_chua_doc FROM messages WHERE receiver_id = ? AND is_read = 0";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$idNguoiDung]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -172,9 +172,9 @@ class mChat extends Connect {
 
     public function getFirstMessage($from, $to) {
         $conn = $this->connect();
-        $sql = "SELECT * FROM tin_nhan 
-                WHERE ((id_nguoi_gui = ? AND id_nguoi_nhan = ?) OR (id_nguoi_gui = ? AND id_nguoi_nhan = ?)) 
-                ORDER BY thoi_gian ASC LIMIT 1";
+        $sql = "SELECT * FROM messages 
+                WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) 
+                ORDER BY created_time ASC LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("iiii", $from, $to, $to, $from);
         $stmt->execute();

@@ -66,7 +66,7 @@ if (isset($_GET['action'])) {
             if (isset($_GET['id_cha'])) {
                 $idCha = intval($_GET['id_cha']);
                 $conn = (new Connect())->connect();
-                $stmt = $conn->prepare("SELECT id, ten_loai_san_pham FROM loai_san_pham WHERE id_loai_san_pham_cha = ?");
+                $stmt = $conn->prepare("SELECT id, category_name FROM product_categories WHERE parent_category_id = ?");
                 $stmt->bind_param("i", $idCha);
                 $stmt->execute();
                 $result = $stmt->get_result();

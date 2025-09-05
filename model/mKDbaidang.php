@@ -7,39 +7,39 @@ class kdbaidang {
         $p = new Connect();
         $con = $p->connect();
 
-        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_dung = nd.id 
-                                        join loai_san_pham lsp on sp.id_loai_san_pham = lsp.id";
+        $sql = "SELECT * FROM products sp join users nd on sp.user_id = nd.id 
+                                        join product_categories lsp on sp.category_id = lsp.id";
         $kq = mysqli_query($con, $sql);
         $i = mysqli_num_rows($kq);
 
         if ($i > 0) {
             while ($r = mysqli_fetch_array($kq)) {
                 $id = $r['id'];
-                $ten_nguoi_ban = $r['ten_dang_nhap'];
-                $ten_loai_san_pham = $r['ten_loai_san_pham'];
-                $tieu_de = $r['tieu_de'];
-                $mo_ta = $r['mo_ta'];
-                $gia = $r['gia'];
-                $hinh = $r['hinh_anh'];
-                $trang_thai = $r['trang_thai'];
-                $trang_thai_ban = $r['trang_thai_ban'];
-                $ngay_tao = $r['ngay_tao'];
-                $ngay_cap_nhat = $r['ngay_cap_nhat'];
-                $ghi_chu = $r['ghi_chu'];
+                $ten_nguoi_ban = $r['username'];
+                $category_name = $r['category_name'];
+                $title = $r['title'];
+                $comment = $r['description'];
+                $price = $r['price'];
+                $hinh = $r['image'];
+                $status = $r['status'];
+                $status_ban = $r['sale_status'];
+                $created_date = $r['created_date'];
+                $updated_date = $r['updated_date'];
+                $note = $r['note'];
 
                 $dl[] = array(
                     'id' => $id,
                     'ho_ten' => $ten_nguoi_ban,
-                    'ten_loai_san_pham' => $ten_loai_san_pham,
-                    'tieu_de' => $tieu_de,
-                    'mo_ta' => $mo_ta,
-                    'gia' => $gia,
-                    'hinh_anh' => $hinh,
-                    'trang_thai' => $trang_thai,
-                    'trang_thai_ban' => $trang_thai_ban,
-                    'ngay_tao' => $ngay_tao,
-                    'ngay_cap_nhat' => $ngay_cap_nhat,
-                    'ghi_chu' => $ghi_chu
+                    'category_name' => $category_name,
+                    'title' => $title,
+                    'comment' => $comment,
+                    'price' => $price,
+                    'image' => $hinh,
+                    'status' => $status,
+                    'status_ban' => $status_ban,
+                    'created_date' => $created_date,
+                    'updated_date' => $updated_date,
+                    'note' => $note
                 );
             }
             return $dl;
@@ -51,39 +51,39 @@ class kdbaidang {
         $p = new Connect();
         $con = $p->connect();
 
-        $sql = "SELECT * FROM san_pham sp join nguoi_dung nd on sp.id_nguoi_dung = nd.id 
-                join loai_san_pham lsp on sp.id_loai_san_pham = lsp.id where sp.id = '$id'";
+        $sql = "SELECT * FROM products sp join users nd on sp.user_id = nd.id 
+                join product_categories lsp on sp.category_id = lsp.id where sp.id = '$id'";
         $kq = mysqli_query($con, $sql);
         $i = mysqli_num_rows($kq);
 
         if ($i > 0) {
             while ($r = mysqli_fetch_array($kq)) {
                 $id = $r['id'];
-                $ten_nguoi_ban = $r['ten_dang_nhap'];
-                $ten_loai_san_pham = $r['ten_loai_san_pham'];
-                $tieu_de = $r['tieu_de'];
-                $mo_ta = $r['mo_ta'];
-                $gia = $r['gia'];
-                $hinh = $r['hinh_anh'];
-                $trang_thai = $r['trang_thai'];
-                $trang_thai_ban = $r['trang_thai_ban'];
-                $ngay_tao = $r['ngay_tao'];
-                $ngay_cap_nhat = $r['ngay_cap_nhat'];
-                $ghi_chu = $r['ghi_chu'];
+                $ten_nguoi_ban = $r['username'];
+                $category_name = $r['category_name'];
+                $title = $r['title'];
+                $comment = $r['description'];
+                $price = $r['price'];
+                $hinh = $r['image'];
+                $status = $r['status'];
+                $status_ban = $r['sale_status'];
+                $created_date = $r['created_date'];
+                $updated_date = $r['updated_date'];
+                $note = $r['note'];
 
                 $dl[] = array(
                     'id' => $id,
                     'ho_ten' => $ten_nguoi_ban,
-                    'ten_loai_san_pham' => $ten_loai_san_pham,
-                    'tieu_de' => $tieu_de,
-                    'mo_ta' => $mo_ta,
-                    'gia' => $gia,
-                    'hinh_anh' => $hinh,
-                    'trang_thai' => $trang_thai,
-                    'trang_thai_ban' => $trang_thai_ban,
-                    'ngay_tao' => $ngay_tao,
-                    'ngay_cap_nhat' => $ngay_cap_nhat,
-                    'ghi_chu' => $ghi_chu
+                    'category_name' => $category_name,
+                    'title' => $title,
+                    'comment' => $comment,
+                    'price' => $price,
+                    'image' => $hinh,
+                    'status' => $status,
+                    'status_ban' => $status_ban,
+                    'created_date' => $created_date,
+                    'updated_date' => $updated_date,
+                    'note' => $note
                 );
             }
             return $dl;
@@ -94,7 +94,7 @@ class kdbaidang {
     public function duyetBai($id) {
         $p = new Connect();
         $conn = $p->connect();
-        $query = "UPDATE san_pham SET trang_thai = 'Đã duyệt', ngay_cap_nhat = NOW() WHERE id = ?";
+        $query = "UPDATE products SET status = 'Đã duyệt', updated_date = NOW() WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -102,12 +102,12 @@ class kdbaidang {
         $conn->close();
     }
     
-    public function tuChoiBai($id, $ghi_chu) {
+    public function tuChoiBai($id, $note) {
         $p = new Connect();
         $conn = $p->connect();
-        $query = "UPDATE san_pham SET trang_thai = 'Từ chối duyệt', ngay_cap_nhat = NOW(), ghi_chu = ? WHERE id = ?";
+        $query = "UPDATE products SET status = 'Từ chối duyệt', updated_date = NOW(), note = ? WHERE id = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("si", $ghi_chu, $id);
+        $stmt->bind_param("si", $note, $id);
         $stmt->execute();
         $stmt->close();
         $conn->close();
@@ -120,21 +120,21 @@ class kdbaidang {
         $whereClause = "WHERE 1=1";
         
         if (!empty($status)) {
-            $whereClause .= " AND bd.trang_thai = '$status'";
+            $whereClause .= " AND bd.status = '$status'";
         }
         
         if (!empty($product_type)) {
-            $whereClause .= " AND lsp.ten_loai_san_pham = '$product_type'";
+            $whereClause .= " AND lsp.category_name = '$product_type'";
         }
         
         if (!empty($search)) {
-            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.ten_loai_san_pham LIKE '%$search%')";
+            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.category_name LIKE '%$search%')";
         }
         
-        $sql = "SELECT bd.*, lsp.ten_loai_san_pham, nd.ten_dang_nhap
-                FROM san_pham bd 
-                JOIN loai_san_pham lsp ON bd.id_loai_san_pham = lsp.id 
-                JOIN nguoi_dung nd ON bd.id_nguoi_dung = nd.id 
+        $sql = "SELECT bd.*, lsp.category_name, nd.username
+                FROM products bd 
+                JOIN product_categories lsp ON bd.category_id = lsp.id 
+                JOIN users nd ON bd.user_id = nd.id 
                 $whereClause 
                 ORDER BY bd.id 
                 LIMIT $offset, $limit";
@@ -157,21 +157,21 @@ class kdbaidang {
         $whereClause = "WHERE 1=1";
         
         if (!empty($status)) {
-            $whereClause .= " AND bd.trang_thai = '$status'";
+            $whereClause .= " AND bd.status = '$status'";
         }
         
         if (!empty($product_type)) {
-            $whereClause .= " AND lsp.ten_loai_san_pham = '$product_type'";
+            $whereClause .= " AND lsp.category_name = '$product_type'";
         }
         
         if (!empty($search)) {
-            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.ten_loai_san_pham LIKE '%$search%')";
+            $whereClause .= " AND (bd.id LIKE '%$search%' OR lsp.category_name LIKE '%$search%')";
         }
         
         $sql = "SELECT COUNT(*) as total 
-                FROM san_pham bd 
-                JOIN loai_san_pham lsp ON bd.id_loai_san_pham = lsp.id 
-                JOIN nguoi_dung nd ON bd.id_nguoi_dung = nd.id 
+                FROM products bd 
+                JOIN product_categories lsp ON bd.category_id = lsp.id 
+                JOIN users nd ON bd.user_id = nd.id 
                 $whereClause";
                 
         $rs = mysqli_query($conn, $sql);

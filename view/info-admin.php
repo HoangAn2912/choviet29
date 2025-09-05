@@ -14,46 +14,47 @@
     
     // Check if user exists
     if (!$user) {
-        header("Location: /project/index.php");
+        require_once '../helpers/url_helper.php';
+        header("Location: " . getBasePath() . "/index.php");
         exit();
     }
     
     $message = '';
     
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $hoten = $_POST['ten_dang_nhap'];
+        $username = $_POST['username'];
         $email = $_POST['email'];
-        $sdt = $_POST['so_dien_thoai'];
-        $dc = $_POST['dia_chi'];
-        $vt = $_POST['id_vai_tro'];
+        $phone = $_POST['phone'];
+        $address = $_POST['address'];
+        $vt = $_POST['role_id'];
 
-        $anh = $_POST['anh_dai_dien_cu']; // mặc định giữ ảnh cũ
+        $avatar = $_POST['avatar_cu']; // mặc định giữ ảnh cũ
 
-        if (isset($_FILES['anh_dai_dien']) && $_FILES['anh_dai_dien']['error'] === 0) {
-            $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/project/img/";
-            $imageFileType = strtolower(pathinfo($_FILES["anh_dai_dien"]["name"], PATHINFO_EXTENSION));
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
+            $target_dir = $_SERVER['DOCUMENT_ROOT'] . getBasePath() . "/img/";
+            $imageFileType = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
             $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
 
             if (in_array($imageFileType, $allowed_types)) {
                 $unique_name = uniqid('user_', true) . "." . $imageFileType;
                 $target_file = $target_dir . $unique_name;
 
-                if (move_uploaded_file($_FILES["anh_dai_dien"]["tmp_name"], $target_file)) {
+                if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $target_file)) {
                     $anh = $unique_name;
                 }
             }
         }
 
         // Xử lý mật khẩu
-        if (!empty($_POST['mat_khau'])) {
-            $mat_khau = md5($_POST['mat_khau']);
-            $result = $p->getupdateuser_with_password($id, $hoten, $email, $mat_khau, $sdt, $dc, $anh, $vt);
+        if (!empty($_POST['password'])) {
+    $password = md5($_POST['password']);
+    $result = $p->getupdateuser_with_password($id, $username, $email, $password, $phone, $address, $avatar, $vt);
         } else {
             $result = $p->getupdateuser($id, $hoten, $email, $sdt, $dc, $anh, $vt);
         }
 
         if ($result) {
-            header("Location: /project/ad");
+            header("Location: " . getBasePath() . "/ad");
             exit();
         } else {
             $message = '<div class="alert alert-danger">Cập nhật thất bại!. Vui lòng thử lại.</div>';
@@ -74,7 +75,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/project/css/infoad.css">
+    <?php require_once '../helpers/url_helper.php'; ?>
+    <link rel="stylesheet" href="<?= getBasePath() ?>/css/infoad.css">
 </head>
 <body>
     <div class="container py-5">
@@ -91,9 +93,9 @@
                         
                         <?php foreach($user as $u): ?>
                         <div class="avatar-container text-center">
-                            <img src="/project/img/<?php echo e($u['anh_dai_dien']); ?>" alt="Avatar" class="avatar-img" />
+                            <img src="<?= getBasePath() ?>/img/<?php echo e($u['avatar']); ?>" alt="Avatar" class="avatar-img" />
                             <div class="user-info">
-                                <h4 class="mb-0"><?php echo e($u['ten_dang_nhap']); ?></h4>
+                                <h4 class="mb-0"><?php echo e($u['username']); ?></h4>
                                 <span class="user-role">Admin</span>
                             </div>
                         </div>
@@ -102,9 +104,9 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="ten_dang_nhap" class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="ten_dang_nhap" name="ten_dang_nhap" 
-                                               value="<?php echo e($u['ten_dang_nhap']); ?>" required>
+                                        <label for="username" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+<input type="text" class="form-control" id="username" name="username"
+value="<?php echo e($u['username']); ?>" required>
                                         <div class="invalid-feedback">
                                             Vui lòng nhập họ và tên.
                                         </div>
@@ -125,17 +127,17 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="mat_khau" class="form-label">Mật khẩu mới</label>
-                                        <input type="password" class="form-control" id="mat_khau" name="mat_khau" 
+                                        <label for="password" class="form-label">Mật khẩu mới</label>
+<input type="password" class="form-control" id="password" name="password" 
                                                placeholder="Để trống nếu không đổi mật khẩu">
                                         <div class="form-text">Để trống nếu không muốn thay đổi mật khẩu.</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="so_dien_thoai" class="form-label">Số điện thoại</label>
-                                        <input type="text" class="form-control" id="so_dien_thoai" name="so_dien_thoai" 
-                                               value="<?php echo e($u['so_dien_thoai']); ?>">
+                                        <label for="phone" class="form-label">Số điện thoại</label>
+<input type="text" class="form-control" id="phone" name="phone"
+value="<?php echo e($u['phone']); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -143,26 +145,26 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <input type="hidden" name="id_vai_tro" value="<?php echo $u['id_vai_tro']; ?>">
-                                        <label for="id_vai_tro" class="form-label">Vai trò <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="id_vai_tro" name="id_vai_tro" disabled>
-                                            <option value="2" <?php echo $u['id_vai_tro'] == 2 ? 'selected' : ''; ?>>Người dùng</option>
-                                            <option value="1" <?php echo $u['id_vai_tro'] == 1 ? 'selected' : ''; ?>>Admin</option>
+                                        <input type="hidden" name="role_id" value="<?php echo $u['role_id']; ?>">
+                                        <label for="role_id" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="role_id" name="role_id" disabled>
+                                            <option value="2" <?php echo $u['role_id'] == 2 ? 'selected' : ''; ?>>Người dùng</option>
+                                            <option value="1" <?php echo $u['role_id'] == 1 ? 'selected' : ''; ?>>Admin</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="anh_dai_dien" class="form-label">Ảnh đại diện</label>
-                                        <input type="file" class="form-control" id="anh_dai_dien" name="anh_dai_dien">
-                                        <input type="hidden" name="anh_dai_dien_cu" value="<?php $u['anh_dai_dien']; ?>">
+                                        <label for="avatar" class="form-label">Ảnh đại diện</label>
+<input type="file" class="form-control" id="avatar" name="avatar">
+<input type="hidden" name="avatar_cu" value="<?php echo e($u['avatar']); ?>">
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="dia_chi" class="form-label">Địa chỉ</label>
-                                <textarea class="form-control" id="dia_chi" name="dia_chi" rows="3"><?php echo e($u['dia_chi']); ?></textarea>
+                                <label for="address" class="form-label">Địa chỉ</label>
+<textarea class="form-control" id="address" name="address" rows="3"><?php echo e($u['address']); ?></textarea>
                             </div>
                             
                             <div class="d-flex justify-content-between">

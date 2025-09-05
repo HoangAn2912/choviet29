@@ -8,25 +8,25 @@ class qldoanhthu {
         
         // Simplified query - just get all products and calculate revenue
         $sql = "SELECT 
-                sp.id as san_pham_id, 
-                sp.tieu_de, 
-                sp.gia, 
-                nd.id as nguoi_dung_id,
-                nd.ten_dang_nhap,
-                sp.ngay_tao,
-                11000 as phi_doanh_thu
-                FROM san_pham sp
-                JOIN nguoi_dung nd ON sp.id_nguoi_dung = nd.id
+                sp.id as products_id, 
+                sp.title, 
+                sp.price, 
+                nd.id as users_id,
+                nd.username,
+                sp.created_date,
+                11000 as revenue_fee
+                FROM products sp
+                JOIN users nd ON sp.user_id = nd.id
                 WHERE 1=1";
         
         // Add date filter if provided
         if ($startDate && $endDate) {
-            $sql .= " AND (sp.ngay_tao BETWEEN '$startDate' AND '$endDate 23:59:59')";
+            $sql .= " AND (sp.created_date BETWEEN '$startDate' AND '$endDate 23:59:59')";
         }
         
         // Add user filter if provided
         if ($userId) {
-            $sql .= " AND sp.id_nguoi_dung = '$userId'";
+            $sql .= " AND sp.user_id = '$userId'";
         }
         
         // Add order and limit
@@ -50,16 +50,16 @@ class qldoanhthu {
         $p = $con->connect();
         
         // Simplified count query
-        $sql = "SELECT COUNT(*) as total FROM san_pham sp WHERE 1=1";
+        $sql = "SELECT COUNT(*) as total FROM products sp WHERE 1=1";
         
         // Add date filter if provided
         if ($startDate && $endDate) {
-            $sql .= " AND (sp.ngay_tao BETWEEN '$startDate' AND '$endDate 23:59:59')";
+            $sql .= " AND (sp.created_date BETWEEN '$startDate' AND '$endDate 23:59:59')";
         }
         
         // Add user filter if provided
         if ($userId) {
-            $sql .= " AND sp.id_nguoi_dung = '$userId'";
+            $sql .= " AND sp.user_id = '$userId'";
         }
         
         $rs = mysqli_query($p, $sql);
@@ -80,14 +80,14 @@ class qldoanhthu {
         // Simplified summary query
         $sql = "SELECT 
                 COUNT(*) as total_posts,
-                COUNT(DISTINCT id_nguoi_dung) as total_users,
+                COUNT(DISTINCT id_users) as total_users,
                 COUNT(*) * 11000 as total_revenue
-                FROM san_pham
+                FROM products
                 WHERE 1=1";
         
         // Add date filter if provided
         if ($startDate && $endDate) {
-            $sql .= " AND (ngay_tao BETWEEN '$startDate' AND '$endDate 23:59:59')";
+            $sql .= " AND (created_date BETWEEN '$startDate' AND '$endDate 23:59:59')";
         }
         
         $rs = mysqli_query($p, $sql);
@@ -112,16 +112,16 @@ class qldoanhthu {
         // Simplified top users query
         $sql = "SELECT 
                 nd.id,
-                nd.ten_dang_nhap,
+                nd.username,
                 COUNT(sp.id) as total_posts,
                 COUNT(*) * 11000 as total_revenue
-                FROM nguoi_dung nd
-                JOIN san_pham sp ON nd.id = sp.id_nguoi_dung
+                FROM users nd
+                JOIN products sp ON nd.id = sp.user_id
                 WHERE 1=1";
         
         // Add date filter if provided
         if ($startDate && $endDate) {
-            $sql .= " AND (sp.ngay_tao BETWEEN '$startDate' AND '$endDate 23:59:59')";
+            $sql .= " AND (sp.created_date BETWEEN '$startDate' AND '$endDate 23:59:59')";
         }
         
         $sql .= " GROUP BY nd.id
@@ -149,11 +149,11 @@ class qldoanhthu {
         
         // Simplified monthly revenue query
         $sql = "SELECT 
-                MONTH(ngay_tao) as month,
+                MONTH(created_date) as month,
                 COUNT(*) * 11000 as monthly_revenue
-                FROM san_pham
-                WHERE YEAR(ngay_tao) = '$currentYear'
-                GROUP BY MONTH(ngay_tao)
+                FROM products
+                WHERE YEAR(created_date) = '$currentYear'
+                GROUP BY MONTH(created_date)
                 ORDER BY month";
         
         $rs = mysqli_query($p, $sql);
@@ -175,29 +175,29 @@ class qldoanhthu {
         
         // Simplified export query
         $sql = "SELECT 
-                sp.id as san_pham_id, 
-                sp.tieu_de, 
-                sp.gia, 
-                nd.id as nguoi_dung_id,
-                nd.ten_dang_nhap,
+                sp.id as products_id, 
+                sp.title, 
+                sp.price, 
+                nd.id as users_id,
+                nd.username,
                 nd.email,
-                sp.ngay_tao,
-                11000 as phi_doanh_thu
-                FROM san_pham sp
-                JOIN nguoi_dung nd ON sp.id_nguoi_dung = nd.id
+                sp.created_date,
+                11000 as revenue_fee
+                FROM products sp
+                JOIN users nd ON sp.user_id = nd.id
                 WHERE 1=1";
         
         // Add date filter if provided
         if ($startDate && $endDate) {
-            $sql .= " AND (sp.ngay_tao BETWEEN '$startDate' AND '$endDate 23:59:59')";
+            $sql .= " AND (sp.created_date BETWEEN '$startDate' AND '$endDate 23:59:59')";
         }
         
         // Add user filter if provided
         if ($userId) {
-            $sql .= " AND sp.id_nguoi_dung = '$userId'";
+            $sql .= " AND sp.user_id = '$userId'";
         }
         
-        $sql .= " ORDER BY sp.ngay_tao DESC";
+        $sql .= " ORDER BY sp.created_date DESC";
         
         $rs = mysqli_query($p, $sql);
         
@@ -216,7 +216,7 @@ class qldoanhthu {
         $con = new Connect();
         $p = $con->connect();
         
-        $sql = "SELECT id, ten_dang_nhap FROM nguoi_dung ORDER BY ten_dang_nhap";
+        $sql = "SELECT id, username FROM users ORDER BY username";
         $rs = mysqli_query($p, $sql);
         
         $data = array();

@@ -26,7 +26,7 @@ class mLoginLogout extends Connect {
         $conn = $this->connect();
         
         try {
-        $stmt = $conn->prepare("SELECT id, ten_dang_nhap, anh_dai_dien, id_vai_tro FROM nguoi_dung WHERE email = ? AND mat_khau = ?");
+        $stmt = $conn->prepare("SELECT id, username, avatar, role_id FROM users WHERE email = ? AND password = ?");
         $stmt->bind_param("ss", $email, $password);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -39,6 +39,36 @@ class mLoginLogout extends Connect {
             return false;
         } finally {
         $conn->close();
+        }
+    }
+
+    /**
+     * Đăng nhập bằng email hoặc tên đăng nhập (identifier)
+     * 
+     * @param string $identifier Email hoặc tên đăng nhập
+     * @param string $password Mật khẩu đã mã hóa
+     * @return array|false Thông tin người dùng hoặc false nếu thất bại
+     */
+    public function checkLoginByIdentifier($identifier, $password) {
+        $conn = $this->connect();
+
+        try {
+            $sql = "SELECT id, username, avatar, role_id
+                    FROM users
+                    WHERE (email = ? OR username = ?) AND password = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sss", $identifier, $identifier, $password);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
+
+            return $user;
+        } catch (Exception $e) {
+            error_log("Lỗi đăng nhập (identifier): " . $e->getMessage());
+            return false;
+        } finally {
+            $conn->close();
         }
     }
     
@@ -57,15 +87,15 @@ class mLoginLogout extends Connect {
     /**
      * Kiểm tra tên đăng nhập đã tồn tại
      * 
-     * @param string $ten_dang_nhap Tên đăng nhập cần kiểm tra
+     * @param string $username Tên đăng nhập cần kiểm tra
      * @return bool True nếu tên đăng nhập đã tồn tại
      */
-    public function checkUsernameExists($ten_dang_nhap) {
+    public function checkUsernameExists($username) {
         $conn = $this->connect();
         
         try {
-            $stmt = $conn->prepare("SELECT id FROM nguoi_dung WHERE ten_dang_nhap = ?");
-            $stmt->bind_param("s", $ten_dang_nhap);
+            $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+            $stmt->bind_param("s", $username);
             $stmt->execute();
             $stmt->store_result();
             $exists = $stmt->num_rows > 0;
@@ -83,38 +113,38 @@ class mLoginLogout extends Connect {
     /**
      * Kiểm tra tên đăng nhập hợp lệ
      * 
-     * @param string $ten_dang_nhap Tên đăng nhập cần kiểm tra
+     * @param string $username Tên đăng nhập cần kiểm tra
      * @return array Kết quả validation
      */
-    public function validateUsername($ten_dang_nhap) {
+    public function validateUsername($username) {
         $errors = [];
         
         // Kiểm tra độ dài
-        if (strlen($ten_dang_nhap) < 3) {
+        if (strlen($username) < 3) {
             $errors[] = 'Tên đăng nhập phải có ít nhất 3 ký tự';
         }
         
-        if (strlen($ten_dang_nhap) > 20) {
+        if (strlen($username) > 20) {
             $errors[] = 'Tên đăng nhập không được quá 20 ký tự';
         }
         
         // Kiểm tra khoảng trắng
-        if (preg_match('/\s/', $ten_dang_nhap)) {
+        if (preg_match('/\s/', $username)) {
             $errors[] = 'Tên đăng nhập không được chứa khoảng trắng';
         }
         
         // Kiểm tra dấu của chữ cái (chỉ cho phép chữ cái, số, dấu gạch dưới)
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $ten_dang_nhap)) {
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
             $errors[] = 'Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_)';
         }
         
         // Kiểm tra ký tự đầu tiên
-        if (!preg_match('/^[a-zA-Z]/', $ten_dang_nhap)) {
+        if (!preg_match('/^[a-zA-Z]/', $username)) {
             $errors[] = 'Tên đăng nhập phải bắt đầu bằng chữ cái';
         }
         
         // Kiểm tra trùng lặp
-        if ($this->checkUsernameExists($ten_dang_nhap)) {
+        if ($this->checkUsernameExists($username)) {
             $errors[] = 'Tên đăng nhập đã tồn tại';
         }
         
@@ -173,7 +203,7 @@ class mLoginLogout extends Connect {
     /**
      * Kiểm tra thông tin liên hệ đã tồn tại (email hoặc số điện thoại)
      * 
-     * @param string $field Tên trường (email hoặc so_dien_thoai)
+     * @param string $field Tên trường (email hoặc phone)
      * @param string $value Giá trị cần kiểm tra
      * @return bool True nếu đã tồn tại
      */
@@ -181,7 +211,7 @@ class mLoginLogout extends Connect {
         $conn = $this->connect();
         
         try {
-            $stmt = $conn->prepare("SELECT id FROM nguoi_dung WHERE $field = ?");
+            $stmt = $conn->prepare("SELECT id FROM users WHERE $field = ?");
             $stmt->bind_param("s", $value);
         $stmt->execute();
         $stmt->store_result();
@@ -202,19 +232,19 @@ class mLoginLogout extends Connect {
     /**
      * Đăng ký tài khoản mới
      * 
-     * @param string $ten_dang_nhap Tên đăng nhập
+     * @param string $username Tên đăng nhập
      * @param string $email Email (có thể rỗng)
-     * @param string $so_dien_thoai Số điện thoại (có thể rỗng)
+     * @param string $phone Số điện thoại (có thể rỗng)
      * @param string $password_md5 Mật khẩu đã mã hóa
      * @param int $is_verified Trạng thái xác thực (0: chưa xác thực, 1: đã xác thực)
      * @return bool True nếu đăng ký thành công
      */
-    public function registerUser($ten_dang_nhap, $email, $so_dien_thoai, $password_md5, $is_verified = 0) {
+    public function registerUser($username, $email, $phone, $password_md5, $is_verified = 0) {
         $conn = $this->connect();
 
         try {
             // Ghi log thông tin đăng ký
-            $this->logRegistration($ten_dang_nhap, $email, $so_dien_thoai, $is_verified);
+            $this->logRegistration($username, $email, $phone, $is_verified);
             
             // Kiểm tra cấu trúc bảng
             $this->logTableStructure($conn);
@@ -226,7 +256,7 @@ class mLoginLogout extends Connect {
             }
             
             // Thực hiện đăng ký
-            $newUserId = $this->insertUser($conn, $ten_dang_nhap, $email, $so_dien_thoai, $password_md5, $is_verified);
+            $newUserId = $this->insertUser($conn, $username, $email, $phone, $password_md5, $is_verified);
             
             error_log("Kết quả insertUser: $newUserId");
             
@@ -254,38 +284,38 @@ class mLoginLogout extends Connect {
     /**
      * Ghi log thông tin đăng ký
      */
-    private function logRegistration($ten_dang_nhap, $email, $so_dien_thoai, $is_verified) {
-        error_log("ĐĂNG KÝ MỚI: ten_dang_nhap=$ten_dang_nhap, email=$email, so_dien_thoai=$so_dien_thoai, is_verified=$is_verified");
+    private function logRegistration($username, $email, $phone, $is_verified) {
+        error_log("ĐĂNG KÝ MỚI: username=$username, email=$email, phone=$phone, is_verified=$is_verified");
     }
     
     /**
      * Ghi log cấu trúc bảng
      */
     private function logTableStructure($conn) {
-        $tableCheck = $conn->query("SHOW COLUMNS FROM nguoi_dung");
+        $tableCheck = $conn->query("SHOW COLUMNS FROM users");
         $columns = [];
         while ($row = $tableCheck->fetch_assoc()) {
             $columns[] = $row['Field'];
         }
-        error_log("Cấu trúc bảng nguoi_dung: " . implode(", ", $columns));
+        error_log("Cấu trúc bảng users: " . implode(", ", $columns));
     }
     
     /**
      * Thêm người dùng vào cơ sở dữ liệu
      */
-    private function insertUser($conn, $ten_dang_nhap, $email, $so_dien_thoai, $password_md5, $is_verified) {
+    private function insertUser($conn, $username, $email, $phone, $password_md5, $is_verified) {
         // Chuẩn bị dữ liệu
         $email = !empty($email) ? $email : null;
-        $so_dien_thoai = !empty($so_dien_thoai) ? $so_dien_thoai : null;
+        $phone = !empty($phone) ? $phone : null;
         
-        error_log("Dữ liệu đăng ký: ten_dang_nhap=$ten_dang_nhap, email=$email, so_dien_thoai=$so_dien_thoai, is_verified=$is_verified");
+        error_log("Dữ liệu đăng ký: username=$username, email=$email, phone=$phone, is_verified=$is_verified");
         
         // Câu lệnh SQL
-        $sql = "INSERT INTO nguoi_dung (ten_dang_nhap, email, so_dien_thoai, mat_khau, id_vai_tro, trang_thai_hd, is_verified) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO users (username, email, phone, password, role_id, is_active, is_verified, created_date, updated_date) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
         
         error_log("SQL: $sql");
-        error_log("Tham số: ten_dang_nhap='$ten_dang_nhap', email=" . ($email ? "'$email'" : "NULL") . ", so_dien_thoai=" . ($so_dien_thoai ? "'$so_dien_thoai'" : "NULL") . ", password_md5='$password_md5', id_vai_tro=2, trang_thai_hd=1, is_verified=$is_verified");
+        error_log("Tham số: username='$username', email=" . ($email ? "'$email'" : "NULL") . ", phone=" . ($phone ? "'$phone'" : "NULL") . ", password_md5='$password_md5', role_id=2, is_active=1, is_verified=$is_verified");
         
         $stmt = $conn->prepare($sql);
         
@@ -295,9 +325,9 @@ class mLoginLogout extends Connect {
         }
         
         // Bind tham số
-        $id_vai_tro = 2;
-        $trang_thai_hd = 1;
-        $bindResult = $stmt->bind_param("ssssiii", $ten_dang_nhap, $email, $so_dien_thoai, $password_md5, $id_vai_tro, $trang_thai_hd, $is_verified);
+        $role_id = 2;
+        $is_active = 1;
+        $bindResult = $stmt->bind_param("ssssiii", $username, $email, $phone, $password_md5, $role_id, $is_active, $is_verified);
         if (!$bindResult) {
             error_log("LỖI BIND PARAM: " . $stmt->error);
             $stmt->close();
@@ -325,14 +355,14 @@ class mLoginLogout extends Connect {
     private function createPaymentAccount($conn, $newUserId) {
         try {
             // Lấy ID chuyển khoản tiếp theo
-            $result = $conn->query("SELECT MAX(id_ck) AS max_ck FROM taikhoan_chuyentien");
+            $result = $conn->query("SELECT MAX(account_number) AS max_ck FROM transfer_accounts");
             $row = $result->fetch_assoc();
             $next_ck = ($row && isset($row['max_ck']) && $row['max_ck']) ? intval($row['max_ck']) + 1 : 1000;
             
             error_log("ID chuyển khoản tiếp theo: $next_ck");
             
             // Tạo tài khoản chuyển tiền
-            $stmt = $conn->prepare("INSERT INTO taikhoan_chuyentien (id_ck, id_nguoi_dung, so_du) VALUES (?, ?, 0)");
+            $stmt = $conn->prepare("INSERT INTO transfer_accounts (account_number, user_id, balance) VALUES (?, ?, 0)");
             if (!$stmt) {
                 error_log("LỖI PREPARE SQL (tài khoản chuyển tiền): " . $conn->error);
                 return;
@@ -344,7 +374,7 @@ class mLoginLogout extends Connect {
             if (!$ok) {
                 error_log("LỖI TẠO TÀI KHOẢN CHUYỂN TIỀN: " . $stmt->error);
             } else {
-                error_log("TẠO TÀI KHOẢN CHUYỂN TIỀN THÀNH CÔNG: id_ck=$next_ck, id_nguoi_dung=$newUserId");
+                error_log("TẠO TÀI KHOẢN CHUYỂN TIỀN THÀNH CÔNG: account_number=$next_ck, user_id=$newUserId");
             }
             
             $stmt->close();
@@ -480,7 +510,7 @@ class mLoginLogout extends Connect {
      * Kiểm tra tính hợp lệ của OTP
      */
     private function validateOTP($otpData, $otp) {
-        // Kiểm tra thời gian hết hạn
+        // Kiểm tra thời pricen hết hạn
         if (strtotime($otpData['expires_at']) < time()) {
             error_log("OTP HẾT HẠN: expires_at=" . $otpData['expires_at'] . ", hiện tại=" . date('Y-m-d H:i:s'));
             return ['success' => false, 'message' => 'Mã OTP đã hết hạn'];
@@ -522,7 +552,7 @@ class mLoginLogout extends Connect {
         try {
             error_log("Cập nhật mật khẩu: email=$email");
             
-            $stmt = $conn->prepare("UPDATE nguoi_dung SET mat_khau = ? WHERE email = ?");
+            $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
             $stmt->bind_param("ss", $newPasswordMd5, $email);
             
             $ok = $stmt->execute();
